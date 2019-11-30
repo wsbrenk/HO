@@ -9,15 +9,12 @@ import core.gui.theme.HOIconName;
 import core.gui.theme.ImageUtilities;
 import core.gui.theme.ThemeManager;
 import core.model.UserParameter;
-import core.model.player.Spieler;
-import core.model.player.SpielerPosition;
+import core.model.player.MatchRoleID;
+import core.model.player.Player;
+import core.training.TrainingPreviewPlayers;
 import core.util.Helper;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.*;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -26,57 +23,65 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.border.LineBorder;
 
 
 /**
  *
  */
 public final class SpielerLabelEntry implements IHOTableEntry {
- 
+
     //~ Instance fields ----------------------------------------------------------------------------
 
-    /** Icon for playing creatively */
+    /**
+     * Icon for playing creatively
+     */
 
     //   private ImageIcon            m_clLeer                   =   new ImageIcon( new java.awt.image.BufferedImage( 14, 14, java.awt.image.BufferedImage.TYPE_INT_ARGB ) );
-    private Spieler m_clPlayer;
+    private Player m_clPlayer;
     private JComponent m_clComponent;
-    private final JLabel m_jlGroup 			= new JLabel();
-    private final JLabel m_jlName			= new JLabel();
-    private final JLabel m_jlSkill			= new JLabel();
-    private final JLabel m_jlSpezialitaet	= new JLabel();
-    private final JLabel m_jlWeatherEffect	= new JLabel();
-    private SpielerPosition m_clCurrentPlayerPosition;
+    private final JLabel m_jlGroup = new JLabel();
+    private final JLabel m_jlName = new JLabel();
+    private final JLabel m_jlSkill = new JLabel();
+    private final JLabel m_jlSpezialitaet = new JLabel();
+    private final JLabel m_jlWeatherEffect = new JLabel();
+    private final JLabel m_jlTrainUp = new JLabel();
+    private MatchRoleID m_clCurrentPlayerPosition;
     private boolean m_bShowTrikot;
     private boolean m_bShowWeatherEffect = true;
     private boolean m_bCustomName = false;
     private String m_sCustomNameString = "";
     private float m_fPositionsbewertung;
+    private boolean m_bMultiLine = false;
+    private boolean m_bSelect = false;
+    private boolean m_bAssit = false;
 
     //~ Constructors -------------------------------------------------------------------------------
 
     /**
      * Label für den Spielernamen (je nach Status)
      */
-    public SpielerLabelEntry(Spieler spieler, SpielerPosition positionAktuell,
+    public SpielerLabelEntry(Player player, MatchRoleID positionAktuell,
                              float positionsbewertung, boolean showTrikot, boolean showWetterwarnung) {
-        m_clPlayer = spieler;
+        m_clPlayer = player;
         m_clCurrentPlayerPosition = positionAktuell;
         m_fPositionsbewertung = positionsbewertung;
         m_bShowTrikot = showTrikot;
         m_bShowWeatherEffect = showWetterwarnung;
         createComponent();
     }
-    
-    public SpielerLabelEntry(Spieler spieler, SpielerPosition positionAktuell,
-    		float positionsbewertung, boolean showTrikot, boolean showWetterwarnung, boolean customName, String customNameText) {
-    	m_clPlayer = spieler;
-    	m_clCurrentPlayerPosition = positionAktuell;
-    	m_fPositionsbewertung = positionsbewertung;
-    	m_bShowTrikot = showTrikot;
-    	m_bShowWeatherEffect = showWetterwarnung;
-    	m_bCustomName = customName;
-    	m_sCustomNameString = customNameText;
-    	createComponent();
+
+    public SpielerLabelEntry(Player player, MatchRoleID positionAktuell,
+                             float positionsbewertung, boolean showTrikot, boolean showWetterwarnung, boolean customName, String customNameText, boolean multiLine) {
+        m_clPlayer = player;
+        m_clCurrentPlayerPosition = positionAktuell;
+        m_fPositionsbewertung = positionsbewertung;
+        m_bShowTrikot = showTrikot;
+        m_bShowWeatherEffect = showWetterwarnung;
+        m_bCustomName = customName;
+        m_sCustomNameString = customNameText;
+        m_bMultiLine = multiLine;
+        createComponent();
     }
 
     //~ Methods ------------------------------------------------------------------------------------
@@ -85,24 +90,45 @@ public final class SpielerLabelEntry implements IHOTableEntry {
      * Set the custom player name. Will only be used if m_bCustomName is true, a setting available in alternate constructor.
      */
     public void setM_sCustomNameString(String m_sCustomNameString) {
-		this.m_sCustomNameString = m_sCustomNameString;
-	}
-
-	/**
-     * Gibt eine passende Komponente zurück
-     */
-	public final JComponent getComponent(boolean isSelected) {
-    	 m_clComponent.setBackground(isSelected?HODefaultTableCellRenderer.SELECTION_BG:ColorLabelEntry.BG_STANDARD);
-    	 m_jlName.setForeground(isSelected?HODefaultTableCellRenderer.SELECTION_FG:getForegroundForSpieler(m_clPlayer));
-    	 return m_clComponent;
+        this.m_sCustomNameString = m_sCustomNameString;
     }
 
-    public final Spieler getSpieler() {
+    /**
+     * Gibt eine passende Komponente zurück
+     */
+    public final JComponent getComponent(boolean isSelected) {
+        if (m_bSelect)
+            m_clComponent.setBackground(Color.LIGHT_GRAY);
+        else if (m_bAssit)
+            m_clComponent.setBackground(new Color(220, 220, 220));
+        else
+            m_clComponent.setBackground(isSelected ? HODefaultTableCellRenderer.SELECTION_BG : ColorLabelEntry.BG_STANDARD);
+        m_clComponent.setToolTipText(TrainingPreviewPlayers.instance().getTrainPreviewPlayer(m_clPlayer).getText());
+
+        m_jlName.setForeground(getForegroundForSpieler(m_clPlayer));
+        m_jlName.setFont(isSelected ? m_jlName.getFont().deriveFont(Font.BOLD) : m_jlName.getFont().deriveFont(Font.PLAIN));
+
+        m_jlSkill.setForeground(getForegroundForSpieler(m_clPlayer));
+        m_jlSkill.setFont(isSelected ? m_jlSkill.getFont().deriveFont(Font.BOLD) : m_jlSkill.getFont().deriveFont(Font.PLAIN));
+
+        return m_clComponent;
+    }
+
+    public void setIsSelect(boolean isSelect) {
+        m_bSelect = isSelect;
+    }
+
+    public void setIsAssit(boolean isSelect) {
+        m_bAssit = isSelect;
+    }
+
+
+    public final Player getSpieler() {
         return m_clPlayer;
     }
 
     //----Zugriff----------------------------
-	public final void clear() {
+    public final void clear() {
         m_clPlayer = null;
         m_clCurrentPlayerPosition = null;
         m_fPositionsbewertung = 0f;
@@ -112,7 +138,7 @@ public final class SpielerLabelEntry implements IHOTableEntry {
     /**
      * Vergleich zum Sortieren
      */
-	public final int compareTo(IHOTableEntry obj) {
+    public final int compareTo(IHOTableEntry obj) {
         if (obj instanceof SpielerLabelEntry) {
             final SpielerLabelEntry entry = (SpielerLabelEntry) obj;
 
@@ -127,19 +153,24 @@ public final class SpielerLabelEntry implements IHOTableEntry {
     /**
      * Erstellt eine passende Komponente
      */
-	public final void createComponent() {
+    public final void createComponent() {
         m_clComponent = new JPanel();
 
         final GridBagLayout layout = new GridBagLayout();
         final GridBagConstraints constraints = new GridBagConstraints();
 
         m_clComponent.setLayout(layout);
-
+        m_clComponent.setBorder(new LineBorder(Color.WHITE, 1));
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.weightx = 1.0;
         constraints.gridx = 1;
         constraints.insets = new Insets(0, 0, 0, 0);
+
+        if (!m_bMultiLine) {
+            m_clComponent.add(m_jlTrainUp);
+        }
+
         m_jlName.setIconTextGap(1);
         layout.setConstraints(m_jlName, constraints);
         m_clComponent.add(m_jlName);
@@ -150,75 +181,105 @@ public final class SpielerLabelEntry implements IHOTableEntry {
         spezPanel.setBackground(ColorLabelEntry.BG_STANDARD);
         spezPanel.setOpaque(false);
 
-        //Wetterwarnung
-        m_jlWeatherEffect.setBackground(ColorLabelEntry.BG_STANDARD);
-        m_jlWeatherEffect.setOpaque(false);
-        m_jlWeatherEffect.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 0));
+        if (!m_bMultiLine) {
+            //Wetterwarnung
+            m_jlWeatherEffect.setBackground(ColorLabelEntry.BG_STANDARD);
+            m_jlWeatherEffect.setOpaque(false);
+            m_jlWeatherEffect.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 0));
+            spezPanel.add(m_jlWeatherEffect);
 
-        spezPanel.add(m_jlWeatherEffect);
+            //Spezialität
+            m_jlSpezialitaet.setBackground(ColorLabelEntry.BG_STANDARD);
+            m_jlSpezialitaet.setOpaque(false);
+            spezPanel.add(m_jlSpezialitaet);
 
-        //Spezialität
-        m_jlSpezialitaet.setBackground(ColorLabelEntry.BG_STANDARD);
-        m_jlSpezialitaet.setOpaque(false);
+            //Bewertung
+            m_jlSkill.setBackground(ColorLabelEntry.BG_STANDARD);
+            m_jlSkill.setOpaque(false);
+            m_jlSkill.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 0));
+            spezPanel.add(m_jlSkill);
 
-        spezPanel.add(m_jlSpezialitaet);
+            //MiniGruppe
+            m_jlGroup.setBackground(ColorLabelEntry.BG_STANDARD);
+            m_jlGroup.setVerticalAlignment(SwingConstants.BOTTOM);
+            m_jlGroup.setOpaque(false);
+            m_jlGroup.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 1));
+            spezPanel.add(m_jlGroup);
 
-        //Bewertung
-        m_jlSkill.setBackground(ColorLabelEntry.BG_STANDARD);
-        m_jlSkill.setOpaque(false);
-        m_jlSkill.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 0));
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.anchor = GridBagConstraints.EAST;
+            constraints.weightx = 0.0;
+            constraints.gridx = 3;
+        } else {
+            //Training
+            m_jlTrainUp.setBackground(ColorLabelEntry.BG_STANDARD);
+            m_jlTrainUp.setVerticalAlignment(SwingConstants.BOTTOM);
+            m_jlTrainUp.setOpaque(false);
+            m_jlTrainUp.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 1));
+            spezPanel.add(m_jlTrainUp);
 
-        spezPanel.add(m_jlSkill);
+            //speciality
+            m_jlSpezialitaet.setBackground(ColorLabelEntry.BG_STANDARD);
+            m_jlSpezialitaet.setOpaque(false);
+            spezPanel.add(m_jlSpezialitaet);
 
-        //MiniGruppe
-  
-        m_jlGroup.setBackground(ColorLabelEntry.BG_STANDARD);
-        m_jlGroup.setVerticalAlignment(SwingConstants.BOTTOM);
-        m_jlGroup.setOpaque(false);
-        m_jlGroup.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 1));
-        spezPanel.add(m_jlGroup);
+            //Wetterwarnung
+            m_jlWeatherEffect.setBackground(ColorLabelEntry.BG_STANDARD);
+            m_jlWeatherEffect.setOpaque(false);
+            m_jlWeatherEffect.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 0));
+            spezPanel.add(m_jlWeatherEffect);
 
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.anchor = GridBagConstraints.EAST;
-        constraints.weightx = 0.0;
-        constraints.gridx = 3;
+            //skill
+            m_jlSkill.setBackground(ColorLabelEntry.BG_STANDARD);
+            m_jlSkill.setOpaque(false);
+            m_jlSkill.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 0));
+            spezPanel.add(m_jlSkill);
+
+            //MiniGruppe
+            m_jlGroup.setBackground(ColorLabelEntry.BG_STANDARD);
+            m_jlGroup.setVerticalAlignment(SwingConstants.BOTTOM);
+            m_jlGroup.setOpaque(false);
+            m_jlGroup.setBorder(BorderFactory.createEmptyBorder(0, 1, 0, 1));
+            spezPanel.add(m_jlGroup);
+
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.anchor = GridBagConstraints.WEST;
+            constraints.weightx = 0.0;
+            constraints.gridx = 1;
+            constraints.gridy = 1;
+        }
         layout.setConstraints(spezPanel, constraints);
         m_clComponent.add(spezPanel);
 
         if (m_clPlayer != null) {
             //Name
-            
-        	if (m_bCustomName == true) {
-        		m_jlName.setText(m_sCustomNameString);
-        	} else {
-        		m_jlName.setText(m_clPlayer.getName());
-        	}
-        	
+            m_jlName.setText(m_clPlayer.getName());
+
             m_jlName.setOpaque(false);
             m_jlName.setForeground(getForegroundForSpieler(m_clPlayer));
 
             //Trikot
-            //&& m_clSpielerPositionAktuell != null )
             if (m_bShowTrikot) {
                 m_jlName.setIcon(ImageUtilities.getImage4Position(m_clCurrentPlayerPosition,
-                                                                                     m_clPlayer
-                                                                                     .getTrikotnummer()));
+                        m_clPlayer
+                                .getTrikotnummer()));
                 showGroupIcon();
             }
+
 
             //            else if ( m_bShowTrikot )
             //            {
             //                m_jlName.setIcon ( m_clLeer );
             //                m_jlGruppe.setIcon ( tools.Helper.getImageIcon4MiniGruppe ( m_clSpieler.getTeamInfoSmilie () ) );
             //            }
-            
+
             updateDisplay(m_clPlayer);
         }
 
-        m_clComponent.setPreferredSize(new Dimension(Helper.calcCellWidth(150),Helper.calcCellWidth(18)));
+        m_clComponent.setPreferredSize(new Dimension(Helper.calcCellWidth(150), Helper.calcCellWidth(18)));
     }
 
-	public final void updateComponent() {
+    public final void updateComponent() {
         if (m_clPlayer != null) {
             m_jlName.setForeground(getForegroundForSpieler(m_clPlayer));
 
@@ -226,23 +287,24 @@ public final class SpielerLabelEntry implements IHOTableEntry {
             //&& m_clSpielerPositionAktuell != null )
             if (m_bShowTrikot) {
                 m_jlName.setIcon(ImageUtilities.getImage4Position(m_clCurrentPlayerPosition,
-                                                                                     m_clPlayer
-                                                                                     .getTrikotnummer()));
+                        m_clPlayer
+                                .getTrikotnummer()));
                 showGroupIcon();
             }
+
             updateDisplay(m_clPlayer);
 
         } else {
-        	setEmptyLabel();
+            setEmptyLabel();
         }
     }
 
     /**
      * Aktualisierung des Entrys
      */
-    public final void updateComponent(Spieler spieler, SpielerPosition positionAktuell,
+    public final void updateComponent(Player player, MatchRoleID positionAktuell,
                                       float positionsbewertung, String nameText) {
-        m_clPlayer = spieler;
+        m_clPlayer = player;
         m_clCurrentPlayerPosition = positionAktuell;
         m_fPositionsbewertung = positionsbewertung;
         m_sCustomNameString = nameText;
@@ -255,97 +317,99 @@ public final class SpielerLabelEntry implements IHOTableEntry {
             }
 
             if (m_bCustomName == true) {
-        		m_jlName.setText(m_sCustomNameString);
-        	} else {
-        		m_jlName.setText(m_clPlayer.getName());
-        	}
+                m_jlName.setText(m_sCustomNameString);
+            } else {
+                m_jlName.setText(m_clPlayer.getName());
+            }
 
             //Trikot
-            //&& m_clSpielerPositionAktuell != null )
             if (m_bShowTrikot) {
                 m_jlName.setIcon(ImageUtilities.getImage4Position(m_clCurrentPlayerPosition, m_clPlayer.getTrikotnummer()));
                 showGroupIcon();
             }
+
             updateDisplay(m_clPlayer);
 
         } else {
-        	setEmptyLabel();
-        	m_jlGroup.setIcon(null);
+            setEmptyLabel();
+            m_jlGroup.setIcon(null);
         }
 
-        m_clComponent.setPreferredSize(new Dimension(Helper.calcCellWidth(130),Helper.calcCellWidth(18)));  // Was 150,18 - setting lower solved lineup problem
+        m_clComponent.setPreferredSize(new Dimension(Helper.calcCellWidth(130), Helper.calcCellWidth(18)));  // Was 150,18 - setting lower solved lineup problem
     }
-    
-    
-    private void showGroupIcon(){
-    	String teamInfoSmilie = m_clPlayer.getTeamInfoSmilie();
-        
-        if(teamInfoSmilie.trim().equals("") )
-        	m_jlGroup.setIcon(ImageUtilities.MINILEER);
+
+
+    private void showGroupIcon() {
+        String teamInfoSmilie = m_clPlayer.getTeamInfoSmilie();
+
+        if (teamInfoSmilie.trim().equals(""))
+            m_jlGroup.setIcon(ImageUtilities.MINILEER);
         else
-        	m_jlGroup.setIcon(ThemeManager.getScaledIcon(teamInfoSmilie, 8, 8));
+            m_jlGroup.setIcon(ThemeManager.getScaledIcon(teamInfoSmilie, 10, 10));
     }
-    private void setEmptyLabel(){
+
+    private void setEmptyLabel() {
         m_jlName.setText("");
         m_jlName.setIcon(null);
         m_jlWeatherEffect.setIcon(null);
         m_jlSpezialitaet.setIcon(null);
+        m_jlTrainUp.setIcon(null);
         m_jlSkill.setText("");
     }
-    
-    private void updateDisplay(Spieler player){
-    	// weatherEffect
-    	 m_jlWeatherEffect.setIcon(null);
-    	if (m_bShowWeatherEffect) {
-    		int effect = PlayerSpeciality.getWeatherEffect(HOMainFrame.getWetter(),player.getSpezialitaet());
-    		if(effect != 0){
-    			final ImageIcon wettericon = ThemeManager.getIcon("weather.effect."+effect);
-    			m_jlWeatherEffect.setIcon(wettericon);
-    		}
-        }
-    	
-    	m_jlSpezialitaet.setIcon( ThemeManager.getIcon(HOIconName.SPECIAL[player.getSpezialitaet()]));
 
-        
+    private void updateDisplay(Player player) {
+        // weatherEffect
+        m_jlWeatherEffect.setIcon(null);
+        if (m_bShowWeatherEffect) {
+            int effect = PlayerSpeciality.getWeatherEffect(HOMainFrame.getWetter(), player.getPlayerSpecialty());
+            if (effect != 0) {
+                final ImageIcon wettericon = ThemeManager.getIcon("weather.effect." + effect);
+                m_jlWeatherEffect.setIcon(wettericon);
+            }
+        }
+
+        m_jlSpezialitaet.setIcon(ThemeManager.getIcon(HOIconName.SPECIAL[player.getPlayerSpecialty()]));
+
+
         // positionValue
         if (m_bShowTrikot && (m_fPositionsbewertung != 0f)) {
             m_jlSkill.setText("(" + m_fPositionsbewertung + ")");
         } else {
             m_jlSkill.setText("");
         }
-    	
+
+        m_jlTrainUp.setIcon(TrainingPreviewPlayers.instance().getTrainPreviewPlayer(m_clPlayer).getIcon());
     }
 
-	//--------------static------------------------------
-	public static Color getForegroundForSpieler(Spieler spieler) {
-	    Color color;
-	    UserParameter userParameter = core.model.UserParameter.instance();
-	    
-	    //Auf Transfermarkt
-	    if (spieler.getTransferlisted() > 0) {
-	        color = userParameter.FG_TRANSFERMARKT;
-	    }
-	    //Verletzt
-	    else if (spieler.getVerletzt() > 0) {
-	        color = userParameter.FG_VERLETZT;
-	    }
-	    //Gesperrt
-	    else if (spieler.isGesperrt()) {
-	        color = userParameter.FG_GESPERRT;
-	    }
-	    //Angeschlagen
-	    else if (spieler.getVerletzt() == 0) {
-	        color = userParameter.FG_ANGESCHLAGEN;
-	    }
-	    //Zwei Karten
-	    else if (spieler.getGelbeKarten() == 2) {
-	        color = userParameter.FG_ZWEIKARTEN;
-	    }
-	    //Unverletzt
-	    else {
-	        color = userParameter.FG_STANDARD;
-	    }
-	
-	    return color;
-	}
+    //--------------static------------------------------
+    // Color player name depending of status (injured, warned, ...)
+    public static Color getForegroundForSpieler(Player player) {
+        Color color;
+        UserParameter userParameter = core.model.UserParameter.instance();
+
+        //On transfert market
+        if (player.getTransferlisted() > 0) {
+            color = userParameter.FG_TRANSFERMARKT;
+        }
+        //Injured
+        else if (player.getVerletzt() > 0) {
+            color = userParameter.FG_VERLETZT;
+        }
+        //Disabled
+        else if (player.isGesperrt()) {
+            color = userParameter.FG_GESPERRT;
+        }
+        //Yellow card
+        else if (player.getVerletzt() == 0) {
+            color = userParameter.FG_ANGESCHLAGEN;
+        }
+        //Red card
+        else if (player.getGelbeKarten() == 2) {
+            color = userParameter.FG_ZWEIKARTEN;
+        } else {
+            color = userParameter.FG_STANDARD;
+        }
+
+        return color;
+    }
 }

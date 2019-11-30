@@ -4,8 +4,8 @@ package core.gui.model;
 import core.gui.comp.entry.ColorLabelEntry;
 import core.gui.comp.entry.DoppelLabelEntry;
 import core.gui.comp.entry.IHOTableEntry;
-import core.model.player.ISpielerPosition;
-import core.model.player.Spieler;
+import core.model.player.IMatchRoleID;
+import core.model.player.Player;
 import core.util.Helper;
 
 import java.awt.Color;
@@ -41,7 +41,7 @@ class PlayerPositionColumn extends PlayerColumn {
 	 * will not be overwrite
 	 */
 	@Override
-	public IHOTableEntry getTableEntry(Spieler player,Spieler comparePlayer){
+	public IHOTableEntry getTableEntry(Player player, Player comparePlayer){
 		return new DoppelLabelEntry(getEntryValue(player),getCompareValue(player,comparePlayer));
 	}
 	
@@ -51,10 +51,10 @@ class PlayerPositionColumn extends PlayerColumn {
 	 * @param player
 	 * @return
 	 */
-	public ColorLabelEntry getEntryValue(Spieler player){
+	public ColorLabelEntry getEntryValue(Player player){
 		return new ColorLabelEntry(player.calcPosValue(position, true),
 				getBackgroundColor(), false,
-				core.model.UserParameter.instance().anzahlNachkommastellen);
+				core.model.UserParameter.instance().nbDecimals);
 	}
 	
 	/**
@@ -63,7 +63,7 @@ class PlayerPositionColumn extends PlayerColumn {
 	 * @param comparePlayer
 	 * @return ColorLabelEntry
 	 */
-	public ColorLabelEntry getCompareValue(Spieler player,Spieler comparePlayer){
+	public ColorLabelEntry getCompareValue(Player player, Player comparePlayer){
 		if(comparePlayer == null){
 			return new ColorLabelEntry("",
 		            ColorLabelEntry.FG_STANDARD,
@@ -74,7 +74,7 @@ class PlayerPositionColumn extends PlayerColumn {
 		return new ColorLabelEntry(player.calcPosValue(position, true)
 				-comparePlayer.calcPosValue(position, true),
 				getBackgroundColor(),false,false,
-				core.model.UserParameter.instance().anzahlNachkommastellen);
+				core.model.UserParameter.instance().nbDecimals);
 		
 	}
 	
@@ -83,19 +83,19 @@ class PlayerPositionColumn extends PlayerColumn {
 	 */
 	@Override
 	public void setSize(TableColumn column){
-		final int breite = (int) (55d * (1d + ((core.model.UserParameter.instance().anzahlNachkommastellen - 1) / 4.5d)));
+		final int breite = (int) (55d * (1d + ((core.model.UserParameter.instance().nbDecimals - 1) / 4.5d)));
 		column.setMinWidth(25);
 		column.setPreferredWidth((preferredWidth == 0)?Helper.calcCellWidth(breite):preferredWidth);
 	}
 	
 	private Color getBackgroundColor(){
 		switch(position){
-		case ISpielerPosition.KEEPER:
-		case ISpielerPosition.CENTRAL_DEFENDER:
-		case ISpielerPosition.BACK:
-		case ISpielerPosition.MIDFIELDER:
-		case ISpielerPosition.WINGER:
-		case ISpielerPosition.FORWARD:	
+		case IMatchRoleID.KEEPER:
+		case IMatchRoleID.CENTRAL_DEFENDER:
+		case IMatchRoleID.BACK:
+		case IMatchRoleID.MIDFIELDER:
+		case IMatchRoleID.WINGER:
+		case IMatchRoleID.FORWARD:
 			return ColorLabelEntry.BG_PLAYERSPOSITIONVALUES;
 		default:
 			return ColorLabelEntry.BG_PLAYERSSUBPOSITIONVALUES;

@@ -1,6 +1,6 @@
 package core.db;
 
-import core.model.player.SpielerPosition;
+import core.model.player.MatchRoleID;
 import core.util.HOLogger;
 import module.lineup.Lineup;
 import module.lineup.substitution.model.Substitution;
@@ -60,10 +60,10 @@ final class AufstellungTable extends AbstractTable {
 
 		if (auf != null) {
 			auf.setPositionen(DBManager.instance().getSystemPositionen(hrfID, name));
-			auf.setSubstitionList(new ArrayList<Substitution>(DBManager.instance()
+			auf.setSubstitionList(new ArrayList<>(DBManager.instance()
 					.getMatchSubstitutionsByHrf(hrfID, name)));
-			List<SpielerPosition> xxxx = DBManager.instance().getPenaltyTakers(name);
 			auf.setPenaltyTakers(DBManager.instance().getPenaltyTakers(name));
+			auf.setRatings();
 		}
 
 		return auf;

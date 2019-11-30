@@ -8,7 +8,7 @@
 //import core.model.match.MatchLineup;
 //import core.model.match.MatchLineupPlayer;
 //import core.model.match.MatchLineupTeam;
-//import core.model.player.Spieler;
+//import core.model.player.Player;
 //import core.net.MyConnector;
 //import core.net.OnlineWorker;
 //import core.util.Helper;
@@ -79,7 +79,7 @@
 //			addPlayedPositions();
 //
 //			OppPlayerSkillEstimator estimator = new OppPlayerSkillEstimator();
-//			Vector<Spieler> playerVector = new Vector<Spieler>();
+//			Vector<Player> playerVector = new Vector<Player>();
 //
 //			for (Entry<Integer, OpponentPlayer> entry : playerMap.entrySet()) {
 //				try {
@@ -99,7 +99,7 @@
 //			}
 //
 //
-//			model.setSpieler(playerVector);
+//			model.setPlayer(playerVector);
 //			model.setAufstellung(new Lineup());
 //
 //		}
@@ -117,9 +117,9 @@
 //		if (playerMap == null)
 //			playerMap = new HashMap<Integer, OpponentPlayer>();
 //
-//		List<Spieler> players = OnlineWorker.getTeamPlayers(teamId);
+//		List<Player> players = OnlineWorker.getTeamPlayers(teamId);
 //
-//		for (Spieler player : players) {
+//		for (Player player : players) {
 //
 //			OpponentPlayer opponentPlayer;
 //
@@ -137,7 +137,7 @@
 //			opponentPlayer.setAlter(player.getAlter());
 //			opponentPlayer.setAgeDays(player.getAgeDays());
 //			opponentPlayer.setVerletzt(player.getVerletzt());
-//			opponentPlayer.setSpezialitaet(player.getSpezialitaet());
+//			opponentPlayer.setPlayerSpecialty(player.getPlayerSpecialty());
 //			opponentPlayer.setForm(player.getForm());
 //			opponentPlayer.setKondition(player.getKondition());
 //

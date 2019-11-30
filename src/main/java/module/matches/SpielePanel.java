@@ -20,7 +20,7 @@ import core.model.match.IMatchDetails;
 import core.model.match.MatchKurzInfo;
 import core.model.match.MatchLineupPlayer;
 import core.model.match.Matchdetails;
-import core.model.player.ISpielerPosition;
+import core.model.player.IMatchRoleID;
 import core.module.IModule;
 import core.net.OnlineWorker;
 import core.prediction.MatchEnginePanel;
@@ -45,6 +45,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -217,16 +219,16 @@ public final class SpielePanel extends LazyImagePanel {
 			int teamid = HOVerwaltung.instance().getModel().getBasics().getTeamId();
 			List<MatchLineupPlayer> teamspieler = DBManager.instance().getMatchLineupPlayers(
 					matchesModel.getMatch().getMatchID(), teamid);
-			Lineup aufstellung = HOVerwaltung.instance().getModel().getAufstellung();
+			Lineup aufstellung = HOVerwaltung.instance().getModel().getLineup();
 
 			aufstellung.clearLineup(); // To make sure the old one is
 										// gone.
 
 			if (teamspieler != null) {
 				for (MatchLineupPlayer player : teamspieler) {
-					if (player.getId() == ISpielerPosition.setPieces) {
+					if (player.getId() == IMatchRoleID.setPieces) {
 						aufstellung.setKicker(player.getSpielerId());
-					} else if (player.getId() == ISpielerPosition.captain) {
+					} else if (player.getId() == IMatchRoleID.captain) {
 						aufstellung.setKapitaen(player.getSpielerId());
 					} else {
 						aufstellung.setSpielerAtPosition(player.getId(), player.getSpielerId(),
@@ -360,15 +362,15 @@ public final class SpielePanel extends LazyImagePanel {
 	 * Get the team data for the own team (current linep).
 	 */
 	private TeamData getOwnLineupRatings(MatchPredictionManager manager) {
-		Lineup lineup = HOVerwaltung.instance().getModel().getAufstellung();
+		Lineup lineup = HOVerwaltung.instance().getModel().getLineup();
 		TeamRatings teamRatings = manager.generateTeamRatings(
-				getRatingValue(RatingUtil.getIntValue4Rating(lineup.getMidfieldRating())),
-				getRatingValue(RatingUtil.getIntValue4Rating(lineup.getLeftDefenseRating())),
-				getRatingValue(RatingUtil.getIntValue4Rating(lineup.getCentralDefenseRating())),
-				getRatingValue(RatingUtil.getIntValue4Rating(lineup.getRightDefenseRating())),
-				getRatingValue(RatingUtil.getIntValue4Rating(lineup.getLeftAttackRating())),
-				getRatingValue(RatingUtil.getIntValue4Rating(lineup.getCentralAttackRating())),
-				getRatingValue(RatingUtil.getIntValue4Rating(lineup.getRightAttackRating())));
+				getRatingValue(RatingUtil.getIntValue4Rating(lineup.getRatings().getMidfield().get(0))), //FIXME: replace t0 rating with 90 minute average rating
+				getRatingValue(RatingUtil.getIntValue4Rating(lineup.getRatings().getLeftDefense().get(0))),   //FIXME: replace t0 rating with 90 minute average rating
+				getRatingValue(RatingUtil.getIntValue4Rating(lineup.getRatings().getCentralDefense().get(0))), //FIXME: replace t0 rating with 90 minute average rating
+				getRatingValue(RatingUtil.getIntValue4Rating(lineup.getRatings().getRightDefense().get(0))), //FIXME: replace t0 rating with 90 minute average rating
+				getRatingValue(RatingUtil.getIntValue4Rating(lineup.getRatings().getLeftAttack().get(0))),  //FIXME: replace t0 rating with 90 minute average rating
+				getRatingValue(RatingUtil.getIntValue4Rating(lineup.getRatings().getCentralAttack().get(0))),  //FIXME: replace t0 rating with 90 minute average rating
+				getRatingValue(RatingUtil.getIntValue4Rating(lineup.getRatings().getRightAttack().get(0)))); //FIXME: replace t0 rating with 90 minute average rating
 
 		int tactic = lineup.getTacticType();
 		return manager.generateTeamData(HOVerwaltung.instance().getModel().getBasics()
@@ -638,8 +640,18 @@ public final class SpielePanel extends LazyImagePanel {
 	private void updateButtons() {
 		deleteButton.setEnabled(true);
 		simulateMatchButton.setEnabled(true);
-		if (matchesModel.getMatch().getMatchStatus() == MatchKurzInfo.FINISHED) {
+		long gameFinishTime = matchesModel.getMatch().getMatchDateAsTimestamp().getTime() + 3 * 60 * 60 * 1000L; //assuming 3 hours to make sure the game is finished
+
+		if(gameFinishTime < (new Date()).getTime())
+		{
 			reloadMatchButton.setEnabled(true);
+		}
+		else
+		{
+			reloadMatchButton.setEnabled(false);
+		}
+
+		if (matchesModel.getMatch().getMatchStatus() == MatchKurzInfo.FINISHED) {
 			final int teamid = HOVerwaltung.instance().getModel().getBasics().getTeamId();
 			if ((matchesModel.getMatch().getHeimID() == teamid)
 					|| (matchesModel.getMatch().getGastID() == teamid)) {
@@ -649,7 +661,6 @@ public final class SpielePanel extends LazyImagePanel {
 			}
 			printButton.setEnabled(true);
 		} else {
-			reloadMatchButton.setEnabled(false);
 			adoptLineupButton.setEnabled(false);
 			printButton.setEnabled(false);
 		}

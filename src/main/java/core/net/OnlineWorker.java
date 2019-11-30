@@ -3,14 +3,7 @@ package core.net;
 import core.db.DBManager;
 import core.file.ExampleFileFilter;
 import core.file.hrf.HRFStringParser;
-import core.file.xml.ConvertXml2Hrf;
-import core.file.xml.XMLArenaParser;
-import core.file.xml.XMLMatchArchivParser;
-import core.file.xml.XMLMatchLineupParser;
-import core.file.xml.XMLMatchOrderParser;
-import core.file.xml.XMLMatchdetailsParser;
-import core.file.xml.XMLMatchesParser;
-import core.file.xml.XMLSpielplanParser;
+import core.file.xml.*;
 import core.gui.HOMainFrame;
 import core.gui.InfoPanel;
 import core.gui.model.AufstellungCBItem;
@@ -22,9 +15,9 @@ import core.model.match.MatchLineup;
 import core.model.match.MatchLineupTeam;
 import core.model.match.MatchType;
 import core.model.match.Matchdetails;
-import core.model.player.ISpielerPosition;
-import core.model.player.Spieler;
-import core.model.player.SpielerPosition;
+import core.model.player.IMatchRoleID;
+import core.model.player.MatchRoleID;
+import core.model.player.Player;
 import core.net.login.LoginWaitDialog;
 import core.training.TrainingManager;
 import core.util.HOLogger;
@@ -34,6 +27,7 @@ import module.lineup.AufstellungsVergleichHistoryPanel;
 import module.lineup.Lineup;
 import module.lineup.substitution.model.MatchOrderType;
 import module.lineup.substitution.model.Substitution;
+import module.teamAnalyzer.vo.MatchRating;
 
 import java.awt.Color;
 import java.io.BufferedReader;
@@ -149,11 +143,11 @@ public class OnlineWorker {
 							TrainingManager.instance().refreshTrainingWeeks();
 							homodel.calcSubskills();
 							AufstellungsVergleichHistoryPanel.setHRFAufstellung(
-									homodel.getAufstellung(), homodel.getLastAufstellung());
+									homodel.getLineup(), homodel.getLastAufstellung());
 							AufstellungsVergleichHistoryPanel
 									.setAngezeigteAufstellung(new AufstellungCBItem(
 											getLangString("AktuelleAufstellung"), homodel
-													.getAufstellung()));
+													.getLineup()));
 							homf.getAufstellungsPanel().getAufstellungsPositionsPanel()
 									.exportOldLineup("Actual");
 						}
@@ -269,7 +263,7 @@ public class OnlineWorker {
 	 * If a match is already in the db, and refresh is false, nothing is
 	 * downloaded.
 	 *
-	 * @param matchId
+	 * @param matchid
 	 *            ID for the match to be downloaded
 	 * @param matchType
 	 *            matchType for the match to be downloaded.
@@ -282,7 +276,7 @@ public class OnlineWorker {
 		waitDialog = getWaitDialog();
 		// Only download if not present in the database, or if refresh is true
 		if (refresh || !DBManager.instance().isMatchVorhanden(matchid)
-				|| !DBManager.instance().isMatchLineupVorhanden(matchid)) {
+				|| !DBManager.instance().isMatchLineupInDB(matchid)) {
 			try {
 				int heimId = 0;
 				int gastId = 0;
@@ -340,7 +334,7 @@ public class OnlineWorker {
 				info.setMatchDate(lineup.getStringSpielDate());
 				info.setMatchID(matchid);
 				info.setMatchStatus(MatchKurzInfo.FINISHED);
-				info.setMatchTyp(lineup.getMatchTyp());
+				info.setMatchType(details.getMatchType());
 
 				boolean success = DBManager.instance().storeMatch(info, details, lineup);
 				if (!success) {
@@ -469,7 +463,7 @@ public class OnlineWorker {
 					int curMatchId = match.getMatchID();
 					if (DBManager.instance().isMatchVorhanden(curMatchId)
 							&& match.getMatchStatus() == MatchKurzInfo.FINISHED
-							&& (!DBManager.instance().isMatchLineupVorhanden(curMatchId))) {
+							&& (!DBManager.instance().isMatchLineupInDB(curMatchId))) {
 
 						// No match in DB
 						boolean result = downloadMatchData(curMatchId, match.getMatchTyp(), false);
@@ -603,65 +597,78 @@ public class OnlineWorker {
 		String result;
 		// Tell the Connector that we will require match order rights.
 
-		// Building the order string as described in the match order API piece
-		// by piece.
+		boolean bFirst = true;
 
 		StringBuilder orders = new StringBuilder();
+
 		orders.append("{\"positions\":[");
-		orders.append(createPositionString(ISpielerPosition.keeper, lineup));
-
-		for (int i = ISpielerPosition.rightBack; i <= ISpielerPosition.substInnerMidfield; i++) {
-			orders.append(',').append(createPositionString(i, lineup));
+		for (int pos : IMatchRoleID.aFieldMatchRoleID)
+		{
+			if (bFirst)
+			{orders.append(createPositionString(pos, lineup));
+			bFirst = false;}
+			else orders.append(',').append(createPositionString(pos, lineup));
 		}
-		orders.append(',').append(createPositionString(ISpielerPosition.substForward, lineup));
-		orders.append(',').append(createPositionString(ISpielerPosition.substWinger, lineup));
 
-		orders.append(',').append("{\"id\":\"").append(lineup.getKapitaen());
-		orders.append("\",\"behaviour\":\"0\"}");
-		orders.append(',').append("{\"id\":\"").append(lineup.getKicker());
-		orders.append("\",\"behaviour\":\"0\"}");
+		orders.append("],\"bench\":[");
+		bFirst = true;
+		for (int pos : IMatchRoleID.aSubsAndBackupssMatchRoleID) {
+			if (bFirst) {
+				orders.append(createPositionString(pos, lineup));
+				bFirst = false;}
+		else orders.append(',').append(createPositionString(pos, lineup));
+		}
 
 		// penalty takers
-		List<SpielerPosition> shooters = lineup.getPenaltyTakers();
-		
+		List<MatchRoleID> shooters = lineup.getPenaltyTakers();
 		int penshooters = 0;
-		for (SpielerPosition pos : shooters) {
-			orders.append(',').append("{\"id\":\"").append(pos.getSpielerId());
+
+		orders.append("],\"kickers\":[");
+		for (MatchRoleID pos : shooters) {
+			if (penshooters > 0) {
+				orders.append(',');
+			}
+			orders.append("{\"id\":\"").append(pos.getSpielerId());
 			orders.append("\",\"behaviour\":\"0\"}");
 			penshooters++;
 		}
-		// Always give 11 shooters. There is a CHPP error if the number given is not 0 or 11. 
+		// Always give 11 shooters. There is a CHPP error if the number given is not 0 or 11.
 		for (int i = 0 ; i < 11-penshooters; i++) {
-			orders.append(',').append("{\"id\":\"0");
+			if (penshooters > 0 || i > 0) {
+				orders.append(',');
+			}
+			orders.append("{\"id\":\"0");
 			orders.append("\",\"behaviour\":\"0\"}");
 		}
-		
-		orders.append("], \"settings\":{\"tactic\": \"").append(lineup.getTacticType());
-		orders.append("\",\"speechLevel\":\"").append(lineup.getAttitude());
-		orders.append("\", \"newLineup\":\"\",");
-		orders.append("\"coachModifier\":\"").append(lineup.getStyleOfPlay());
-		orders.append("\"}, \"substitutions\":[");
+
+		orders.append(String.format("],\"captain\": %s,",lineup.getKapitaen()));
+		orders.append(String.format("\"setPieces\": %s,",lineup.getKicker()));
+
+		orders.append("\"settings\":{\"tactic\":").append(lineup.getTacticType());
+		orders.append(",\"speechLevel\":").append(lineup.getAttitude());
+		orders.append(", \"newLineup\":\"\",");
+		orders.append("\"coachModifier\":").append(lineup.getStyleOfPlay());
+		orders.append("}, \"substitutions\":[");
 
 		Iterator<Substitution> iter = lineup.getSubstitutionList().iterator();
 		while (iter.hasNext()) {
 			Substitution sub = iter.next();
-			// to get conform with CHPP API (playerout==playerin if its a
-			// behaviour change)
+			// playerout == playerin if its a behaviour change)
 			if (sub.getOrderType() == MatchOrderType.NEW_BEHAVIOUR) {
-				orders.append("{\"playerin\":\"").append(sub.getSubjectPlayerID()).append("\",");
+				orders.append("{\"playerin\":").append(sub.getSubjectPlayerID()).append(",");
 			} else {
-				orders.append("{\"playerin\":\"").append(sub.getObjectPlayerID()).append("\",");
+				orders.append("{\"playerin\":").append(sub.getObjectPlayerID()).append(",");
 			}
-			orders.append("\"playerout\":\"").append(sub.getSubjectPlayerID()).append("\",");
-			orders.append("\"orderType\":\"").append(sub.getOrderType().getId()).append("\",");
-			orders.append("\"min\":\"").append(sub.getMatchMinuteCriteria()).append("\",");
+			orders.append("\"playerout\":").append(sub.getSubjectPlayerID()).append(",");
+			orders.append("\"orderType\":").append(sub.getOrderType().getId()).append(",");
+			orders.append("\"min\":").append(sub.getMatchMinuteCriteria()).append(",");
 
 			// The uploaded position is not a RoleId
 			byte pos = (byte) ((sub.getRoleId() == -1) ? -1 : sub.getRoleId() -100);
-			orders.append("\"pos\":\"").append(pos).append("\",");
-			orders.append("\"beh\":\"").append(sub.getBehaviour()).append("\",");
-			orders.append("\"card\":\"").append(sub.getRedCardCriteria().getId()).append("\",");
-			orders.append("\"standing\":\"").append(sub.getStanding().getId()).append("\"}");
+			orders.append("\"pos\":").append(pos).append(",");
+			orders.append("\"beh\":").append(sub.getBehaviour()).append(",");
+			orders.append("\"card\":").append(sub.getRedCardCriteria().getId()).append(",");
+			orders.append("\"standing\":").append(sub.getStanding().getId()).append("}");
 			if (iter.hasNext()) {
 				orders.append(',');
 			}
@@ -683,17 +690,16 @@ public class OnlineWorker {
 		int id = 0;
 		int behaviour = 0;
 
-		Spieler spieler = lineup.getPlayerByPositionID(roleId);
-		if (spieler != null) {
-			id = spieler.getSpielerID();
+		Player player = lineup.getPlayerByPositionID(roleId);
+		if (player != null) {
+			id = player.getSpielerID();
 			behaviour = lineup.getTactic4PositionID(roleId);
 		}
 
-		return "{\"id\":\"" + id + "\",\"behaviour\":\"" + behaviour + "\"}";
+		return "{\"id\":" + id + ",\"behaviour\":" + behaviour + "}";
 	}
 
-	private static Matchdetails fetchDetails(int matchID, MatchType matchType, MatchLineup lineup,
-			LoginWaitDialog waitDialog) {
+	private static Matchdetails fetchDetails(int matchID, MatchType matchType, MatchLineup lineup, LoginWaitDialog waitDialog) {
 		String matchDetails = "";
 		Matchdetails details = null;
 
@@ -764,7 +770,7 @@ public class OnlineWorker {
 		boolean bOK = false;
 		for (int i = 0; i < infos.length; i++) {
 			int curMatchId = infos[i].getMatchID();
-			if (!DBManager.instance().isMatchLineupVorhanden(curMatchId)) {
+			if (!DBManager.instance().isMatchLineupInDB(curMatchId)) {
 				// Check if the lineup is available
 				if (infos[i].getMatchStatus() == MatchKurzInfo.FINISHED) {
 					HOLogger.instance().debug(OnlineWorker.class, "Get Lineup : " + curMatchId);
@@ -816,6 +822,34 @@ public class OnlineWorker {
 			}
 		} catch (Exception e) {
 			String msg = getLangString("Downloadfehler") + " : Error fetching Matchorder :";
+			setInfoMsg(msg, InfoPanel.FEHLERFARBE);
+			Helper.showMessage(HOMainFrame.instance(), msg, getLangString("Fehler"),
+					JOptionPane.ERROR_MESSAGE);
+			HOLogger.instance().error(OnlineWorker.class, e.getMessage());
+		}
+
+		return null;
+	}
+
+	/**
+	 *
+	 * @param matchId
+	 *            The match ID for the match to download
+	 * @param matchType
+	 *            The matchTyp for the match to download
+	 * @return The Lineup object with the downloaded match data
+	 */
+	public static MatchRating getPredictionRatingbyMatchId(int matchId, MatchType matchType, int teamId) {
+
+		try {
+			String xml = MyConnector.instance().getRatingsPrediction(matchId, teamId, matchType);
+
+			if (!StringUtils.isEmpty(xml)) {
+				Map<String, String> map = XMLRatingParser.parsePredictionRatingFromString(xml);
+				return new MatchRating(map);
+			}
+		} catch (Exception e) {
+			String msg = getLangString("Downloadfehler") + " : Error fetching Prediction Rating :";
 			setInfoMsg(msg, InfoPanel.FEHLERFARBE);
 			Helper.showMessage(HOMainFrame.instance(), msg, getLangString("Fehler"),
 					JOptionPane.ERROR_MESSAGE);

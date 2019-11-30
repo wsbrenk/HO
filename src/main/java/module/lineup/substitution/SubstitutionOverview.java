@@ -1,11 +1,12 @@
 package module.lineup.substitution;
 
 import core.constants.UIConstants;
+import core.gui.HOMainFrame;
 import core.gui.theme.HOIconName;
 import core.gui.theme.ThemeManager;
 import core.model.HOModel;
 import core.model.HOVerwaltung;
-import core.model.player.Spieler;
+import core.model.player.Player;
 import core.util.GUIUtils;
 import module.lineup.Lineup;
 import module.lineup.substitution.model.MatchOrderType;
@@ -286,6 +287,8 @@ public class SubstitutionOverview extends JPanel {
 			updateOrderIDs();
 			refresh();
 			selectSubstitution(sub);
+			HOMainFrame.instance().getAufstellungsPanel().getAufstellungsDetailPanel().setLabels();
+
 		}
 	}
 
@@ -459,12 +462,12 @@ public class SubstitutionOverview extends JPanel {
 			case ORDERTYPE_COL_IDX:
 				return LanguageStringLookup.getOrderType(sub.getOrderType());
 			case SUBJECTPLAYER_COL_IDX:
-				Spieler out = hoModel.getSpieler(sub.getSubjectPlayerID());
+				Player out = hoModel.getSpieler(sub.getSubjectPlayerID());
 				return (out != null) ? out.getName() : "";
 			case ORDERTYPE_ICON_COL_IDX:
 				return sub.getBehaviour();
 			case OBJECTPLAYER_COL_IDX:
-				Spieler in = null;
+				Player in = null;
 				if (sub.getOrderType() != MatchOrderType.NEW_BEHAVIOUR) {
 					in = hoModel.getSpieler(sub.getObjectPlayerID());
 				}

@@ -4,8 +4,9 @@ import core.gui.HOMainFrame;
 import core.gui.Updateable;
 import core.gui.theme.HOIconName;
 import core.gui.theme.ThemeManager;
+import core.model.HOVerwaltung;
 import core.model.UserParameter;
-import core.model.player.Spieler;
+import core.model.player.Player;
 import module.playerOverview.PlayerTable;
 import module.playerOverview.SpielerUebersichtNamenTable;
 
@@ -127,9 +128,10 @@ public class LineupPanel extends core.gui.comp.panel.ImagePanel {
 	}
 
 	/**
-	 * Setzt die Spieler und Taktiken der einzelnen PositionsPanels neu
+	 * Setzt die Player und Taktiken der einzelnen PositionsPanels neu
 	 */
 	public final void update() {
+		HOVerwaltung.instance().getModel().getLineupWithoutRatingRecalc();
 		aufstellungsPositionsPanel.refresh();
 		aufstellungsDetailPanel.refresh();
 		aufstellungSpielerTable.refresh();
@@ -146,9 +148,6 @@ public class LineupPanel extends core.gui.comp.panel.ImagePanel {
 		this.updateables.add(updateable);
 	}
 
-	public void removeUpdateable(Updateable updateable) {
-		this.updateables.remove(updateable);
-	}
 
 	private void fireUpdate() {
 		for (int i = this.updateables.size() - 1; i >= 0; i--) {
@@ -267,9 +266,9 @@ public class LineupPanel extends core.gui.comp.panel.ImagePanel {
 					if (targetTable.getSelectedRow() != row) {
 						targetTable.setRowSelectionInterval(row, row);
 					}
-					Spieler spieler = ((PlayerTable) sourceTable).getSpieler(row);
-					if (spieler != null) {
-						HOMainFrame.instance().setActualSpieler(spieler);
+					Player player = ((PlayerTable) sourceTable).getSpieler(row);
+					if (player != null) {
+						HOMainFrame.instance().setActualSpieler(player);
 					}
 				}
 			}

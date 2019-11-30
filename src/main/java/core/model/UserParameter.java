@@ -181,7 +181,7 @@ public final class UserParameter extends Configuration {
     //Zahlen hinter den Bewertungen anzeigen
     public boolean zahlenFuerSkill = true;
 
-    /*gibt die mindeststärke für einen Spieler an für seine Idealpos um vom Aufstellungsassi bei idealpos gesetzt zu werden*/
+    /*gibt die mindeststärke für einen Player an für seine Idealpos um vom Aufstellungsassi bei idealpos gesetzt zu werden*/
     public float MinIdealPosStk = 3.5f;
     public float TrainerFaktor = 1.0f;
 
@@ -213,8 +213,8 @@ public final class UserParameter extends Configuration {
     //Timezone
     public int TimeZoneDifference;
 
-    //Anzahl Nachkommastellen
-    public int anzahlNachkommastellen = 2;
+    //Number of decimals
+    public int nbDecimals = 2;
     public int aufstellungsAssistentPanel_reihenfolge = LineupAssistant.AW_MF_ST;
     public int aufstellungsPanel_horizontalLeftSplitPane = 450;
     public int aufstellungsPanel_horizontalRightSplitPane = 200;
@@ -301,14 +301,6 @@ public final class UserParameter extends Configuration {
     public int transferScoutPanel_horizontalSplitPane = 300;
     //Id der Währung
 
-	// Rating offset
-	public float leftDefenceOffset = 0.0f;
-	public float middleDefenceOffset = 0.0f;
-	public float rightDefenceOffset = 0.0f;
-	public float midfieldOffset = 0.0f;
-	public float leftAttackOffset = 0.0f;
-	public float middleAttackOffset = 0.0f;
-	public float rightAttackOffset = 0.0f;
     //veraltet!!
     public int waehrungsID = 3;
 
@@ -331,6 +323,24 @@ public final class UserParameter extends Configuration {
 	public boolean assistant113 = true;
 
 	public String theme = "Classic";
+
+	//Lineup Rating Chart
+	public boolean RatingChartFrame_Combined = false;
+	public boolean RatingChartFrame_Multiple = false;
+	public boolean RatingChartFrame_ET = false;
+	public boolean MultipleRatingChartsPanel_Values = false;
+	public boolean MultipleRatingChartsPanel_HelpLines = false;
+	public boolean CombinedRatingChartPanel_LeftDefense = false;
+	public boolean CombinedRatingChartPanel_CentralDefense = false;
+	public boolean CombinedRatingChartPanel_RightDefense = false;
+	public boolean CombinedRatingChartPanel_Midfield = false;
+	public boolean CombinedRatingChartPanel_LeftAttack = false;
+	public boolean CombinedRatingChartPanel_CentralAttack = false;
+	public boolean CombinedRatingChartPanel_RightAttack = false;
+	public boolean CombinedRatingChartPanel_HatStats = false;
+	public boolean CombinedRatingChartPanel_Loddar = false;
+	public boolean CombinedRatingChartPanel_Values = false;
+	public boolean CombinedRatingChartPanel_HelpLines = false;
 
     //~ Constructors -------------------------------------------------------------------------------
 
@@ -510,7 +520,7 @@ public final class UserParameter extends Configuration {
 		map.put("DAUER_VERTEIDIGUNG",String.valueOf(TRAINING_OFFSET_DEFENDING));
 		map.put("DAUER_OSMOSIS",String.valueOf(TRAINING_OFFSET_OSMOSIS));
 		map.put("TimeZoneDifference",String.valueOf(TimeZoneDifference));
-		map.put("anzahlNachkommastellen",String.valueOf(anzahlNachkommastellen));
+		map.put("nbDecimals",String.valueOf(nbDecimals));
 		map.put("aufstellungsAssistentPanel_reihenfolge",String.valueOf(aufstellungsAssistentPanel_reihenfolge));
 		map.put("aufstellungsPanel_horizontalLeftSplitPane",String.valueOf(aufstellungsPanel_horizontalLeftSplitPane));
 		map.put("aufstellungsPanel_horizontalRightSplitPane",String.valueOf(aufstellungsPanel_horizontalRightSplitPane));
@@ -543,13 +553,6 @@ public final class UserParameter extends Configuration {
 		map.put("statistikSpieleFilter",String.valueOf(statistikSpieleFilter));
 		map.put("statistikSpielerFinanzenAnzahlHRF",String.valueOf(statistikSpielerFinanzenAnzahlHRF));
 		map.put("transferScoutPanel_horizontalSplitPane",String.valueOf(transferScoutPanel_horizontalSplitPane));
-		map.put("leftDefenceOffset",String.valueOf(leftDefenceOffset));
-		map.put("middleDefenceOffset",String.valueOf(middleDefenceOffset));
-		map.put("rightDefenceOffset",String.valueOf(rightDefenceOffset));
-		map.put("midfieldOffset",String.valueOf(midfieldOffset));
-		map.put("leftAttackOffset",String.valueOf(leftAttackOffset));
-		map.put("middleAttackOffset",String.valueOf(middleAttackOffset));
-		map.put("rightAttackOffset",String.valueOf(rightAttackOffset));
 		map.put("waehrungsID",String.valueOf(waehrungsID));
 		map.put("simulatorMatches",String.valueOf(simulatorMatches));
 		map.put("assistant101", String.valueOf(assistant101));
@@ -578,7 +581,23 @@ public final class UserParameter extends Configuration {
 		map.put("teamAnalyzer_UpperLeftSplitPane", String.valueOf(teamAnalyzer_UpperLeftSplitPane));
 		map.put("teamAnalyzer_MainSplitPane", String.valueOf(teamAnalyzer_MainSplitPane));
 		map.put("teamAnalyzer_BottomSplitPane", String.valueOf(teamAnalyzer_BottomSplitPane));
-		map.put("training_pastFutureTrainingsSplitPane", String.valueOf(training_pastFutureTrainingsSplitPane));	
+		map.put("training_pastFutureTrainingsSplitPane", String.valueOf(training_pastFutureTrainingsSplitPane));
+		map.put("RatingChartFrame_Combined", String.valueOf(RatingChartFrame_Combined));
+		map.put("RatingChartFrame_Multiple", String.valueOf(RatingChartFrame_Multiple));
+		map.put("RatingChartFrame_ET", String.valueOf(RatingChartFrame_ET));
+		map.put("MultipleRatingChartsPanel_Values", String.valueOf(MultipleRatingChartsPanel_Values));
+		map.put("MultipleRatingChartsPanel_HelpLines", String.valueOf(MultipleRatingChartsPanel_HelpLines));
+		map.put("CombinedRatingChartPanel_LeftDefense", String.valueOf(CombinedRatingChartPanel_LeftDefense));
+		map.put("CombinedRatingChartPanel_CentralDefense", String.valueOf(CombinedRatingChartPanel_CentralDefense));
+		map.put("CombinedRatingChartPanel_RightDefense", String.valueOf(CombinedRatingChartPanel_RightDefense));
+		map.put("CombinedRatingChartPanel_Midfield", String.valueOf(CombinedRatingChartPanel_Midfield));
+		map.put("CombinedRatingChartPanel_LeftAttack", String.valueOf(CombinedRatingChartPanel_LeftAttack));
+		map.put("CombinedRatingChartPanel_CentralAttack", String.valueOf(CombinedRatingChartPanel_CentralAttack));
+		map.put("CombinedRatingChartPanel_RightAttack", String.valueOf(CombinedRatingChartPanel_RightAttack));
+		map.put("CombinedRatingChartPanel_HatStats", String.valueOf(CombinedRatingChartPanel_HatStats));
+		map.put("CombinedRatingChartPanel_Loddar", String.valueOf(CombinedRatingChartPanel_Loddar));
+		map.put("CombinedRatingChartPanel_Values", String.valueOf(CombinedRatingChartPanel_Values));
+		map.put("CombinedRatingChartPanel_HelpLines", String.valueOf(CombinedRatingChartPanel_HelpLines));
 		
 		return map;
 	}
@@ -710,13 +729,6 @@ public final class UserParameter extends Configuration {
 		WetterEffektBonus = getFloatValue(values,"WetterEffektBonus");
 		faktorGeld = getFloatValue(values,"faktorGeld");
 		zellenbreitenFaktor = getFloatValue(values,"zellenbreitenFaktor");
-		leftDefenceOffset = getFloatValue(values,"leftDefenceOffset");
-		middleDefenceOffset = getFloatValue(values,"middleDefenceOffset");
-		rightDefenceOffset = getFloatValue(values,"rightDefenceOffset");
-		midfieldOffset = getFloatValue(values,"midfieldOffset");
-		leftAttackOffset = getFloatValue(values,"leftAttackOffset");
-		middleAttackOffset = getFloatValue(values,"middleAttackOffset");
-		rightAttackOffset = getFloatValue(values,"rightAttackOffset");
 		TRAINING_OFFSET_SCORING = getFloatValue(values,"DAUER_CHANCENVERWERTUNG");
 		TRAINING_OFFSET_WINGER = getFloatValue(values,"DAUER_FLUEGELSPIEL");
 		TRAINING_OFFSET_STAMINA = getFloatValue(values,"DAUER_KONDITION");
@@ -728,7 +740,7 @@ public final class UserParameter extends Configuration {
 		TRAINING_OFFSET_OSMOSIS = getFloatValue(values,"DAUER_OSMOSIS");
 		
 		TimeZoneDifference = getIntValue(values,"TimeZoneDifference");
-		anzahlNachkommastellen = getIntValue(values,"anzahlNachkommastellen");
+		nbDecimals = getIntValue(values,"nbDecimals");
 		aufstellungsAssistentPanel_reihenfolge = getIntValue(values,"aufstellungsAssistentPanel_reihenfolge");
 		aufstellungsPanel_horizontalLeftSplitPane = getIntValue(values,"aufstellungsPanel_horizontalLeftSplitPane");
 		aufstellungsPanel_horizontalRightSplitPane = getIntValue(values,"aufstellungsPanel_horizontalRightSplitPane");
@@ -792,6 +804,23 @@ public final class UserParameter extends Configuration {
 		teamAnalyzer_MainSplitPane= getIntValue(values, "teamAnalyzer_MainSplitPane");
 		teamAnalyzer_BottomSplitPane= getIntValue(values, "teamAnalyzer_BottomSplitPane");
 		training_pastFutureTrainingsSplitPane= getIntValue(values, "training_pastFutureTrainingsSplitPane");
+
+		RatingChartFrame_Combined = getBooleanValue(values, "RatingChartFrame_Combined");
+		RatingChartFrame_Multiple = getBooleanValue(values, "RatingChartFrame_Multiple");
+		RatingChartFrame_ET = getBooleanValue(values, "RatingChartFrame_ET");
+		MultipleRatingChartsPanel_Values = getBooleanValue(values, "MultipleRatingChartsPanel_Values");
+		MultipleRatingChartsPanel_HelpLines = getBooleanValue(values, "MultipleRatingChartsPanel_HelpLines");
+		CombinedRatingChartPanel_LeftDefense = getBooleanValue(values, "CombinedRatingChartPanel_LeftDefense");
+		CombinedRatingChartPanel_CentralDefense = getBooleanValue(values, "CombinedRatingChartPanel_CentralDefense");
+		CombinedRatingChartPanel_RightDefense = getBooleanValue(values, "CombinedRatingChartPanel_RightDefense");
+		CombinedRatingChartPanel_Midfield = getBooleanValue(values, "CombinedRatingChartPanel_Midfield");
+		CombinedRatingChartPanel_LeftAttack = getBooleanValue(values, "CombinedRatingChartPanel_LeftAttack");
+		CombinedRatingChartPanel_CentralAttack = getBooleanValue(values, "CombinedRatingChartPanel_CentralAttack");
+		CombinedRatingChartPanel_RightAttack = getBooleanValue(values, "CombinedRatingChartPanel_RightAttack");
+		CombinedRatingChartPanel_HatStats = getBooleanValue(values, "CombinedRatingChartPanel_HatStats");
+		CombinedRatingChartPanel_Loddar = getBooleanValue(values, "CombinedRatingChartPanel_Loddar");
+		CombinedRatingChartPanel_Values = getBooleanValue(values, "CombinedRatingChartPanel_Values");
+		CombinedRatingChartPanel_HelpLines = getBooleanValue(values, "CombinedRatingChartPanel_HelpLines");
 	}
 
 }

@@ -1,6 +1,6 @@
 package core.file.xml;
 
-import core.model.player.Spieler;
+import core.model.player.Player;
 import core.util.HOLogger;
 
 import java.sql.Timestamp;
@@ -24,22 +24,22 @@ public class XMLPlayerParser {
     /////////////////////////////////////////////////////////////////////////////////    
     //parse public
     ////////////////////////////////////////////////////////////////////////////////    
-    public final Vector<Spieler> parsePlayer(String dateiname) {
+    public final Vector<Player> parsePlayer(String dateiname) {
         return parseSpieler(XMLManager.parseFile(dateiname));
     }
 
-    public final Vector<Spieler> parsePlayer(java.io.File datei) {
+    public final Vector<Player> parsePlayer(java.io.File datei) {
         return parseSpieler(XMLManager.parseFile(datei));
     }
 
     /**
-     * erzeugt einen Spieler aus dem xml
+     * erzeugt einen Player aus dem xml
      */
-    protected final Spieler createPlayer(Element ele, Timestamp fetchdate)
+    protected final Player createPlayer(Element ele, Timestamp fetchdate)
       throws Exception
     {
         Element tmp = null;
-        final Spieler player = new Spieler();
+        final Player player = new Player();
 
         //player.setFetchDate ( fetchdate );
         tmp = (Element) ele.getElementsByTagName("PlayerID").item(0);
@@ -74,7 +74,7 @@ public class XMLPlayerParser {
         tmp = (Element) ele.getElementsByTagName("Leadership").item(0);
         player.setFuehrung(Integer.parseInt(tmp.getFirstChild().getNodeValue()));
         tmp = (Element) ele.getElementsByTagName("Specialty").item(0);
-        player.setSpezialitaet(Integer.parseInt(tmp.getFirstChild().getNodeValue()));
+        player.setPlayerSpecialty(Integer.parseInt(tmp.getFirstChild().getNodeValue()));
         tmp = (Element) ele.getElementsByTagName("TransferListed").item(0);
         player.setTransferlisted(Integer.parseInt(tmp.getFirstChild().getNodeValue()));
         tmp = (Element) ele.getElementsByTagName("CountryID").item(0);
@@ -141,10 +141,10 @@ public class XMLPlayerParser {
     /**
      * erstellt das MAtchlineup Objekt
      */
-    protected final Vector<Spieler> parseSpieler(Document doc) {
+    protected final Vector<Player> parseSpieler(Document doc) {
         Element ele = null;
         Element root = null;
-        final Vector<Spieler> liste = new Vector<Spieler>();
+        final Vector<Player> liste = new Vector<Player>();
         Timestamp fetchDate = null;
         NodeList list = null;
 

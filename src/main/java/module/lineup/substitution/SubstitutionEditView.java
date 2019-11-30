@@ -2,7 +2,7 @@ package module.lineup.substitution;
 
 import core.datatype.CBItem;
 import core.model.HOVerwaltung;
-import core.model.player.ISpielerPosition;
+import core.model.player.IMatchRoleID;
 import core.util.Helper;
 import module.lineup.substitution.model.GoalDiffCriteria;
 import module.lineup.substitution.model.MatchOrderType;
@@ -33,6 +33,8 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import static core.model.player.IMatchRoleID.aSubstitutesMatchRoleID;
+
 public class SubstitutionEditView extends JPanel {
 
 	private static final long serialVersionUID = 6041242290064429972L;
@@ -53,7 +55,7 @@ public class SubstitutionEditView extends JPanel {
 		addListeners();
 
 		Map<Integer, PlayerPositionItem> lineupPositions = SubstitutionDataProvider
-				.getLineupPositions();
+				.getFieldAndSubPlayerPosition();
 
 		this.playerComboBox.setModel(new DefaultComboBoxModel(lineupPositions
 				.values().toArray()));
@@ -61,8 +63,7 @@ public class SubstitutionEditView extends JPanel {
 
 		if (isSubstitution()) {
 			List<PlayerPositionItem> substitutionPlayers = SubstitutionDataProvider
-					.getFieldPositions(ISpielerPosition.substKeeper,
-							ISpielerPosition.substForward, false);
+					.getFieldPositions(aSubstitutesMatchRoleID, false);
 			this.playerInComboBox.setModel(new DefaultComboBoxModel(
 					substitutionPlayers.toArray()));
 			this.playerInComboBox.setSelectedItem(null);
@@ -74,8 +75,8 @@ public class SubstitutionEditView extends JPanel {
 
 		if (!isPositionSwap()) {
 			List<PlayerPositionItem> positions = SubstitutionDataProvider
-					.getFieldPositions(ISpielerPosition.keeper,
-							ISpielerPosition.leftForward, true);
+					.getFieldPositions(IMatchRoleID.keeper,
+							IMatchRoleID.leftForward, true);
 			this.positionComboBox.setModel(new DefaultComboBoxModel(positions
 					.toArray()));
 			this.positionComboBox.setSelectedItem(null);

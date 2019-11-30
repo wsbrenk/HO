@@ -13,9 +13,8 @@ import core.model.match.IMatchDetails;
 import core.model.match.MatchKurzInfo;
 import core.model.match.MatchLineupPlayer;
 import core.model.match.MatchLineupTeam;
-import core.model.match.MatchType;
 import core.model.match.Matchdetails;
-import core.model.player.ISpielerPosition;
+import core.model.player.IMatchRoleID;
 import core.util.Helper;
 
 import java.awt.Color;
@@ -101,7 +100,7 @@ class StaerkenvergleichPanel extends LazyImagePanel {
 		Matchdetails details = this.matchesModel.getDetails();
 
 
-		matchtypLabel.setIcon(ThemeManager.getIcon(HOIconName.MATCHTYPES[info.getMatchTyp()
+		matchtypLabel.setIcon(ThemeManager.getIcon(HOIconName.MATCHICONS[info.getMatchTyp()
 				.getIconArrayIndex()]));
 		matchtypLabel.setText(info.getMatchTyp().getName());
 
@@ -135,8 +134,7 @@ class StaerkenvergleichPanel extends LazyImagePanel {
 			}
 
 			String name4matchtyp = info.getMatchTyp().getName();
-			if ((details.getZuschauer() <= 0) && (info.getMatchTyp() != MatchType.TOURNAMENTGROUP)
-					&& (info.getMatchTyp() != MatchType.TOURNAMENTPLAYOFF)) {
+			if ((details.getZuschauer() <= 0) && (info.getMatchTyp().getSourceString() == "hattrick")) {
 				name4matchtyp += (" ( " + HOVerwaltung.instance().getLanguageString("Reload_Match") + " )");
 			}
 			matchtypLabel.setText(name4matchtyp);
@@ -628,8 +626,8 @@ class StaerkenvergleichPanel extends LazyImagePanel {
 	private double getStars(List<MatchLineupPlayer> players) {
 		double stars = 0;
 		for (MatchLineupPlayer player : players) {
-			if ((player.getId() < ISpielerPosition.startReserves)
-					&& (player.getId() >= ISpielerPosition.startLineup)) {
+			if ((player.getId() < IMatchRoleID.startReserves)
+					&& (player.getId() >= IMatchRoleID.startLineup)) {
 				double rating = (double) player.getRating();
 
 				if (rating > 0) {

@@ -2,7 +2,8 @@ package module.training;
 
 import core.constants.TrainingType;
 import core.constants.player.PlayerSkill;
-import core.model.player.Spieler;
+import core.model.player.Player;
+
 import java.awt.Color;
 
 /**
@@ -49,7 +50,6 @@ public class Skills {
      * Returns the base training type for that skill
      *
      * @param skillIndex skill to train
-     *
      * @return base training type for that skill
      */
     public static Color getSkillColor(int skillIndex) {
@@ -82,42 +82,41 @@ public class Skills {
         return Color.BLACK;
     }
 
-     /**
+    /**
      * Returns the Skill value for the player
      *
-     * @param spieler
+     * @param player
      * @param skillIndex constant index value of the skill we want to see
-     *
      * @return The Skill value or 0 if the index is incorrect
      */
-    public static int getSkillValue(Spieler spieler, int skillIndex) {
+    public static float getSkillValue(Player player, int skillIndex) {
         switch (skillIndex) {
             case PlayerSkill.KEEPER:
-                return spieler.getTorwart();
+                return player.getGKskill() + player.getSubskill4Pos(skillIndex);
 
             case PlayerSkill.PLAYMAKING:
-                return spieler.getSpielaufbau();
+                return player.getPMskill() + player.getSubskill4Pos(skillIndex);
 
             case PlayerSkill.PASSING:
-                return spieler.getPasspiel();
+                return player.getPSskill() + player.getSubskill4Pos(skillIndex);
 
             case PlayerSkill.WINGER:
-                return spieler.getFluegelspiel();
+                return player.getWIskill() + player.getSubskill4Pos(skillIndex);
 
             case PlayerSkill.DEFENDING:
-                return spieler.getVerteidigung();
+                return player.getDEFskill() + player.getSubskill4Pos(skillIndex);
 
             case PlayerSkill.SCORING:
-                return spieler.getTorschuss();
+                return player.getSCskill() + player.getSubskill4Pos(skillIndex);
 
             case PlayerSkill.SET_PIECES:
-                return spieler.getStandards();
+                return player.getSPskill() + player.getSubskill4Pos(skillIndex);
 
             case PlayerSkill.STAMINA:
-                return spieler.getKondition();
+                return player.getKondition() + player.getSubskill4Pos(skillIndex);
 
             case PlayerSkill.EXPERIENCE:
-                return spieler.getErfahrung();
+                return player.getErfahrung() + player.getSubskill4Pos(skillIndex);
         }
 
         return 0;
@@ -127,13 +126,12 @@ public class Skills {
      * Returns the base training type for that skill
      *
      * @param skillIndex skill to train
-     *
      * @return base training type for that skill
      */
     public static int getTrainedSkillCode(int skillIndex) {
         switch (skillIndex) {
             case PlayerSkill.KEEPER:
-                return  TrainingType.GOALKEEPING;
+                return TrainingType.GOALKEEPING;
 
             case PlayerSkill.PLAYMAKING:
                 return TrainingType.PLAYMAKING;
@@ -153,7 +151,7 @@ public class Skills {
             case PlayerSkill.SET_PIECES:
                 return TrainingType.SET_PIECES;
 
-          }
+        }
 
         return 0;
     }

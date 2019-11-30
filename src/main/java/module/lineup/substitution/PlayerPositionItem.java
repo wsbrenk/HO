@@ -1,12 +1,12 @@
 package module.lineup.substitution;
 
-import core.model.player.Spieler;
+import core.model.player.Player;
 
 public class PlayerPositionItem {
 	private Integer position;
-	private Spieler player;
+	private Player player;
 
-	PlayerPositionItem(Integer pos, Spieler player) {
+	PlayerPositionItem(Integer pos, Player player) {
 		this.player = player;
 		this.position = pos;
 	}
@@ -15,7 +15,7 @@ public class PlayerPositionItem {
 		return position;
 	}
 
-	public Spieler getSpieler() {
+	public Player getSpieler() {
 		return this.player;
 	}
 
@@ -23,14 +23,11 @@ public class PlayerPositionItem {
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		if (this.position != null) {
-			builder.append(LanguageStringLookup.getPosition(this.position.byteValue()));
+			builder.append("( ");
+			builder.append(LanguageStringLookup.getPosition(this.position));
+			builder.append(" ) ");
 		}
 		if (this.player != null) {
-			builder.append(" - ");
-			if (this.player.getTrikotnummer() > 0 && this.player.getTrikotnummer() != 100) {
-				builder.append(player.getTrikotnummer());
-				builder.append(" ");
-			}
 			builder.append(this.player.getName());
 		}
 

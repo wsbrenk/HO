@@ -4,8 +4,9 @@ public interface HOIconName {
 
 	public static final String IMAGEPANEL_BACKGROUND = "imagePanel.background";
 	public static final String GRASSPANEL_BACKGROUND = "grassPanel.background";
+	public static final String RATINGCOMPARISON_BACKGROUND = "ratingComparison.background";
 
-	public static final String[] MATCHTYPES 	= { "","MatchType1","MatchType2","MatchType3","MatchType4","MatchType5","MatchType6","MatchType7","MatchType8","MatchType9","MatchType10","MatchType11","MatchType12","MatchTypeTourneyGrp","MatchTypeTourneyPlayOff"};
+	public static final String[] MATCHICONS	= {"LEAGUE", "QUALIFICATION", "FRIENDLY", "NATIONAL_CUP", "EMERALD_CUP", "RUBY_CUP", "SAPPHIRE_CUP", "LADDER", "TOURNAMENT", "SINGLE", "MASTERS", "DEFAULT", "CONSOLANTE_CUP"};
 	public static final String[] WEATHER 		= { "weather0","weather1","weather2","weather3"};
 	public static final String[] SPECIAL 		= { "","special1","special2","special3","special4","special5", "special6", "special7", "special8"};
 	public static final String[] TEAMSMILIES 	= { "", "A-Team.png","B-Team.png", "C-Team.png", "D-Team.png", "E-Team.png", "F-Team.png" };
@@ -39,6 +40,7 @@ public interface HOIconName {
 	public static final String LOCKED 			= "locked";
 	public static final String EMPTY 			= "empty";
 	public static final String INFO 			= "info";
+	public static final String FEEDBACK 		= "feedback";
 	public static final String GOTOANALYSETOP 	= "gotoAnalyseTop";
 	public static final String GOTOANALYSEBOTTOM = "gotoAnalyseBottom";
 	public static final String OFFSET 			= "offset";
@@ -49,8 +51,6 @@ public interface HOIconName {
 	public static final String RELOAD 			= "reload";
 	public static final String SIMULATEMATCH 	= "simulateMatch";
 	public static final String GETLINEUP 		= "getLineup";
-	public static final String MIDLINEUPFRAME 	= "midLineupFrame";
-	public static final String MINLINEUPFRAME 	= "minLineupFrame";
 	public static final String SWAP 			= "swap";
 	public static final String SWAPPRESSED 		= "swapPressed";
 	public static final String TURN 			= "turn";
@@ -60,7 +60,9 @@ public interface HOIconName {
 	public static final String CLEARRESERVE 	= "clearReserve";
 	public static final String CLEARPOSORDERS	= "clearPositionOrders";
 
-	public static final String LOGO16 			= "logo16";
+	public static final String LOGO16_STABLE	= "logo16_stable";
+	public static final String LOGO16_BETA		= "logo16_beta";
+	public static final String LOGO16_DEV		= "logo16_dev";
 	public static final String TRICKOT 			= "trickot";
 
 	// Highlights
@@ -126,4 +128,25 @@ public interface HOIconName {
 	
 	public static final String PIC = "pic";
 	public static final String MOTS = "mots";
+
+	public static final String TRAINBAR_FT = "trainpre_ft";
+	public static final String TRAINBAR_PT = "trainpre_pt";
+	public static final String TRAINBAR_FFT = "trainpre_fft";
+	public static final String TRAINBAR_FPT = "trainpre_fpt";
+	public static final String TRAINBAR_FT_FFT = "trainpre_ft_fft";
+	public static final String TRAINBAR_FT_FPT = "trainpre_ft_fpt";
+	public static final String TRAINBAR_PT_FPT = "trainpre_pt_fpt";
+	public static final String TRAINBAR_FT_PT = "trainpre_ft_pt";
+	public static final String TRAINBAR_FT_PT_E = "trainpre_ft_pt_e.png";
+	public static final String TRAINBAR_FT_E = "trainpre_ft_e";
+	public static final String TRAINBAR_PT_E = "trainpre_pt_e";
+	public static final String TRAINBAR_EMPTY = "trainpre_empty";
+
+
+	public static final String GREEN_WHITE_CLOCK = "green-white-clock";
+	public static final String WHITE_GREEN_CLOCK = "white-green-clock";
+	public static final String RED_WHITE_CLOCK = "red-white-clock";
+	public static final String WHITE_RED_CLOCK = "white-red-clock";
+
+	public static final String RATING_GRAPH = "rating-graph";
 }

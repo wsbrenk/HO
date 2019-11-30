@@ -12,8 +12,8 @@ import core.model.HOModel;
 import core.model.HOVerwaltung;
 import core.model.UserParameter;
 import core.model.match.Weather;
-import core.model.player.ISpielerPosition;
-import core.model.player.Spieler;
+import core.model.player.IMatchRoleID;
+import core.model.player.Player;
 import core.util.HOLogger;
 import core.util.Helper;
 
@@ -39,6 +39,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.border.MatteBorder;
 
 /**
  * Die automatische Aufstellung wird hier konfiguriert und gestartet
@@ -74,6 +75,7 @@ public class AufstellungsAssistentPanel extends ImagePanel implements ActionList
 			.getLanguageString("Verletze_aufstellen"),
 			core.model.UserParameter.instance().aufstellungsAssistentPanel_verletzt);
 	private final JComboBox m_jcbGruppe = new JComboBox(HOIconName.TEAMSMILIES);
+
 	private final JComboBox m_jcbWetter = new JComboBox(Helper.WETTER);
 	private final CBItem[] REIHENFOLGE = {
 			new CBItem(HOVerwaltung.instance().getLanguageString("AW-MF-ST"),
@@ -210,15 +212,16 @@ public class AufstellungsAssistentPanel extends ImagePanel implements ActionList
 		return m_jchVerletzte.isSelected();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see module.lineup.IAufstellungsAssistentPanel#getWetter()
-	 */
+
 	@Override
 	public final Weather getWeather() {
 		int id = ((CBItem) m_jcbWetter.getSelectedItem()).getId();
 		return Weather.getById(id);
+	}
+
+	@Override
+	public void setWeather(Weather weather) {
+		m_jcbWetter.setSelectedIndex(weather.getId());
 	}
 
 	@Override
@@ -228,9 +231,9 @@ public class AufstellungsAssistentPanel extends ImagePanel implements ActionList
 
 		if (actionEvent.getSource().equals(m_jbLoeschen)) {
 			// Alle Positionen leeren
-			hoModel.getAufstellung().resetAufgestellteSpieler();
-			hoModel.getAufstellung().setKicker(0);
-			hoModel.getAufstellung().setKapitaen(0);
+			hoModel.getLineupWithoutRatingRecalc().resetAufgestellteSpieler();
+			hoModel.getLineupWithoutRatingRecalc().setKicker(0);
+			hoModel.getLineupWithoutRatingRecalc().setKapitaen(0);
 			HOMainFrame
 					.instance()
 					.getInfoPanel()
@@ -241,7 +244,7 @@ public class AufstellungsAssistentPanel extends ImagePanel implements ActionList
 			// gui.RefreshManager.instance ().doRefresh ();
 		} else if (actionEvent.getSource().equals(m_jbClearPostionOrders)) {
 			// event listener for clear positonal orders button
-			hoModel.getAufstellung().resetPositionOrders();
+			hoModel.getLineupWithoutRatingRecalc().resetPositionOrders();
 			HOMainFrame
 					.instance()
 					.getInfoPanel()
@@ -250,7 +253,7 @@ public class AufstellungsAssistentPanel extends ImagePanel implements ActionList
 			mainFrame.getAufstellungsPanel().update();
 
 		} else if (actionEvent.getSource().equals(m_jbReserveLoeschen)) {
-			hoModel.getAufstellung().resetReserveBank();
+			hoModel.getLineupWithoutRatingRecalc().resetReserveBank();
 			mainFrame.getAufstellungsPanel().update();
 
 			// gui.RefreshManager.instance ().doRefresh ();
@@ -295,6 +298,11 @@ public class AufstellungsAssistentPanel extends ImagePanel implements ActionList
 		} else if (actionEvent.getSource().equals(overlayCancel)) {
 			removeGUI();
 		}
+
+		else if (actionEvent.getSource().equals(m_jcbWetter))
+		{
+			HOVerwaltung.instance().getModel().getLineup(); // => Force rating calculation
+		}
 	}
 
 	@Override
@@ -329,24 +337,22 @@ public class AufstellungsAssistentPanel extends ImagePanel implements ActionList
 		while (it.hasNext()) {
 			Map.Entry<PlayerPositionPanel, LineupAssistantSelectorOverlay> entry = it.next();
 			if (!entry.getValue().isSelected()) {
-				HOVerwaltung.instance().getModel().getAufstellung()
+				HOVerwaltung.instance().getModel().getLineupWithoutRatingRecalc()
 						.setSpielerAtPosition(entry.getKey().getPositionsID(), 0);
 			}
 		}
 
-		final Vector<Spieler> vSpieler = new Vector<Spieler>();
-		final Vector<Spieler> alleSpieler = hoModel.getAllSpieler();
+		final Vector<Player> vPlayer = new Vector<Player>();
+		final Vector<Player> allePlayer = hoModel.getAllSpieler();
 
-		for (int i = 0; i < alleSpieler.size(); i++) {
-			final core.model.player.Spieler spieler = (core.model.player.Spieler) alleSpieler
+		for (int i = 0; i < allePlayer.size(); i++) {
+			final Player player = (Player) allePlayer
 					.get(i);
 
-			// Wenn der Spieler spielberechtigt ist und entweder alle Gruppen
-			// aufgestellt werden sollen,
-			// oder genau die zu der der Spieler gehört
-			if (spieler.isSpielberechtigt()
-					&& (((this.getGroup().trim().equals("") || spieler.getTeamInfoSmilie().equals(
-							this.getGroup())) && !m_jchNot.isSelected()) || (!spieler
+			//If the player is eligible to play and either all groups are selected or the one to which the player belongs
+			if (player.isSpielberechtigt()
+					&& (((this.getGroup().trim().equals("") || player.getTeamInfoSmilie().equals(
+							this.getGroup())) && !m_jchNot.isSelected()) || (!player
 							.getTeamInfoSmilie().equals(this.getGroup()) && m_jchNot.isSelected()))) {
 				boolean include = true;
 				final AufstellungCBItem lastLineup = AufstellungsVergleichHistoryPanel
@@ -355,18 +361,18 @@ public class AufstellungsAssistentPanel extends ImagePanel implements ActionList
 				if (m_jchLast.isSelected()
 						&& (lastLineup != null)
 						&& lastLineup.getAufstellung()
-								.isSpielerInAnfangsElf(spieler.getSpielerID())) {
+								.isPlayerInStartingEleven(player.getSpielerID())) {
 					include = false;
-					HOLogger.instance().log(getClass(), "Exclude: " + spieler.getName());
+					HOLogger.instance().log(getClass(), "Exclude: " + player.getName());
 				}
 
 				if (include) {
-					vSpieler.add(spieler);
+					vPlayer.add(player);
 				}
 			}
 		}
 
-		hoModel.getAufstellung().doAufstellung(vSpieler,
+		hoModel.getLineup().doAufstellung(vPlayer,
 				(byte) ((CBItem) m_jcbReihenfolge.getSelectedItem()).getId(),
 				m_jchForm.isSelected(), m_jchIdealPosition.isSelected(),
 				m_jchVerletzte.isSelected(), m_jchGesperrte.isSelected(),
@@ -396,9 +402,9 @@ public class AufstellungsAssistentPanel extends ImagePanel implements ActionList
 							"assistant" + entry.getKey().getPositionsID());
 				} else {
 					int posId = entry.getKey().getPositionsID();
-					if ((posId == ISpielerPosition.centralForward)
-							|| (posId == ISpielerPosition.centralInnerMidfield)
-							|| (posId == ISpielerPosition.middleCentralDefender)) {
+					if ((posId == IMatchRoleID.centralForward)
+							|| (posId == IMatchRoleID.centralInnerMidfield)
+							|| (posId == IMatchRoleID.middleCentralDefender)) {
 						selected = false;
 					}
 				}
@@ -426,30 +432,32 @@ public class AufstellungsAssistentPanel extends ImagePanel implements ActionList
 		if (infoLabel == null) {
 			infoLabel = new JLabel();
 			infoLabel.setText(HOVerwaltung.instance().getLanguageString("lineupassist.Info"));
-			infoLabel.setOpaque(false);
+			// #194 - Hard to read suggestions in "LineUp"
+			infoLabel.setOpaque(true);
+			infoLabel.setBackground(ThemeManager.getColor(HOColorName.LINEUP_POS_MIN_BG));
+			infoLabel.setBorder(new MatteBorder(1,2,1,2, ThemeManager.getColor(HOColorName.LINEUP_POS_MIN_BORDER)));
 		}
 		posPanel.add(infoLabel, constraints, 2);
 
-		constraints.gridx = 3;
+		constraints.gridx = 6;
 		constraints.gridy = 6;
 		constraints.gridwidth = 1;
 		if (overlayOk == null) {
 			overlayOk = new JButton(HOVerwaltung.instance().getLanguageString("ls.button.ok"));
 			overlayOk.setFont(new Font("serif", Font.BOLD, 16));
-			overlayOk.setBackground(ThemeManager.getColor(HOColorName.BUTTON_ASSIST_BG));
+			overlayOk.setBackground(ThemeManager.getColor(HOColorName.BUTTON_ASSIST_OK_BG));
 			overlayOk.addActionListener(this);
 		}
 		posPanel.add(overlayOk, constraints, 2);
 
-		constraints.gridx = 4;
+		constraints.gridx = 5;
 		constraints.gridy = 6;
 		constraints.gridwidth = 1;
 		if (overlayCancel == null) {
-			overlayCancel = new JButton(HOVerwaltung.instance().getLanguageString(
-					"ls.button.cancel"));
+			overlayCancel = new JButton(HOVerwaltung.instance().getLanguageString("ls.button.cancel"));
 			overlayCancel.addActionListener(this);
 			overlayCancel.setFont(new Font("serif", Font.BOLD, 16));
-			overlayCancel.setBackground(overlayOk.getBackground());
+			overlayCancel.setBackground(ThemeManager.getColor(HOColorName.BUTTON_ASSIST_CANCEL_BG));
 		}
 		posPanel.add(overlayCancel, constraints, 2);
 
@@ -546,6 +554,7 @@ public class AufstellungsAssistentPanel extends ImagePanel implements ActionList
 		m_jcbWetter.setBackground(ThemeManager.getColor(HOColorName.TABLEENTRY_BG));
 		m_jcbWetter.setRenderer(new core.gui.comp.renderer.WeatherListCellRenderer());
 		m_jcbWetter.addItemListener(this);
+		m_jcbWetter.addActionListener(this);
 		panel.add(m_jcbWetter);
 
 		final JPanel panel2 = new JPanel(new BorderLayout());

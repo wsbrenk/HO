@@ -2,8 +2,8 @@ package module.lineup.substitution;
 
 import core.datatype.CBItem;
 import core.model.HOVerwaltung;
-import core.model.player.ISpielerPosition;
-import core.model.player.Spieler;
+import core.model.player.IMatchRoleID;
+import core.model.player.Player;
 import module.lineup.Lineup;
 import module.lineup.substitution.model.Substitution;
 
@@ -12,28 +12,22 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static core.model.player.IMatchRoleID.aFieldAndSubsMatchRoleID;
+import static core.model.player.IMatchRoleID.aFieldMatchRoleID;
+
 public class SubstitutionDataProvider {
 
 	public static void getSubstitutions() {
-		List<Substitution> subs = HOVerwaltung.instance().getModel().getAufstellung()
+		List<Substitution> subs = HOVerwaltung.instance().getModel().getLineupWithoutRatingRecalc()
 				.getSubstitutionList();
 	}
 
-	public static Map<Integer, PlayerPositionItem> getLineupPositions() {
-		return getPositionsMap(ISpielerPosition.startLineup, ISpielerPosition.substForward);
-	}
-
-	public static Map<Integer, PlayerPositionItem> getSubstitutionPositions() {
-		return getPositionsMap(ISpielerPosition.substKeeper, ISpielerPosition.substForward);
-	}
-
-	public static Map<Integer, PlayerPositionItem> getPositionsMap(int start, int end) {
-
+	public static Map<Integer, PlayerPositionItem> getFieldAndSubPlayerPosition() {
 		LinkedHashMap<Integer, PlayerPositionItem> positionMap = new LinkedHashMap<Integer, PlayerPositionItem>();
-		Lineup lineup = HOVerwaltung.instance().getModel().getAufstellung();
+		Lineup lineup = HOVerwaltung.instance().getModel().getLineupWithoutRatingRecalc();
 
-		for (int i = start; i <= end; i++) {
-			Spieler player = lineup.getPlayerByPositionID(i);
+		for (Integer i : aFieldAndSubsMatchRoleID) {
+			Player player = lineup.getPlayerByPositionID(i);
 			if (player != null) {
 				positionMap
 						.put(new Integer(i),
@@ -41,16 +35,29 @@ public class SubstitutionDataProvider {
 										.getPlayerByPositionID(i)));
 			}
 		}
-
 		return positionMap;
+	}
+
+
+	public static List<PlayerPositionItem> getFieldPositions(List<Integer> aMatchRoleID , boolean includeEmptyPositions) {
+		List<PlayerPositionItem> playerItems = new ArrayList<PlayerPositionItem>();
+
+		Lineup lineup = HOVerwaltung.instance().getModel().getLineupWithoutRatingRecalc();
+		for (Integer i : aMatchRoleID) {
+			Player player = lineup.getPlayerByPositionID(i);
+			if (player != null || includeEmptyPositions) {
+				playerItems.add(new PlayerPositionItem(Integer.valueOf(i), player));
+			}
+		}
+		return playerItems;
 	}
 
 	public static List<PlayerPositionItem> getFieldPositions(int start, int end, boolean includeEmptyPositions) {
 		List<PlayerPositionItem> playerItems = new ArrayList<PlayerPositionItem>();
 
-		Lineup lineup = HOVerwaltung.instance().getModel().getAufstellung();
+		Lineup lineup = HOVerwaltung.instance().getModel().getLineupWithoutRatingRecalc();
 		for (int i = start; i <= end; i++) {
-			Spieler player = lineup.getPlayerByPositionID(i);
+			Player player = lineup.getPlayerByPositionID(i);
 			if (player != null || includeEmptyPositions) {
 				playerItems.add(new PlayerPositionItem(Integer.valueOf(i), player));
 			}
@@ -75,8 +82,9 @@ public class SubstitutionDataProvider {
 				new CBItem(HOVerwaltung.instance().getLanguageString("subs.GoalNotDown"), 5),
 				new CBItem(HOVerwaltung.instance().getLanguageString("subs.GoalNotLead"), 6),
 				new CBItem(HOVerwaltung.instance().getLanguageString("subs.GoalLeadMT2"), 7),
-				new CBItem(HOVerwaltung.instance().getLanguageString("subs.GoalDownMT2"), 8) };
-		return standingValues;
+				new CBItem(HOVerwaltung.instance().getLanguageString("subs.GoalDownMT2"), 8),
+				new CBItem(HOVerwaltung.instance().getLanguageString("subs.MatchIsNotTied"), 9)};
+				return standingValues;
 	}
 
 	/**

@@ -1,7 +1,7 @@
 package core.epv;
 
 import core.constants.player.PlayerSkill;
-import core.model.player.Spieler;
+import core.model.player.Player;
 
 
 /**
@@ -57,28 +57,28 @@ public class EPVData implements Cloneable {
     /**
      * Creates a new EPVData object.
      */
-    public EPVData(Spieler s) {
+    public EPVData(Player s) {
         setPlayerName(s.getName());
         setAge(s.getAlter());
         setAgeDays(s.getAgeDays());
         setTSI(s.getTSI());
         setForm(s.getForm());
         setStamina(s.getKondition() + s.getSubskill4Pos(PlayerSkill.STAMINA));
-        setGoalKeeping(s.getTorwart() + s.getSubskill4Pos(PlayerSkill.KEEPER));
-        setPlayMaking(s.getSpielaufbau()
+        setGoalKeeping(s.getGKskill() + s.getSubskill4Pos(PlayerSkill.KEEPER));
+        setPlayMaking(s.getPMskill()
                       + s.getSubskill4Pos(PlayerSkill.PLAYMAKING));
-        setPassing(s.getPasspiel() + s.getSubskill4Pos(PlayerSkill.PASSING));
-        setWing(s.getFluegelspiel() + s.getSubskill4Pos(PlayerSkill.WINGER));
-        setDefense(s.getVerteidigung() + s.getSubskill4Pos(PlayerSkill.DEFENDING));
-        setAttack(s.getTorschuss() + s.getSubskill4Pos(PlayerSkill.SCORING));
-        setSetPieces(s.getStandards() + s.getSubskill4Pos(PlayerSkill.SET_PIECES));
+        setPassing(s.getPSskill() + s.getSubskill4Pos(PlayerSkill.PASSING));
+        setWing(s.getWIskill() + s.getSubskill4Pos(PlayerSkill.WINGER));
+        setDefense(s.getDEFskill() + s.getSubskill4Pos(PlayerSkill.DEFENDING));
+        setAttack(s.getSCskill() + s.getSubskill4Pos(PlayerSkill.SCORING));
+        setSetPieces(s.getSPskill() + s.getSubskill4Pos(PlayerSkill.SET_PIECES));
 
         setExperience(s.getErfahrung());
         setLeadership(s.getFuehrung());
         setAggressivity(s.getAgressivitaet());
         setHonesty(s.getCharakter());
         setPopularity(s.getAnsehen());
-        setSpeciality(s.getSpezialitaet());
+        setSpeciality(s.getPlayerSpecialty());
         
         setPlayerId(s.getSpielerID());
         

@@ -22,11 +22,13 @@ repositories {
 
 //============  external jar dependencies ==========
 dependencies {
+    compile 'com.google.guava:guava:27.1-jre'
     compile 'com.jgoodies:jgoodies-looks:2.7.0'
     compile 'com.toedter:jcalendar:1.4'
     compile 'org.scribe:scribe:1.3.0'
     compile 'org.hsqldb:hsqldb:2.4.1'
     compile 'junit:junit:4.12'
+    compile 'com.google.code.gson:gson:2.8.5'
 }
 
 
@@ -39,8 +41,13 @@ dependencies {
 // 1 for BETA status
 // 2 for STABLE status
 
+<<<<<<< HEAD
 def major = '1'
 def minor = '437'
+=======
+def major = '2'
+def minor = '0'
+>>>>>>> 2.0
 def development_stage = '2'
 def releaseArtefacts = true
 
@@ -77,18 +84,38 @@ jar {
                    'Main-Class': 'HOLauncher',
                     "Class-Path": configurations.compile.collect { it.getName() }.join(' ')
     }
+    // folders 
     exclude "prediction"
     exclude "themes"
-    exclude "ho_logo.png"
-    exclude "Logo.ico"
-    exclude "release_notes.md"
-    exclude "hsqldb.jar"
-    exclude "jcalendar-1.3.2.jar"
-    exclude "looks-2.3.1.jar"
-    exclude "scribe-1.3.0.jar"
-    exclude "commons-codec-1.4.jar"
-    exclude "changelog.html"
 
+    // changelog 
+    exclude "changelog.html"
+    exclude "release_notes.md"
+
+    // logos
+    exclude "ho_logo_stable.png"
+    exclude "ho_logo_beta.png"
+    exclude "ho_logo_dev.png"
+    exclude "Logo_stable.ico"
+    exclude "Logo_beta.ico"
+    exclude "Logo_dev.ico"
+    
+    // external jars
+    exclude "scribe-1.3.0.jar"
+    exclude "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
+    exclude "jsr305-3.0.2.jar"
+    exclude "jgoodies-looks-2.7.0.jar"
+    exclude "jgoodies-common-1.8.1.jar"
+    exclude "jcalendar-1.4.jar"
+    exclude "j2objc-annotations-1.1.jar"
+    exclude "hsqldb-2.4.1.jar"
+    exclude "guava-27.1-jre.jar"
+    exclude "gson-2.8.5.jar"
+    exclude "failureaccess-1.0.1.jar"
+    exclude "error_prone_annotations-2.2.0.jar"
+    exclude "commons-codec-1.4.jar"
+    exclude "checker-qual-2.5.2.jar"
+    exclude "animal-sniffer-annotations-1.17.jar"
 }
 
 
@@ -100,16 +127,35 @@ task osXjar(type: Jar) {
                 'Main-Class': 'HOLauncher',
                 "Class-Path": configurations.compile.collect { it.getName() }.join(' ')
     }
-    exclude "ho_logo.png"
-    exclude "Logo.ico"
-    exclude "release_notes.md"
-    exclude "hsqldb.jar"
-    exclude "jcalendar-1.3.2.jar"
-    exclude "looks-2.3.1.jar"
-    exclude "scribe-1.3.0.jar"
-    exclude "commons-codec-1.4.jar"
-    exclude "changelog.md"
+
+    // changelog 
     exclude "changelog.html"
+    exclude "release_notes.md"
+
+    // logos
+    exclude "ho_logo_stable.png"
+    exclude "ho_logo_beta.png"
+    exclude "ho_logo_dev.png"
+    exclude "Logo_stable.ico"
+    exclude "Logo_beta.ico"
+    exclude "Logo_dev.ico"
+
+    // external jars
+    exclude "scribe-1.3.0.jar"
+    exclude "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar"
+    exclude "jsr305-3.0.2.jar"
+    exclude "jgoodies-looks-2.7.0.jar"
+    exclude "jgoodies-common-1.8.1.jar"
+    exclude "jcalendar-1.4.jar"
+    exclude "j2objc-annotations-1.1.jar"
+    exclude "hsqldb-2.4.1.jar"
+    exclude "guava-27.1-jre.jar"
+    exclude "gson-2.8.5.jar"
+    exclude "failureaccess-1.0.1.jar"
+    exclude "error_prone_annotations-2.2.0.jar"
+    exclude "commons-codec-1.4.jar"
+    exclude "checker-qual-2.5.2.jar"
+    exclude "animal-sniffer-annotations-1.17.jar"
 }
 
 
@@ -124,7 +170,7 @@ distributions {
 macAppBundle {
     mainClassName = "HOLauncher"
     icon = "${project.ext.osx_app_dir_sourcedir}\\HO.icns"
-    bundleJRE = true
+    bundleJRE = false // true #issue-198
     javaProperties.put("apple.laf.useScreenMenuBar", "true")
     javaProperties.put("apple.awt.showGrowBox", "true")
     backgroundImage = "${project.ext.osx_app_dir_sourcedir}\\Back.png"
@@ -164,7 +210,18 @@ ospackage {
     }
 
     from("${projectDir}\\src\\main\\resources") {
-        include "ho_logo.png"
+        if (development_stage == '0') {
+            include "ho_logo_dev.png"
+            rename "ho_logo_dev.png", "ho_logo.png"
+        }
+        else if (development_stage == '1') {
+            include "ho_logo_beta.png"
+            rename "ho_logo_beta.png", "ho_logo.png"
+        }
+        else {
+            include "ho_logo_stable.png"
+            rename "ho_logo_stable.png", "ho_logo.png"
+        }
         into "lib\\ho"
     }
 
@@ -198,26 +255,6 @@ buildRpm {
 
 import java.text.SimpleDateFormat
 
-//task generateChangelogHTML(type: GradleBuild) {
-//    tasks = ['pushmd', 'markdownToHtml', 'pullhtml']
-//}
-
-
-//task init(type: GradleBuild) {
-//    tasks = ['cleanBuild', 'generateChangelogHTML', 'poeditorPull', 'createLanguageFileList']
-//}
-
-//task finish(type: GradleBuild) {
-//    tasks = ['updatebuildreferences', 'compute_sha_sums']
-//}
-
-//task makeAll(type: GradleBuild) {
-//    group 'ho'
-//    description 'Create ZipDistribution, Windows, MacOS and Linux binaries'
-//    tasks = ['init', 'installDist', 'AddResourcesInDistrib', 'makeWinInstaller', 'ZipDistribution', 'buildDeb',
-//             'finishDeb', 'buildRpm', 'finishRpm', 'osXjar', 'createApp', 'AddResourcesAndZipMacApp', 'finish']
-//}
-
 task makeAll(type: GradleBuild) {
     group 'ho'
     description 'Create ZipDistribution, Windows, MacOS and Linux binaries'
@@ -229,7 +266,7 @@ task makeAll(type: GradleBuild) {
 task makeosX(type: GradleBuild) {
     group 'ho'
     description 'Create ZipDistribution and MacOS binaries'
-    tasks = ['init', 'installDist', 'AddResourcesInDistrib', 'ZipDistribution', 'createApp', 'AddResourcesAndZipMacApp']
+    tasks = ['init', 'installDist', 'AddResourcesInDistrib', 'ZipDistribution', 'osXjar', 'createApp', 'AddResourcesAndZipMacApp']
 }
 
 task updatebuildreferences(){
@@ -340,11 +377,28 @@ task AddResourcesInDistrib {
             from "${projectDir}\\src\\main\\resources\\changelog.html"
             into distribDir
         }
-        copy {
-            from "${projectDir}\\src\\main\\resources\\Logo.ico"
-            into distribDir
+        if (development_stage == '0') {
+            copy {
+                from "${projectDir}\\src\\main\\resources\\Logo_dev.ico"
+                into distribDir
+                rename "Logo_dev.ico", "Logo.ico"
+            }
         }
-
+        else if (development_stage == '1') {
+            copy {
+                from "${projectDir}\\src\\main\\resources\\Logo_beta.ico"
+                into distribDir
+                rename "Logo_beta.ico", "Logo.ico"
+            }
+        }
+        else {
+            copy {
+                from "${projectDir}\\src\\main\\resources\\Logo_stable.ico"
+                into distribDir
+                rename "Logo_stable.ico", "Logo.ico"
+            }
+        }
+        
         copy {
             from "${projectDir}\\src\\main\\resources\\prediction"
             into "${distribDir}\\prediction"
@@ -383,6 +437,24 @@ task AddResourcesInDistrib {
         }
         delete "${distribDir}"
 
+        if (development_stage == '0') {
+            delete "${buildDir}\\install\\${project.version}\\Logo_beta.ico"
+            delete "${buildDir}\\install\\${project.version}\\Logo_stable.ico"
+            delete "${buildDir}\\install\\${project.version}\\ho_logo_beta.png"
+            delete "${buildDir}\\install\\${project.version}\\ho_logo_stable.png"
+        }
+        else if (development_stage == '1') {
+            delete "${buildDir}\\install\\${project.version}\\Logo_dev.ico"
+            delete "${buildDir}\\install\\${project.version}\\Logo_stable.ico"
+            delete "${buildDir}\\install\\${project.version}\\ho_logo_dev.png"
+            delete "${buildDir}\\install\\${project.version}\\ho_logo_stable.png"
+        }
+        else {
+            delete "${buildDir}\\install\\${project.version}\\Logo_beta.ico"
+            delete "${buildDir}\\install\\${project.version}\\Logo_dev.ico"
+            delete "${buildDir}\\install\\${project.version}\\ho_logo_beta.png"
+            delete "${buildDir}\\install\\${project.version}\\ho_logo_dev.png"
+        }
     }
 }
 
@@ -443,19 +515,20 @@ task ZipDistribution(type: Zip) {
 
 task AddResourcesAndZipMacApp {
     dependsOn 'init', 'createApp'
-    def macAppDir = "${buildDir}\\macApp\\HO.app\\Contents\\Java"
     doLast {
+	    def baseMacAppDir = "${buildDir}\\macApp\\${project.macAppBundle.appName}.app"
+	    def macAppDir = "${baseMacAppDir}\\Contents\\Java"
         println("adding resources folder")
         copy {
             from "${projectDir}\\src\\main\\resources\\changelog.html"
-            into "${buildDir}\\macApp\\HO.app"
+            into "${baseMacAppDir}"
         }
         delete "${macAppDir}\\hamcrest-core-1.3.jar"
         delete "${macAppDir}\\junit-4.12.jar"
 
         println("zipping MacApp distribution")
         task(ZipMacAppDistribution, type: Tar) {
-            archiveName = "HO_${project.version}_macOS.zip"
+            archiveName = "${project.macAppBundle.appName}_${project.version}_macOS.zip"
             destinationDir = file("${project.ext.target_dir}")
             from ("${buildDir}\\macApp") {exclude("**\\JavaAppLauncher")}
             from ("${buildDir}\\macApp") {
@@ -471,7 +544,7 @@ task createLanguageFileList()  {
     group 'tool'
 
     def lTranslationFiles = []
-    fileTree(dir: "${projectDir}\\src\\main\\resources\\sprache", include: '**/*.properties').visit {
+    fileTree(dir: "${projectDir}\\src\\main\\resources\\sprache", include: '*.properties').visit {
         FileVisitDetails details -> lTranslationFiles << details.file.name
     }
 
@@ -548,18 +621,22 @@ poeditor {
     trans type:'properties', lang: 'da', file: 'src\\main\\resources\\sprache\\Danish.properties'
     trans type:'properties', lang: 'nl', file: 'src\\main\\resources\\sprache\\Nederlands.properties'
     trans type:'properties', lang: 'fr', file: 'src\\main\\resources\\sprache\\French.properties'
+    trans type:'properties', lang: 'fr', file: 'src\\main\\resources\\sprache\\Finnish.properties'
     trans type:'properties', lang: 'de', file: 'src\\main\\resources\\sprache\\Deutsch.properties'
     trans type:'properties', lang: 'he', file: 'src\\main\\resources\\sprache\\Hebrew.properties' //Hebrew
     trans type:'properties', lang: 'hu', file: 'src\\main\\resources\\sprache\\Magyar.properties'  //Hungarian
     trans type:'properties', lang: 'it', file: 'src\\main\\resources\\sprache\\Italiano.properties'
+    trans type:'properties', lang: 'it', file: 'src\\main\\resources\\sprache\\Hangul(Korean).properties'
     trans type:'properties', lang: 'lv', file: 'src\\main\\resources\\sprache\\Latvija.properties' //Lettonie
+    trans type:'properties', lang: 'pl', file: 'src\\main\\resources\\sprache\\Persian.properties'
     trans type:'properties', lang: 'pl', file: 'src\\main\\resources\\sprache\\Polish.properties'
     trans type:'properties', lang: 'pt-br', file: 'src\\main\\resources\\sprache\\PortuguesBrasil.properties'
-    trans type:'properties', lang: 'sr', file: 'src\\main\\resources\\sprache\\Srpski.properties' //Serbian
+    trans type:'properties', lang: 'ru', file: 'src\\main\\resources\\sprache\\Russian.properties'
+    trans type:'properties', lang: 'sr-cyrl', file: 'src\\main\\resources\\sprache\\Serbian (Cyrillic).properties'
     trans type:'properties', lang: 'sk', file: 'src\\main\\resources\\sprache\\Slovak.properties' //Slovak
     trans type:'properties', lang: 'es', file: 'src\\main\\resources\\sprache\\Spanish.properties'
     trans type:'properties', lang: 'sv', file: 'src\\main\\resources\\sprache\\Svenska.properties' //Swedish
-    trans type:'properties', lang: 'tr', file: 'src\\main\\resources\\sprache\\Turkish.properties' //Swedish
+    trans type:'properties', lang: 'tr', file: 'src\\main\\resources\\sprache\\Turkish.properties'
 }
 
 markdownToHtml {

@@ -1,11 +1,11 @@
 package core.rating;
 
+import core.file.FileLoader;
 import core.util.HOLogger;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -28,60 +28,49 @@ public class RatingPredictionParameter  {
     }
     
 	public void readFromFile (String newFilename) {
-		File file = new File(newFilename);
-		/*
-		 * If filename changed or the file was modified -> (re)-parse the parameter file 
-		 */
-		if (!newFilename.equals(filename) || lastParse < file.lastModified()) {
+		// If filename changed or the file was modified -> (re)-parse the parameter file 
+		long currentLastModified = FileLoader.instance().getFileLastModified(newFilename);
+		if (!newFilename.equals(filename) || lastParse < currentLastModified) {
 			try {
-				lastParse = file.lastModified();
+				lastParse = currentLastModified;
 				filename = newFilename;
 				allProps.clear();
 				HOLogger.instance().debug(this.getClass(), "(Re-)initializing prediction parameters: "+newFilename);
 				
-				//BufferedReader br = new BufferedReader(new FileReader(newFilename));
-				BufferedReader br = null;
-    			final File predFile = new File(newFilename);
-    			if (predFile.exists()) {
-    				br = new BufferedReader(new FileReader(predFile));
-    			} else {
-    				try {
-						final ClassLoader loader = RatingPredictionConfig.class.getClassLoader();
-						br = new BufferedReader(new InputStreamReader((loader.getResourceAsStream(newFilename))));
-					} catch (Exception e) {
-						HOLogger.instance().debug(RatingPredictionConfig.class, "Error loading " + newFilename + ": " + e);
-					}
-    			}
+				InputStream predictionIS = FileLoader.instance().getFileInputStream(newFilename);
+				if (predictionIS==null) {
+					HOLogger.instance().debug(RatingPredictionConfig.class, "Error while loading: " + newFilename);
+				} else {
+					BufferedReader br = new BufferedReader(new InputStreamReader(predictionIS));
 				
-				String line = null;
-				Properties curProperties = null;
-				while(br != null && (line = br.readLine()) != null) {
-					line = line.toLowerCase(java.util.Locale.ENGLISH);
-					// # begins a Comment
-					line = line.replaceFirst ("#.*", "");
-					// Trim
-					line = line.trim();
-					if (line.startsWith("[")) {
-						// new Section
-						String sectionName = line.replaceFirst ("^\\[(.*)\\].*", "$1");
-						if (allProps.containsKey(sectionName)) {
-							curProperties = allProps.get(sectionName);
-						} else {
-							curProperties = new Properties();
-							allProps.put(sectionName, curProperties);
+					String line = null;
+					Properties curProperties = null;
+					while(br != null && (line = br.readLine()) != null) {
+						line = line.toLowerCase(java.util.Locale.ENGLISH);
+						// # begins a Comment
+						line = line.replaceFirst ("#.*", "");
+						// Trim
+						line = line.trim();
+						if (line.startsWith("[")) {
+							// new Section
+							String sectionName = line.replaceFirst ("^\\[(.*)\\].*", "$1");
+							if (allProps.containsKey(sectionName)) {
+								curProperties = allProps.get(sectionName);
+							} else {
+								curProperties = new Properties();
+								allProps.put(sectionName, curProperties);
+							}
+						}
+						String temp[] = line.split("=");
+						if (temp.length == 2 && curProperties != null) {
+							String key = temp[0].trim();
+							String value = temp[1].trim();
+							//System.out.println ("Found new property: "+key+" -> "+value);
+							curProperties.setProperty(key, value);
 						}
 					}
-					String temp[] = line.split("=");
-					if (temp.length == 2 && curProperties != null) {
-						String key = temp[0].trim();
-						String value = temp[1].trim();
-						//System.out.println ("Found new property: "+key+" -> "+value);
-						curProperties.setProperty(key, value);
-					}
-				}
 				//            System.out.println ("All Props: "+allProps);
-			} catch (FileNotFoundException e) {
-				HOLogger.instance().error(RatingPredictionConfig.class, "File not found: " + newFilename);
+				}
 			} catch (Exception e) {
 				HOLogger.instance().error(RatingPredictionConfig.class, e);
 			}

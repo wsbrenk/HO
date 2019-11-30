@@ -60,18 +60,15 @@ public class XMLManager  {
     /**
      * Parse XM from file name.
      */
-    public static Document parseFile(String dateiname) {
+    public static Document parseFile(String fileName) {
         final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = null;
         Document doc = null;
 
         try {
-            //Validierung, Namensräume einschalten
-            //factory.setValidating ( false );
-            //factory.setNamespaceAware ( true );
             builder = factory.newDocumentBuilder();
 
-            doc = builder.parse(new File(dateiname));
+            doc = builder.parse(new File(fileName));
         } catch (Exception e) {
             HOLogger.instance().log(XMLManager.class,"Parser error: " + e);
             HOLogger.instance().log(XMLManager.class,e);
@@ -152,6 +149,11 @@ public class XMLManager  {
         } catch (Exception e) {
             HOLogger.instance().log(XMLManager.class,"Parser fehler: " + e);
             HOLogger.instance().log(XMLManager.class,e);
+        }
+
+        if (doc == null || doc.getElementsByTagName("HattrickData").getLength() <= 0) {
+            HOLogger.instance().error(XMLManager.class, "Cannot parse data:" + inputString);
+            return null;
         }
 
         return doc;

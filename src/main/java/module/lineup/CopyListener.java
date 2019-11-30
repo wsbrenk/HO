@@ -2,10 +2,10 @@ package module.lineup;
 
 import core.gui.HOMainFrame;
 import core.model.HOVerwaltung;
+import core.model.player.Player;
 import core.util.HOLogger;
 import core.model.match.MatchLineupTeam;
 import core.model.match.Matchdetails;
-import core.model.player.Spieler;
 
 import java.awt.Component;
 import java.awt.Toolkit;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
-import static core.model.player.ISpielerPosition.*;
+import static core.model.player.IMatchRoleID.*;
 
 
 /**
@@ -145,9 +145,9 @@ public class CopyListener implements ActionListener {
 			int positionID = p.getPositionsID();
 			int playerID = p.getPlayerId();
 			if (playerID != -1) {
-				Spieler player = p.getSelectedPlayer();
+				Player player = p.getSelectedPlayer();
 				switch (positionID) {
-				// ugly that the imported static constants from ISpielerPosition are named in lower case
+				// ugly that the imported static constants from IMatchRoleID are named in lower case
 				case keeper: goalie = player.getShortName() + SPACE + p.getTacticSymbol() + player.getSpecialityExportNameForKeeper(); break;
 				case rightBack: rightWB = player.getShortName() + SPACE + p.getTacticSymbol() + player.getSpecialityExportName(); break;
 				case rightCentralDefender: rightCD = p.getTacticSymbol() + SPACE + player.getShortName() + player.getSpecialityExportName(); break;
@@ -167,7 +167,7 @@ public class CopyListener implements ActionListener {
 			}
 		}
 		HOVerwaltung hov = HOVerwaltung.instance();
-		Lineup lineupData = hov.getModel().getAufstellung();
+		Lineup lineupData = hov.getModel().getLineup();
 		byte system = lineupData.ermittelSystem();
 		String systemName = lineupData.getSystemName(system);
 		int tacticType = lineupData.getTacticType();
@@ -199,9 +199,9 @@ public class CopyListener implements ActionListener {
 			int positionID = p.getPositionsID();
 			int playerID = p.getPlayerId();
 			if (playerID != -1) {
-				Spieler player = p.getSelectedPlayer();
+				Player player = p.getSelectedPlayer();
 				switch (positionID) {
-				// ugly that the imported static constants from ISpielerPosition are named in lower case
+				// ugly that the imported static constants from IMatchRoleID are named in lower case
 				case keeper: goalie = player.getShortName() + SPACE + p.getTacticSymbol() + player.getSpecialityExportNameForKeeper(); break;
 				case rightBack: rightWB = player.getShortName() + SPACE + p.getTacticSymbol() + player.getSpecialityExportName(); break;
 				case rightCentralDefender: rightCD = p.getTacticSymbol() + SPACE + player.getShortName() + player.getSpecialityExportName(); break;
@@ -221,7 +221,7 @@ public class CopyListener implements ActionListener {
 			}
 		}
 		HOVerwaltung hov = HOVerwaltung.instance();
-		Lineup lineupData = hov.getModel().getAufstellung();
+		Lineup lineupData = hov.getModel().getLineup();
 		byte system = lineupData.ermittelSystem();
 		String systemName = lineupData.getSystemName(system);
 		int tacticType = lineupData.getTacticType();
@@ -241,14 +241,14 @@ public class CopyListener implements ActionListener {
 				"[/th][th align=center]"+HOVerwaltung.instance().getLanguageString("Mitte") +
 				"[/th][th align=center]"+HOVerwaltung.instance().getLanguageString("Links")+"[/th][/tr]" + LF;
 		String defence = "[tr][td align=center]" + rightWB + "[/td]" + "[td align=center]" + rightCD + "[/td]" + "[td align=center]" + middleCD + "[/td]" +
-				"[td align=center]" + leftCD + "[/td]" + "[td align=center]" + leftWB + "[/td]" + "[td valign=middle]"+lineup.getRightDefenseRating() +
-				"[/td][td valign=middle]"+lineup.getCentralDefenseRating() + "[/td][td valign=middle]"+lineup.getLeftDefenseRating() + "[/td][/tr]" + LF;
+				"[td align=center]" + leftCD + "[/td]" + "[td align=center]" + leftWB + "[/td]" + "[td align=center]"+lineup.getRightDefenseRating() +
+				"[/td][td align=center]"+lineup.getCentralDefenseRating() + "[/td][td align=center]"+lineup.getLeftDefenseRating() + "[/td][/tr]" + LF;
 		String middle = "[tr][td align=center]" + rightW + "[/td]" + "[td align=center]" + rightIM + "[/td]" + "[td align=center]" + middleIM + "[/td]" +
-				"[td align=center]" + leftIM + "[/td]" + "[td align=center]" + leftW + "[/td]" + "[td][/td]" + "[td valign=middle]" + 
+				"[td align=center]" + leftIM + "[/td]" + "[td align=center]" + leftW + "[/td]" + "[td][/td]" + "[td align=center]" +
 				lineup.getMidfieldRating()+ "[/td][td]" + "[/td][/tr]" + LF;
 		String attack = "[tr][td][/td][td align=center]" + rightFW + "[/td]" + "[td align=center]" + middleFW + "[/td]" + "[td align=center]" + leftFW + "[/td]" +
-				"[td][/td]" + "[td valign=middle]"+lineup.getRightAttackRating() + "[/td][td valign=middle]"+lineup.getCentralAttackRating() +
-				"[/td][td valign=middle]"+lineup.getLeftAttackRating() + "[/td][/tr]" + LF + "[/table]";
+				"[td][/td]" + "[td align=center]"+lineup.getRightAttackRating() + "[/td][td align=center]"+lineup.getCentralAttackRating() +
+				"[/td][td align=center]"+lineup.getLeftAttackRating() + "[/td][/tr]" + LF + "[/table]";
 		result = header + keeper + defence + middle + attack;
 		return result;
 	}

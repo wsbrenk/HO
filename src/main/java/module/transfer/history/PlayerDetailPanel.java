@@ -8,7 +8,7 @@ import core.db.DBManager;
 import core.gui.comp.panel.ImagePanel;
 import core.gui.theme.ImageUtilities;
 import core.model.HOVerwaltung;
-import core.model.player.Spieler;
+import core.model.player.Player;
 import module.transfer.PlayerRetriever;
 import module.transfer.PlayerTransfer;
 import module.transfer.ui.layout.TableLayout;
@@ -54,7 +54,7 @@ public class PlayerDetailPanel extends JPanel implements ActionListener {
     private static final String SKILL_KEEPER = hov.getLanguageString("ls.player.skill.keeper");
     private static final String SKILL_EXPERIENCE = hov.getLanguageString("ls.player.experience");
 
-    private Spieler player;
+    private Player player;
     private JButton updBtn = new JButton();
     private JLabel age = new JLabel("", SwingConstants.LEFT); //$NON-NLS-1$
     private JLabel currTSI = new JLabel(HOVerwaltung.instance().getLanguageString("PlayerDetail.NotAvail"),
@@ -270,13 +270,13 @@ public class PlayerDetailPanel extends JPanel implements ActionListener {
                     currTSI.setText(Integer.toString(this.player.getTSI()));
                 }
 
-                skill_keeper.setText(SKILL_KEEPER + " (" + player.getTorwart() + ")");
-                skill_playmaking.setText(SKILL_PLAYMAKING + " (" + player.getSpielaufbau() + ")");
-                skill_passing.setText(SKILL_PASSING + " (" + player.getPasspiel() + ")");
-                skill_wing.setText(SKILL_WING + " (" + player.getFluegelspiel() + ")");
-                skill_defense.setText(SKILL_DEFENSE + " (" + player.getVerteidigung() + ")");
-                skill_scoring.setText(SKILL_SCORING + " (" + player.getTorschuss() + ")");
-                skill_setpieces.setText(SKILL_SETPIECES + " (" + player.getStandards() + ")");
+                skill_keeper.setText(SKILL_KEEPER + " (" + player.getGKskill() + ")");
+                skill_playmaking.setText(SKILL_PLAYMAKING + " (" + player.getPMskill() + ")");
+                skill_passing.setText(SKILL_PASSING + " (" + player.getPSskill() + ")");
+                skill_wing.setText(SKILL_WING + " (" + player.getWIskill() + ")");
+                skill_defense.setText(SKILL_DEFENSE + " (" + player.getDEFskill() + ")");
+                skill_scoring.setText(SKILL_SCORING + " (" + player.getSCskill() + ")");
+                skill_setpieces.setText(SKILL_SETPIECES + " (" + player.getSPskill() + ")");
                 skill_stamina.setText(SKILL_STAMINA + " (" + player.getKondition() + ")");
                 skill_experience.setText(SKILL_EXPERIENCE + " (" + player.getErfahrung() + ")");
 

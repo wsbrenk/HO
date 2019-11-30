@@ -3,6 +3,7 @@ package core.gui;
 
 import core.HO;
 import core.db.DBManager;
+import core.db.User;
 import core.file.hrf.HRFImport;
 import core.gui.comp.panel.ImagePanel;
 import core.gui.comp.tabbedPane.HOTabbedPane;
@@ -15,7 +16,7 @@ import core.model.FormulaFactors;
 import core.model.HOVerwaltung;
 import core.model.UserParameter;
 import core.model.match.Weather;
-import core.model.player.Spieler;
+import core.model.player.Player;
 import core.module.IModule;
 import core.module.ModuleManager;
 import core.module.config.ModuleConfig;
@@ -32,6 +33,7 @@ import module.lineup.IAufstellungsAssistentPanel;
 import module.lineup.LineupMasterView;
 import module.lineup.LineupPanel;
 import module.matches.SpielePanel;
+import module.nthrf.MainPanel;
 import module.playerOverview.SpielerUebersichtsPanel;
 import module.playeranalysis.PlayerAnalysisModulePanel;
 import module.transfer.TransfersPanel;
@@ -50,8 +52,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URI;
-import java.net.URL;
-import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -73,6 +73,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.text.DefaultEditorKit;
 
 /**
  * The Main HO window
@@ -129,6 +130,10 @@ public final class HOMainFrame extends JFrame implements Refreshable, ActionList
 	private boolean isAppTerminated = false; // set when HO should be terminated
 	private List<ApplicationClosingListener> applicationClosingListener = new ArrayList<ApplicationClosingListener>();
 
+	// Menu color depending of version
+	private final Color c_beta = new Color(162, 201, 255);
+	private final Color c_dev = new Color(235, 170, 170);
+
 	// ~ Constructors
 	// -------------------------------------------------------------------------------
 
@@ -168,8 +173,15 @@ public final class HOMainFrame extends JFrame implements Refreshable, ActionList
 		else{
 			setTitle("HO! - Hattrick Organizer " + getVersionString() + " - " + teamName);}
 
-
-		this.setIconImage(ThemeManager.getIcon(HOIconName.LOGO16).getImage());
+		if (HO.isDevelopment()) {
+			this.setIconImage(ThemeManager.getIcon(HOIconName.LOGO16_DEV).getImage());
+		}
+		else if (HO.isBeta()) {
+			this.setIconImage(ThemeManager.getIcon(HOIconName.LOGO16_BETA).getImage());
+		}
+		else {
+			this.setIconImage(ThemeManager.getIcon(HOIconName.LOGO16_STABLE).getImage());
+		}
 
 		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		addListeners();
@@ -214,7 +226,7 @@ public final class HOMainFrame extends JFrame implements Refreshable, ActionList
 								HOLogger.instance()
 										.debug(getClass(),
 												"ApplicationListener.handleQuit() fired! Quitting MacOS Application!");
-								beenden();
+								shutdown();
 							}
 							return null;
 						}
@@ -251,22 +263,13 @@ public final class HOMainFrame extends JFrame implements Refreshable, ActionList
 
 	public static String getVersionString() {
 		NumberFormat nf = NumberFormat.getInstance(Locale.US);
-		nf.setMinimumFractionDigits(3);
+		nf.setMinimumFractionDigits(1);
 		String txt = nf.format(HO.VERSION);
 
-		if (HO.isBeta()) {
-			txt += " BETA";
+		if (!HO.isRelease()) {
 			final int r = HO.getRevisionNumber();
 			if (r >= 1) {
-				txt += " (r" + HO.getRevisionNumber() + ")";
-			}
-		}
-
-		else if (HO.isDevelopment()) {
-			txt += " DEV";
-			final int r = HO.getRevisionNumber();
-			if (r >= 1) {
-				txt += " (r" + HO.getRevisionNumber() + ")";
+				txt += " r" + HO.getRevisionNumber();
 			}
 		}
 
@@ -284,9 +287,9 @@ public final class HOMainFrame extends JFrame implements Refreshable, ActionList
 		return m_clHOMainFrame;
 	}
 
-	public void setActualSpieler(Spieler spieler) {
-		getAufstellungsPanel().setPlayer(spieler.getSpielerID());
-		getSpielerUebersichtPanel().setPlayer(spieler);
+	public void setActualSpieler(Player player) {
+		getAufstellungsPanel().setPlayer(player.getSpielerID());
+		getSpielerUebersichtPanel().setPlayer(player);
 	}
 
 	public LineupPanel getAufstellungsPanel() {
@@ -344,7 +347,11 @@ public final class HOMainFrame extends JFrame implements Refreshable, ActionList
 		if (source.equals(m_jmImportItem)) { // HRF Import
 			new HRFImport(this);
 		} else if (source.equals(m_jmDownloadItem)) { // HRF Download
-			new DownloadDialog();
+			if (User.getCurrentUser().isNtTeam())
+				JOptionPane.showMessageDialog(HOMainFrame.instance(), MainPanel.getInstance(),
+						HOVerwaltung.instance().getLanguageString("HRFDownload"), JOptionPane.PLAIN_MESSAGE);
+			else
+				new DownloadDialog();
 		} else if (source.equals(m_jmOptionen)) { // Options
 			new OptionenDialog(this).setVisible(true);
 		} else if (source.equals(databaseOptionsMenu)) {
@@ -429,16 +436,15 @@ public final class HOMainFrame extends JFrame implements Refreshable, ActionList
 
 
 	/**
-	 * Beendet HO
+	 * closing HO
 	 */
-	public void beenden() {
+	public void shutdown() {
 
 		CursorToolkit.startWaitCursor(getRootPane());
 		try {
 			fireApplicationClosing();
 
-			// TODO instead of calling XY.instance().save() from here, those
-			// classes should register a ApplicationClosingListener
+			// TODO: instead of calling XY.instance().save() from here, those classes should register an ApplicationClosingListener
 			HOLogger.instance().debug(getClass(), "Shutting down HO!");
 			// aktuelle UserParameter speichern
 			saveUserParameter();
@@ -474,7 +480,16 @@ public final class HOMainFrame extends JFrame implements Refreshable, ActionList
 	public void initComponents() {
 		javax.swing.ToolTipManager.sharedInstance().setDismissDelay(5000);
 
-		setContentPane(new ImagePanel());
+		if (HO.isDevelopment()) {
+			getContentPane().setBackground(c_dev);
+		}
+		else if (HO.isBeta()) {
+			getContentPane().setBackground(c_beta);
+		}
+		else {
+			setContentPane(new ImagePanel());
+		}
+
 		getContentPane().setLayout(new BorderLayout());
 
 		m_jtpTabbedPane = new HOTabbedPane();
@@ -770,6 +785,17 @@ public final class HOMainFrame extends JFrame implements Refreshable, ActionList
 					UIManager.setLookAndFeel(laf);
 				}
 			}
+			
+			// #177 Standard shortcuts for copy/cut/paste don't work in MacOSX if LookAndFeel changes
+			if (succ && System.getProperty("os.name").toLowerCase(java.util.Locale.ENGLISH)
+						.startsWith("mac")) {
+				InputMap im = (InputMap) UIManager.get("TextField.focusInputMap");
+				im.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.META_DOWN_MASK), DefaultEditorKit.copyAction);
+				im.put(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.META_DOWN_MASK), DefaultEditorKit.pasteAction);
+				im.put(KeyStroke.getKeyStroke(KeyEvent.VK_X, KeyEvent.META_DOWN_MASK), DefaultEditorKit.cutAction);
+				im.put(KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.META_DOWN_MASK), DefaultEditorKit.selectAllAction);
+			}
+			
 			SwingUtilities.updateComponentTreeUI(this);
 		} catch (Exception e) {
 			HOLogger.instance().log(HOMainFrame.class, e);
@@ -845,7 +871,7 @@ public final class HOMainFrame extends JFrame implements Refreshable, ActionList
 			/**
 			 * Finally shutting down the application when the main window is
 			 * closed. This is initiated through the call to dispose().
-			 * System.exit is called only in the case when @see beenden() is
+			 * System.exit is called only in the case when @see shutdown() is
 			 * called in advance. This event is called when switching into full
 			 * screen mode, too.
 			 * 
@@ -864,7 +890,7 @@ public final class HOMainFrame extends JFrame implements Refreshable, ActionList
 			 */
 			@Override
 			public void windowClosing(WindowEvent windowEvent) {
-				beenden();
+				shutdown();
 			}
 
 		});

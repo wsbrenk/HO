@@ -89,7 +89,11 @@ final class DBUpdater {
                 case 22:
                     updateDBv23(DBVersion, version);
                 case 23:
-                    updateDBv24(DBVersion, version);
+					//MATCHREPORT was made longer here but not in table definition
+					//to fix this mistake and not repeat code
+					//updateDBv24 is falling through to updateDBv25
+                case 24:
+                    updateDBv25(DBVersion, version);
 				}
 				
 
@@ -146,9 +150,9 @@ final class DBUpdater {
 	 * @throws Exception
 	 */
 	private void updateDBv8() throws Exception {
-		m_clJDBCAdapter.executeUpdate("ALTER TABLE Spieler ADD COLUMN TrainingBlock BOOLEAN");
+		m_clJDBCAdapter.executeUpdate("ALTER TABLE Player ADD COLUMN TrainingBlock BOOLEAN");
 		m_clJDBCAdapter
-				.executeUpdate("UPDATE Spieler SET TrainingBlock=false WHERE TrainingBlock IS null");
+				.executeUpdate("UPDATE Player SET TrainingBlock=false WHERE TrainingBlock IS null");
 		// Always set field DBVersion to the new value as last action.
 		// Do not use DBVersion but the value, as update packs might
 		// do version checking again before applying!
@@ -403,7 +407,7 @@ final class DBUpdater {
 			dbZugriff.getTable(WorldDetailsTable.TABLENAME).createTable();
 		}
 
-		// Spieler table
+		// Player table
 		dropColumn("sSpezialitaet", "SPIELER");
 		dropColumn("sCharakter", "SPIELER");
 		dropColumn("sAnsehen", "SPIELER");
@@ -576,11 +580,6 @@ final class DBUpdater {
 			m_clJDBCAdapter.executeUpdate("UPDATE SPIELERNOTIZ SET isFired = 'false'");
 		}
 
-        // remove currency name information from XTRADATA table
-        if (columnExistsInTable("CurrencyName", XtraDataTable.TABLENAME)) {
-			dropColumn("CurrencyName", "XTRADATA");
-		}
-
         if (version < DBVersion) {
             if(!HO.isDevelopment()) {
                 HOLogger.instance().info(DBUpdater.class, "Update done, setting db version number from " + version + " to " + DBVersion);
@@ -596,8 +595,14 @@ final class DBUpdater {
         }
     }
 	
-	private void updateDBv24(int DBVersion, int version) throws SQLException {
-		// 1.438
+	private void updateDBv25(int DBVersion, int version) throws SQLException {
+		// 1.436
+
+		// remove currency name information from XTRADATA table
+		if (columnExistsInTable("CurrencyName", XtraDataTable.TABLENAME)) {
+			dropColumn("CurrencyName", "XTRADATA");
+		}
+
 		if (columnExistsInTable("MATCHREPORT", MatchDetailsTable.TABLENAME)) {
 			m_clJDBCAdapter.executeUpdate("ALTER TABLE MATCHDETAILS ALTER COLUMN MATCHREPORT SET DATA TYPE VARCHAR(20000)"); // fix an existing bug - 15 000 was not enough
 		}
@@ -611,6 +616,36 @@ final class DBUpdater {
 			m_clJDBCAdapter.executeUpdate("ALTER TABLE MATCHDETAILS ADD COLUMN GASTHATSTATS INTEGER");
 			m_clJDBCAdapter.executeUpdate("UPDATE MATCHDETAILS SET GASTHATSTATS = GASTLEFTATT + GASTRIGHTATT + GASTMIDATT + 3 * GASTMIDFIELD + GASTLEFTDEF + GASTRIGHTDEF + GASTMIDDEF");
 		}
+
+		if (!columnExistsInTable("CUPLEVEL", MatchesKurzInfoTable.TABLENAME)) {
+			m_clJDBCAdapter.executeUpdate("ALTER TABLE MATCHESKURZINFO ADD COLUMN CUPLEVEL INTEGER");
+			m_clJDBCAdapter.executeUpdate("UPDATE MATCHESKURZINFO SET CUPLEVEL = 0");
+		}
+
+		if (!columnExistsInTable("CUPLEVELINDEX", MatchesKurzInfoTable.TABLENAME)) {
+			m_clJDBCAdapter.executeUpdate("ALTER TABLE MATCHESKURZINFO ADD COLUMN CUPLEVELINDEX INTEGER");
+			m_clJDBCAdapter.executeUpdate("UPDATE MATCHESKURZINFO SET CUPLEVELINDEX = 0");
+		}
+
+		if (!tableExists(MatchOrderTable.TABLENAME)) {
+			dbZugriff.getTable(MatchOrderTable.TABLENAME).createTable();
+		}
+
+		// use defaults player formula from defaults.xml by resetting the value in the database
+		AbstractTable faktorenTab = dbZugriff.getTable(FaktorenTable.TABLENAME);
+		if (faktorenTab != null) {
+			faktorenTab.dropTable();
+			faktorenTab.createTable();
+		}
+
+		// Removed prediction offset, more details https://github.com/akasolace/HO/issues/221
+		m_clJDBCAdapter.executeUpdate("DELETE FROM USERCONFIGURATION WHERE CONFIG_KEY='leftAttackOffset'");
+		m_clJDBCAdapter.executeUpdate("DELETE FROM USERCONFIGURATION WHERE CONFIG_KEY='leftDefenceOffset'");
+		m_clJDBCAdapter.executeUpdate("DELETE FROM USERCONFIGURATION WHERE CONFIG_KEY='middleAttackOffset'");
+		m_clJDBCAdapter.executeUpdate("DELETE FROM USERCONFIGURATION WHERE CONFIG_KEY='middleDefenceOffset'");
+		m_clJDBCAdapter.executeUpdate("DELETE FROM USERCONFIGURATION WHERE CONFIG_KEY='midfieldOffset'");
+		m_clJDBCAdapter.executeUpdate("DELETE FROM USERCONFIGURATION WHERE CONFIG_KEY='rightAttackOffset'");
+		m_clJDBCAdapter.executeUpdate("DELETE FROM USERCONFIGURATION WHERE CONFIG_KEY='rightDefenceOffset'");
 
 		if (version < DBVersion) {
 			if(!HO.isDevelopment()) {
@@ -710,7 +745,7 @@ final class DBUpdater {
 	private void updateConfigTo1420(boolean alreadyApplied) {
 		resetTrainingParameters();
 		resetPredictionOffsets();
-		dbZugriff.saveUserParameter("anzahlNachkommastellen", 2);
+		dbZugriff.saveUserParameter("nbDecimals", 2);
 
 		// always set the LastConfUpdate as last step
 		dbZugriff.saveUserParameter("LastConfUpdate", 1.420);

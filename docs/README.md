@@ -1,6 +1,6 @@
 
 <div align="left">
-  <img src="https://cdn.jsdelivr.net/gh/akasolace/ho@master/src/main/resources/ho_logo.png">
+  <img src="https://cdn.jsdelivr.net/gh/akasolace/ho@master/src/main/resources/ho_logo_stable.png">
 </div>
 
 **Helper Tool for online-manager [Hattrick](http://www.hattrick.org)**
@@ -8,8 +8,8 @@
 <tr>
   <td>Latest Release</td>
   <td>
-    <a href="https://github.com/akasolace/HO/releases/tag/1.436">
-    <img src="https://img.shields.io/badge/HO-1.436-brightgreen.svg" alt="latest release" />
+    <a href="https://github.com/akasolace/HO/releases/tag/1.437">
+    <img src="https://img.shields.io/badge/HO-1.437-brightgreen.svg" alt="latest release" />
     </a>
   </td>
 </tr>
@@ -105,9 +105,10 @@ these here.
 
 ## Acknowledgements
 
-Thanks to all previous HO developers, maintainers as well as all contributors. 
+The following companies are kindly supporting HO open source project:
 
-For their support of open source projects, special thanks to:
-- **JetBrains** https://www.jetbrains.com
-- **PoEditor**  https://poeditor.com
-- **SmartGit**  https://www.syntevo.com/smartgit/
+<a href="https://www.jetbrains.com/?from=HO"> <img src="https://user-images.githubusercontent.com/1136496/54837108-e40f7f80-4cc5-11e9-9ea9-047856d17bb4.png" alt="Jetbrains" width="46" height="50"> </a> [**Jetbrains**](https://www.jetbrains.com/?from=HO) with its full-featured development toolbox
+
+<a href="https://poeditor.com"> <img src="https://user-images.githubusercontent.com/1136496/54937829-795c7f00-4f25-11e9-8394-eb96ddea54fd.png" alt="POEditor" width="46" height="50"> </a> [**POEditor**](https://poeditor.com) with its awesome localization tool
+
+<a href="https://www.syntevo.com/smartgit/"> <img src="https://user-images.githubusercontent.com/1136496/57284884-5d1a3900-70b2-11e9-9917-15a7d2f2c83c.png" alt="SmartGit" width="46" height="50"> </a> [**Syntevo**](https://www.syntevo.com/smartgit/) with its powerful and multi-platform graphical Git client

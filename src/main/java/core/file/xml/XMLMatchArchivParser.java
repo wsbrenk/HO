@@ -6,6 +6,8 @@
  */
 package core.file.xml;
 
+import core.model.cup.CupLevel;
+import core.model.cup.CupLevelIndex;
 import core.model.match.MatchKurzInfo;
 import core.model.match.MatchType;
 import core.util.HOLogger;
@@ -43,6 +45,9 @@ public class XMLMatchArchivParser {
 		Element ele = null;
 		Element tmp = null;
 		MatchKurzInfo match = null;
+		int iMatchType;
+		int iCupLevel;
+		int iCupLevelIndex;
 		try {
 			NodeList  nodeList = root.getElementsByTagName("Match");
 
@@ -57,8 +62,18 @@ public class XMLMatchArchivParser {
 				match.setMatchID(Integer.parseInt(tmp.getFirstChild()
 						.getNodeValue()));
 				tmp = (Element) ele.getElementsByTagName("MatchType").item(0);
-				match.setMatchTyp(MatchType.getById(Integer.parseInt(tmp
-						.getFirstChild().getNodeValue())));
+				iMatchType = Integer.parseInt(tmp.getFirstChild().getNodeValue());
+				if (iMatchType != 3) {match.setMatchType(MatchType.getById(iMatchType));}
+				else{
+					tmp = (Element) ele.getElementsByTagName("CupLevel").item(0);
+					iCupLevel = Integer.parseInt(tmp.getFirstChild().getNodeValue());
+					match.setCupLevel(CupLevel.fromInt(iCupLevel));
+					tmp = (Element) ele.getElementsByTagName("CupLevelIndex").item(0);
+					iCupLevelIndex = Integer.parseInt(tmp.getFirstChild().getNodeValue());
+					match.setCupLevelIndex(CupLevelIndex.fromInt(iCupLevelIndex));
+					match.setMatchType(MatchType.getById(iMatchType, iCupLevel, iCupLevelIndex));
+				}
+
 				tmp = (Element) ele.getElementsByTagName("HomeTeam").item(0);
 				match.setHeimID(Integer.parseInt(((Element) tmp
 						.getElementsByTagName("HomeTeamID").item(0))

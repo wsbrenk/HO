@@ -14,13 +14,12 @@ import core.model.Team;
 import core.model.match.MatchLineupPlayer;
 import core.model.match.MatchLineupTeam;
 import core.model.match.Matchdetails;
-import core.model.player.ISpielerPosition;
-import core.model.player.Spieler;
+import core.model.player.IMatchRoleID;
+import core.model.player.Player;
 import core.net.MyConnector;
 import core.net.login.LoginWaitDialog;
 import core.rating.RatingPredictionManager;
 import core.util.HOLogger;
-import core.util.Helper;
 import module.lineup.Lineup;
 
 import java.awt.BorderLayout;
@@ -150,13 +149,13 @@ public class XMLExporter  {
 	// *      <Selbstvertrauen>
 	// *      <Ratings>...
 	// *      <lineup>
-	// *          <Spieler>
+	// *          <Player>
 	// *              <SpielerID>
 	// *              <Position>
 	// *              <Taktik>
 	// *              <ResultingPosition>
 	// *              <SpielerDaten>....
-	// *          </Spieler>
+	// *          </Player>
 	// *          ...
 	// *      </Lineup>
 	// *  </Team>
@@ -359,13 +358,13 @@ public class XMLExporter  {
 				//tmpRoot wechseln
 				tmpEle = lineupEle;
 
-				//Spieler schreiben
+				//Player schreiben
 				for (int k = 0;(lineupTeam.getAufstellung() != null) && (k < lineupTeam.getAufstellung().size()); k++) {					
 					MatchLineupPlayer playerMatch = lineupTeam.getAufstellung().get(k);
-					Spieler playerData = matchData.getPlayers().get(Integer.valueOf(playerMatch.getSpielerId()));
+					Player playerData = matchData.getPlayers().get(Integer.valueOf(playerMatch.getSpielerId()));
 
 					//Bank + verletzte überspringen
-					if (playerMatch.getId() >= ISpielerPosition.startReserves) {
+					if (playerMatch.getId() >= IMatchRoleID.startReserves) {
 						continue;
 					}
 
@@ -380,7 +379,7 @@ public class XMLExporter  {
 					ele.appendChild(doc.createTextNode("" + playerMatch.getSpielerId()));
 					ele = doc.createElement("Spezialitaet");
 					tmpEle.appendChild(ele);
-					ele.appendChild(doc.createTextNode("" + playerData.getSpezialitaet()));
+					ele.appendChild(doc.createTextNode("" + playerData.getPlayerSpecialty()));
 					ele = doc.createElement("RoleID");
 					tmpEle.appendChild(ele);
 					ele.appendChild(doc.createTextNode("" + playerMatch.getId()));
@@ -419,25 +418,25 @@ public class XMLExporter  {
 					ele.appendChild(doc.createTextNode("" + playerData.getErfahrung()));
 					ele = doc.createElement("Torwart");
 					tmpEle.appendChild(ele);
-					ele.appendChild(doc.createTextNode("" + playerData.getTorwart()));
+					ele.appendChild(doc.createTextNode("" + playerData.getGKskill()));
 					ele = doc.createElement("Verteidigung");
 					tmpEle.appendChild(ele);
-					ele.appendChild(doc.createTextNode("" + playerData.getVerteidigung()));
+					ele.appendChild(doc.createTextNode("" + playerData.getDEFskill()));
 					ele = doc.createElement("Passspiel");
 					tmpEle.appendChild(ele);
-					ele.appendChild(doc.createTextNode("" + playerData.getPasspiel()));
+					ele.appendChild(doc.createTextNode("" + playerData.getPSskill()));
 					ele = doc.createElement("Fluegel");
 					tmpEle.appendChild(ele);
-					ele.appendChild(doc.createTextNode("" + playerData.getFluegelspiel()));
+					ele.appendChild(doc.createTextNode("" + playerData.getWIskill()));
 					ele = doc.createElement("Torschuss");
 					tmpEle.appendChild(ele);
-					ele.appendChild(doc.createTextNode("" + playerData.getTorschuss()));
+					ele.appendChild(doc.createTextNode("" + playerData.getSCskill()));
 					ele = doc.createElement("Standards");
 					tmpEle.appendChild(ele);
-					ele.appendChild(doc.createTextNode("" + playerData.getStandards()));
+					ele.appendChild(doc.createTextNode("" + playerData.getSPskill()));
 					ele = doc.createElement("Spielaufbau");
 					tmpEle.appendChild(ele);
-					ele.appendChild(doc.createTextNode("" + playerData.getSpielaufbau()));
+					ele.appendChild(doc.createTextNode("" + playerData.getPMskill()));
 					ele = doc.createElement("SubTorwart");
 					tmpEle.appendChild(ele);
 					ele.appendChild(doc.createTextNode("" + playerData.getSubskill4PosAccurate(PlayerSkill.KEEPER)));
@@ -504,7 +503,7 @@ public class XMLExporter  {
 	/**
 	 * Check for skillup.
 	 */
-	private String hadSkillup(int skill, Spieler player, Timestamp matchdate) {
+	private String hadSkillup(int skill, Player player, Timestamp matchdate) {
 		Object[] value = player.getLastLevelUp(skill);
 
 		if ((value != null) && ((value[0] != null) && (value[1] != null))) {

@@ -29,20 +29,20 @@ public class HOClassicSchema extends Schema implements HOIconName, HOColorName, 
 	}
 
 	private void initIcons() {
-		put(MATCHTYPES[1], "gui/bilder/Meisterschale.gif");
-		put(MATCHTYPES[2], "gui/bilder/relegation.gif");
-		put(MATCHTYPES[3], "gui/bilder/Pokal.gif");
-		put(MATCHTYPES[4], "gui/bilder/freundschaft.gif");
-		put(MATCHTYPES[5], "gui/bilder/freundschaft.gif");
-		put(MATCHTYPES[6], "gui/bilder/Pokal2.gif");
-		put(MATCHTYPES[7], "gui/bilder/Pokal2.gif");
-		put(MATCHTYPES[8], "gui/bilder/freunschaft_intern.gif");
-		put(MATCHTYPES[9], "gui/bilder/freunschaft_intern.gif");
-		put(MATCHTYPES[10], "gui/bilder/Meisterschale2.gif");
-		put(MATCHTYPES[11], "gui/bilder/Meisterschale2.gif");
-		put(MATCHTYPES[12], "gui/bilder/freundschaft.gif");
-		put(MATCHTYPES[13], "gui/bilder/tournament.png");
-		put(MATCHTYPES[14], "gui/bilder/tournament.png");
+		put(MATCHICONS[0], "gui/bilder/league_match_icon.png");
+		put(MATCHICONS[1], "gui/bilder/qualification_match_icon.png");
+		put(MATCHICONS[2], "gui/bilder/friendly_match_icon.png");
+		put(MATCHICONS[3], "gui/bilder/national_cup_match_icon.png");
+		put(MATCHICONS[4], "gui/bilder/emerald_cup_match_icon.png");
+		put(MATCHICONS[5], "gui/bilder/ruby_cup_match_icon.png");
+		put(MATCHICONS[6], "gui/bilder/sapphire_cup_match_icon.png");
+		put(MATCHICONS[7], "gui/bilder/ladder_match_icon.png");
+		put(MATCHICONS[8], "gui/bilder/tournament_match_icon.png");
+		put(MATCHICONS[9], "gui/bilder/single_match_icon.png");
+		put(MATCHICONS[10], "gui/bilder/masters_match_icon.png");
+		put(MATCHICONS[11], "gui/bilder/default_match_icon.gif");
+		put(MATCHICONS[12], "gui/bilder/consolante_cup_match_icon.png");
+
 
 		put(MANUELLSMILIES[1], "gui/bilder/smilies/1bigsmile.gif");
 		put(MANUELLSMILIES[2], "gui/bilder/smilies/2smile.gif");
@@ -102,6 +102,7 @@ public class HOClassicSchema extends Schema implements HOIconName, HOColorName, 
 		put(LOCKED, "gui/bilder/Locked.gif");
 		put(EMPTY, "gui/bilder/empty.gif");
 		put(INFO, "gui/bilder/info.gif");
+		put(FEEDBACK, "gui/bilder/feedback.gif");
 		put(GOTOANALYSETOP, "gui/bilder/gotoAnalyseTop.png");
 		put(GOTOANALYSEBOTTOM, "gui/bilder/gotoAnalyseBottom.png");
 		put(OFFSET, "gui/bilder/offset.png");
@@ -112,8 +113,6 @@ public class HOClassicSchema extends Schema implements HOIconName, HOColorName, 
 		put(RELOAD, "gui/bilder/Reload.png");
 		put(SIMULATEMATCH, "gui/bilder/simulate_match.png");
 		put(GETLINEUP, "gui/bilder/AufstellungUebernehmen.png");
-		put(MIDLINEUPFRAME, "gui/bilder/MidiAufstellung.png");
-		put(MINLINEUPFRAME, "gui/bilder/MiniAufstellung.png");
 		put(SWAP, "gui/bilder/swap.png");
 		put(SWAPPRESSED, "gui/bilder/swap-pressed.png");
 		put(TURN, "gui/bilder/drehen.png");
@@ -123,7 +122,9 @@ public class HOClassicSchema extends Schema implements HOIconName, HOColorName, 
 		put(CLEARRESERVE, "gui/bilder/Assist_reserveleeren.png");
 		put(CLEARPOSORDERS, "gui/bilder/Assist_clearPosOrders.png");
 
-		put(LOGO16, "gui/bilder/Logo-16px.png");
+		put(LOGO16_STABLE, "gui/bilder/Logo-16px_stable.png");
+		put(LOGO16_BETA, "gui/bilder/Logo-16px_beta.png");
+		put(LOGO16_DEV, "gui/bilder/Logo-16px_dev.png");
 		put(TRICKOT, "gui/bilder/Trickot.png");
 
 		// Highlights
@@ -154,6 +155,7 @@ public class HOClassicSchema extends Schema implements HOIconName, HOColorName, 
 		put(HOMEGROWN, "gui/bilder/motherclub.png");
 		put(IMAGEPANEL_BACKGROUND, "gui/bilder/Background.jpg");
 		put(GRASSPANEL_BACKGROUND, "gui/bilder/Rasen_mit_Streifen.jpg");
+		put(RATINGCOMPARISON_BACKGROUND, "gui/bilder/field_cut.png");
 
 		// 1.431
 		put(REMOVE, "gui/bilder/remove.png");
@@ -195,6 +197,27 @@ public class HOClassicSchema extends Schema implements HOIconName, HOColorName, 
 		
 		put(PIC, "gui/bilder/pic.png");
 		put(MOTS, "gui/bilder/mots.png");
+
+		// Train bar
+		put(TRAINBAR_FT, "gui/bilder/trainpreview/trainpre_ft.png");
+		put(TRAINBAR_PT, "gui/bilder/trainpreview/trainpre_pt.png");
+		put(TRAINBAR_FFT, "gui/bilder/trainpreview/trainpre_fft.png");
+		put(TRAINBAR_FPT, "gui/bilder/trainpreview/trainpre_fpt.png");
+		put(TRAINBAR_FT_FFT, "gui/bilder/trainpreview/trainpre_ft_fft.png");
+		put(TRAINBAR_FT_FPT, "gui/bilder/trainpreview/trainpre_ft_fpt.png");
+		put(TRAINBAR_PT_FPT, "gui/bilder/trainpreview/trainpre_pt_fpt.png");
+		put(TRAINBAR_FT_PT, "gui/bilder/trainpreview/trainpre_ft_pt.png");
+		put(TRAINBAR_FT_PT_E, "gui/bilder/trainpreview/trainpre_ft_pt_e.png");
+		put(TRAINBAR_FT_E, "gui/bilder/trainpreview/trainpre_ft_e.png");
+		put(TRAINBAR_PT_E, "gui/bilder/trainpreview/trainpre_pt_e.png");
+		put(TRAINBAR_EMPTY, "gui/bilder/trainpreview/trainpre_empty.png");
+
+		put(GREEN_WHITE_CLOCK, "gui/bilder/green-white-clock.png");
+		put(WHITE_GREEN_CLOCK, "gui/bilder/white-green-clock.png");
+		put(RED_WHITE_CLOCK, "gui/bilder/red-white-clock.png");
+		put(WHITE_RED_CLOCK, "gui/bilder/white-red-clock.png");
+
+		put(RATING_GRAPH, "gui/bilder/rating-graph.png");
 	}
 
 	private void initBooleans() {
@@ -224,8 +247,8 @@ public class HOClassicSchema extends Schema implements HOIconName, HOColorName, 
 		put(PANEL_BG, "white");
 		put(PANEL_BORDER, "dark_gray");
 		put(BUTTON_BG, "white");
-		put(BUTTON_ASSIST_BG, "yellow");
-
+		put(BUTTON_ASSIST_CANCEL_BG,  new Color(226, 31, 31));
+		put(BUTTON_ASSIST_OK_BG,  new Color(34, 225, 36));
 		put(LABEL_ERROR_FG, Color.RED);
 		put(LABEL_SUCCESS_FG, "green");
 		put(LABEL_ONGREEN_FG, "white");

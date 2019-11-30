@@ -47,6 +47,9 @@ final class FormelPanel extends ImagePanel implements ActionListener, ItemListen
     private SliderPanel m_jpTorschuss;
     private SliderPanel m_jpTorwart;
     private SliderPanel m_jpVerteidigung;
+    private SliderPanel m_jpNORMALISATIONFACTOR;
+    private short FAKTOR = 1770;
+    private short NORM_FAKTOR = 52;
 
     //~ Constructors -------------------------------------------------------------------------------
 
@@ -153,14 +156,16 @@ final class FormelPanel extends ImagePanel implements ActionListener, ItemListen
         m_jpPasspiel.removeChangeListener(this);
         m_jpVerteidigung.removeChangeListener(this);
         m_jpStandard.removeChangeListener(this);
+        m_jpNORMALISATIONFACTOR.removeChangeListener(this);
 
-        m_jpSpielaufbau.setValue(factorObject.getSpielaufbau());
-        m_jpFluegelspiel.setValue(factorObject.getFluegelspiel());
-        m_jpTorschuss.setValue(factorObject.getTorschuss());
-        m_jpTorwart.setValue(factorObject.getTorwart());
-        m_jpPasspiel.setValue(factorObject.getPasspiel());
-        m_jpVerteidigung.setValue(factorObject.getVerteidigung());
-        m_jpStandard.setValue(factorObject.getStandards());
+        m_jpSpielaufbau.setValue(factorObject.getPMfactor());
+        m_jpFluegelspiel.setValue(factorObject.getWIfactor());
+        m_jpTorschuss.setValue(factorObject.getSCfactor());
+        m_jpTorwart.setValue(factorObject.getGKfactor());
+        m_jpPasspiel.setValue(factorObject.getPSfactor());
+        m_jpVerteidigung.setValue(factorObject.getDEfactor());
+        m_jpStandard.setValue(factorObject.getSPfactor());
+        m_jpNORMALISATIONFACTOR.setValue(factorObject.getNormalizationFactor());
 
         m_jpSpielaufbau.addChangeListener(this);
         m_jpFluegelspiel.addChangeListener(this);
@@ -169,6 +174,7 @@ final class FormelPanel extends ImagePanel implements ActionListener, ItemListen
         m_jpPasspiel.addChangeListener(this);
         m_jpVerteidigung.addChangeListener(this);
         m_jpStandard.addChangeListener(this);
+        m_jpNORMALISATIONFACTOR.addChangeListener(this);
     }
 
     @Override
@@ -183,7 +189,8 @@ final class FormelPanel extends ImagePanel implements ActionListener, ItemListen
                                                            m_jpFluegelspiel.getValue(),
                                                            m_jpVerteidigung.getValue(),
                                                            m_jpTorschuss.getValue(),
-                                                           m_jpStandard.getValue());
+                                                           m_jpStandard.getValue(),
+                                                           m_jpNORMALISATIONFACTOR.getValue());
 
         factors.setPositionFactor(factorObject.getPosition(),factorObject);
         OptionManager.instance().setReInitNeeded();
@@ -219,43 +226,51 @@ final class FormelPanel extends ImagePanel implements ActionListener, ItemListen
 
         //----Slider -----------
         final JPanel panel = new ImagePanel();
-        panel.setLayout(new GridLayout(7, 1, 4, 4));
+        panel.setLayout(new GridLayout(8, 1, 4, 4));
         panel.setBorder(BorderFactory.createLineBorder(ThemeManager.getColor(HOColorName.PANEL_BORDER)));
 
         m_jpSpielaufbau = new SliderPanel(PlayerSkill.toString(PlayerSkill.PLAYMAKING),
-                                          100, 0, 10, 1.0f, 80);
+                                          100, 0, FAKTOR, 1.0f, 80);
         m_jpSpielaufbau.addChangeListener(this);
         panel.add(m_jpSpielaufbau);
 
         m_jpFluegelspiel = new SliderPanel(PlayerSkill.toString(PlayerSkill.WINGER),
-                                           100, 0, 10, 1.0f, 80);
+                                           100, 0, FAKTOR, 1.0f, 80);
         m_jpFluegelspiel.addChangeListener(this);
         panel.add(m_jpFluegelspiel);
 
         m_jpTorschuss = new SliderPanel(PlayerSkill.toString(PlayerSkill.SCORING),
-                                        100, 0, 10, 1.0f, 80);
+                                        100, 0, FAKTOR, 1.0f, 80);
         m_jpTorschuss.addChangeListener(this);
         panel.add(m_jpTorschuss);
 
         m_jpTorwart = new SliderPanel(PlayerSkill.toString(PlayerSkill.KEEPER),
-                                      100, 0, 10, 1.0f, 80);
+                                      100, 0, FAKTOR, 1.0f, 80);
         m_jpTorwart.addChangeListener(this);
         panel.add(m_jpTorwart);
 
         m_jpPasspiel = new SliderPanel(PlayerSkill.toString(PlayerSkill.PASSING),
-                                       100, 0, 10, 1.0f, 80);
+                                       100, 0, FAKTOR, 1.0f, 80);
         m_jpPasspiel.addChangeListener(this);
         panel.add(m_jpPasspiel);
 
         m_jpVerteidigung = new SliderPanel(PlayerSkill.toString(PlayerSkill.DEFENDING),
-                                           100, 0, 10, 1.0f, 80);
+                                           100, 0, FAKTOR, 1.0f, 80);
         m_jpVerteidigung.addChangeListener(this);
         panel.add(m_jpVerteidigung);
 
         m_jpStandard = new SliderPanel(PlayerSkill.toString(PlayerSkill.SET_PIECES),
-                                       100, 0, 10, 1.0f, 80);
+                                       100, 0, FAKTOR, 1.0f, 80);
         m_jpStandard.addChangeListener(this);
         panel.add(m_jpStandard);
+
+        m_jpNORMALISATIONFACTOR = new SliderPanel(HOVerwaltung.instance().getLanguageString("Preference.Panel.Formula.NormalisationFactor.Short"),
+                100, 0, NORM_FAKTOR, 1.0f, 80);
+        m_jpNORMALISATIONFACTOR.setToolTipText(HOVerwaltung.instance().getLanguageString("Preference.Panel.Formula.NormalisationFactor"));
+        m_jpNORMALISATIONFACTOR.addChangeListener(this);
+        panel.add(m_jpNORMALISATIONFACTOR);
+
+
 
         constraints.anchor = GridBagConstraints.WEST;
         constraints.gridx = 0;

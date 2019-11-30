@@ -8,7 +8,8 @@ import core.model.XtraData;
 import core.model.misc.Basics;
 import core.model.misc.Finanzen;
 import core.model.misc.Verein;
-import core.model.player.Spieler;
+import core.model.player.MatchRoleID;
+import core.model.player.Player;
 import core.model.series.Liga;
 import core.util.HOLogger;
 import core.util.IOUtils;
@@ -117,8 +118,10 @@ public class HRFStringParser {
 				propertiesList.add(properties);
 			}
 
+
 			// Close the reader
 			IOUtils.closeQuietly(hrfReader);
+
 
 			// Create HOModel
 			modelReturn = createHOModel(propertiesList, hrfdate);
@@ -178,7 +181,7 @@ public class HRFStringParser {
 				}
 				// lineup
 				else if (entity.toString().equalsIgnoreCase(LINEUP)) {
-					hoModel.setAufstellung(new Lineup(properties));
+					hoModel.setAufstellung(new Lineup(MatchRoleID.convertOldRoleToNew(properties)));
 				}
 				// economy
 				else if (entity.toString().equalsIgnoreCase(ECONOMY)) {
@@ -190,13 +193,19 @@ public class HRFStringParser {
 				}
 				// player
 				else if (entity.toString().equalsIgnoreCase(PLAYER)) {
-					hoModel.addSpieler(new Spieler(properties, hrfdate));
+					hoModel.addSpieler(new Player(properties, hrfdate));
 				}
 				// Xtra
 				else if (entity.toString().equalsIgnoreCase(XTRA)) {
 					hoModel.setXtraDaten(new XtraData(properties));
-					trainerID = Integer.parseInt(properties.getProperty("trainerid", "-1")
-							.toString());
+					// Not numeric for national teams
+					try {
+						trainerID = Integer.parseInt( properties.getProperty("trainerid", "-1"));
+					} catch (NumberFormatException | NullPointerException nfe) {
+						trainerID = -1;
+					}
+
+
 				} else if (entity.toString().equalsIgnoreCase(LASTLINEUP)) {
 					hoModel.setLastAufstellung(new Lineup(properties));
 				} else if (entity.toString().equalsIgnoreCase(STAFF)) {
@@ -219,8 +228,8 @@ public class HRFStringParser {
 		// resetted . So later trainer could be found by searching for player
 		// having trainerType != -1
 		if (trainerID > -1) {
-			List<Spieler> players = hoModel.getAllSpieler();
-			for (Spieler player : players) {
+			List<Player> players = hoModel.getAllSpieler();
+			for (Player player : players) {
 				if (player.isTrainer() && player.getSpielerID() != trainerID) {
 					player.setTrainer(-1);
 					player.setTrainerTyp(-1);

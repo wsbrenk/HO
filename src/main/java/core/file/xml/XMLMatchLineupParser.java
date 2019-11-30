@@ -10,7 +10,8 @@ import core.model.match.MatchLineup;
 import core.model.match.MatchLineupPlayer;
 import core.model.match.MatchLineupTeam;
 import core.model.match.MatchType;
-import core.model.player.ISpielerPosition;
+import core.model.player.IMatchRoleID;
+import core.model.player.MatchRoleID;
 import core.util.HOLogger;
 import module.lineup.substitution.model.GoalDiffCriteria;
 import module.lineup.substitution.model.MatchOrderType;
@@ -67,7 +68,9 @@ public class XMLMatchLineupParser {
 
 			if ((ml.getMatchTyp() != MatchType.TOURNAMENTGROUP)
 					&& (ml.getMatchTyp() != MatchType.TOURNAMENTPLAYOFF)
-					&& (ml.getMatchTyp() != MatchType.NONE)) { // HT bug
+					&& (ml.getMatchTyp() != MatchType.NONE)
+					&& (ml.getMatchTyp() != MatchType.LADDER)
+					&& (ml.getMatchTyp() != MatchType.SINGLE)) { // no stadium info for this kind  of match
 				ele = (Element) root.getElementsByTagName("Arena").item(0);
 				ml.setArenaID(Integer.parseInt(ele.getElementsByTagName("ArenaID").item(0)
 						.getFirstChild().getNodeValue()));
@@ -122,7 +125,7 @@ public class XMLMatchLineupParser {
 
 		// HOLogger.instance().debug(getClass(),"RoleID in: " + roleID);
 
-		// nur wenn Spieler existiert
+		// nur wenn Player existiert
 		if (spielerID > 0) {
 			tmp = (Element) ele.getElementsByTagName("FirstName").item(0);
 			name = tmp.getFirstChild().getNodeValue();
@@ -132,15 +135,15 @@ public class XMLMatchLineupParser {
 			}
 
 			// tactic is only set for those in the lineup (and not for the keeper).
-			if (roleID == ISpielerPosition.keeper || roleID == ISpielerPosition.oldKeeper) {
+			if (roleID == IMatchRoleID.keeper || IMatchRoleID.oldKeeper.contains(roleID)) {
 				// Diese Werte sind von HT vorgegeben aber nicht garantiert
 				// mitgeliefert in xml, daher selbst setzen!
 				behavior = 0;
-				roleID = ISpielerPosition.keeper; // takes care of the old
+				roleID = IMatchRoleID.keeper; // takes care of the old
 													// keeper ID.
 			} else if ((roleID >= 0)
-					&& (roleID < ISpielerPosition.setPieces)
-					|| ((roleID < ISpielerPosition.startReserves) && (roleID > ISpielerPosition.keeper))) {
+					&& (roleID < IMatchRoleID.setPieces)
+					|| ((roleID < IMatchRoleID.startReserves) && (roleID > IMatchRoleID.keeper))) {
 				tmp = (Element) ele.getElementsByTagName("Behaviour").item(0);
 				behavior = Integer.parseInt(tmp.getFirstChild().getNodeValue());
 
@@ -148,33 +151,33 @@ public class XMLMatchLineupParser {
 				// behavior);
 
 				switch (behavior) {
-				case ISpielerPosition.OLD_EXTRA_DEFENDER:
-					roleID = ISpielerPosition.middleCentralDefender;
-					behavior = ISpielerPosition.NORMAL;
+				case IMatchRoleID.OLD_EXTRA_DEFENDER:
+					roleID = IMatchRoleID.middleCentralDefender;
+					behavior = IMatchRoleID.NORMAL;
 					break;
-				case ISpielerPosition.OLD_EXTRA_MIDFIELD:
-					roleID = ISpielerPosition.centralInnerMidfield;
-					behavior = ISpielerPosition.NORMAL;
+				case IMatchRoleID.OLD_EXTRA_MIDFIELD:
+					roleID = IMatchRoleID.centralInnerMidfield;
+					behavior = IMatchRoleID.NORMAL;
 					break;
-				case ISpielerPosition.OLD_EXTRA_FORWARD:
-					roleID = ISpielerPosition.centralForward;
-					behavior = ISpielerPosition.NORMAL;
+				case IMatchRoleID.OLD_EXTRA_FORWARD:
+					roleID = IMatchRoleID.centralForward;
+					behavior = IMatchRoleID.NORMAL;
 					break;
-				case ISpielerPosition.OLD_EXTRA_DEFENSIVE_FORWARD:
-					roleID = ISpielerPosition.centralForward;
-					behavior = ISpielerPosition.DEFENSIVE;
+				case IMatchRoleID.OLD_EXTRA_DEFENSIVE_FORWARD:
+					roleID = IMatchRoleID.centralForward;
+					behavior = IMatchRoleID.DEFENSIVE;
 				}
 
 				// Wash the remaining old positions
-				if (roleID < ISpielerPosition.setPieces) {
-					roleID = convertOldRoleToNew(roleID);
+				if (roleID < IMatchRoleID.setPieces) {
+					roleID = MatchRoleID.convertOldRoleToNew(roleID);
 				}
 			}
 
 			// rating nur für leute die gespielt haben
-			if ((roleID >= ISpielerPosition.startLineup)
-					&& (roleID < ISpielerPosition.startReserves)
-					|| ((roleID >= ISpielerPosition.ausgewechselt) && (roleID <= ISpielerPosition.ausgewechseltEnd))) {
+			if ((roleID >= IMatchRoleID.startLineup)
+					&& (roleID < IMatchRoleID.startReserves)
+					|| ((roleID >= IMatchRoleID.FirstPlayerReplaced) && (roleID <= IMatchRoleID.ThirdPlayerReplaced))) {
 				tmp = (Element) ele.getElementsByTagName("RatingStars").item(0);
 				rating = Double
 						.parseDouble(tmp.getFirstChild().getNodeValue().replaceAll(",", "."));
@@ -194,44 +197,6 @@ public class XMLMatchLineupParser {
 		return player;
 	}
 
-	private static int convertOldRoleToNew(int roleID) {
-		switch (roleID) {
-		case ISpielerPosition.oldKeeper:
-			return ISpielerPosition.keeper;
-		case ISpielerPosition.oldRightBack:
-			return ISpielerPosition.rightBack;
-		case ISpielerPosition.oldLeftCentralDefender:
-			return ISpielerPosition.leftCentralDefender;
-		case ISpielerPosition.oldRightCentralDefender:
-			return ISpielerPosition.rightCentralDefender;
-		case ISpielerPosition.oldLeftBack:
-			return ISpielerPosition.leftBack;
-		case ISpielerPosition.oldRightWinger:
-			return ISpielerPosition.rightWinger;
-		case ISpielerPosition.oldRightInnerMidfielder:
-			return ISpielerPosition.rightInnerMidfield;
-		case ISpielerPosition.oldLeftInnerMidfielder:
-			return ISpielerPosition.leftInnerMidfield;
-		case ISpielerPosition.oldLeftWinger:
-			return ISpielerPosition.leftWinger;
-		case ISpielerPosition.oldRightForward:
-			return ISpielerPosition.rightForward;
-		case ISpielerPosition.oldLeftForward:
-			return ISpielerPosition.leftForward;
-		case ISpielerPosition.oldSubstKeeper:
-			return ISpielerPosition.substKeeper;
-		case ISpielerPosition.oldSubstDefender:
-			return ISpielerPosition.substDefender;
-		case ISpielerPosition.oldSubstMidfielder:
-			return ISpielerPosition.substInnerMidfield;
-		case ISpielerPosition.oldSubstWinger:
-			return ISpielerPosition.substWinger;
-		case ISpielerPosition.oldSubstForward:
-			return ISpielerPosition.substForward;
-		default:
-			return roleID;
-		}
-	}
 
 	private static MatchLineupTeam createTeam(Element ele) {
 		Element tmp = (Element) ele.getElementsByTagName("TeamID").item(0);
@@ -250,7 +215,7 @@ public class XMLMatchLineupParser {
 		tmp = (Element) ele.getElementsByTagName("Lineup").item(0);
 
 		// The normal end of match report
-		// Einträge adden
+		// Adding entries
 		NodeList list = tmp.getElementsByTagName("Player");
 
 		for (int i = 0; (list != null) && (i < list.getLength()); i++) {
@@ -263,8 +228,8 @@ public class XMLMatchLineupParser {
 			// fixed order.
 			MatchLineupPlayer player = createPlayer((Element) list.item(i));
 			if (team.getPlayerByID(player.getSpielerId()) != null) {
-				if ((player.getId() >= ISpielerPosition.ausgewechselt)
-						&& (player.getId() <= ISpielerPosition.ausgewechseltEnd)) {
+				if ((player.getId() >= IMatchRoleID.FirstPlayerReplaced)
+						&& (player.getId() <= IMatchRoleID.ThirdPlayerReplaced)) {
 
 					// MatchLineup API bug, he is still on the pitch, so skip
 					continue;
@@ -282,7 +247,7 @@ public class XMLMatchLineupParser {
 
 			// Merge with the existing player, but ignore captain and set piece
 			// position
-			if (startPlayer.getStartPosition() >= ISpielerPosition.startLineup) {
+			if (startPlayer.getStartPosition() >= IMatchRoleID.startLineup) {
 				MatchLineupPlayer lineupPlayer = (MatchLineupPlayer) team.getPlayerByID(startPlayer
 						.getSpielerId());
 				if (lineupPlayer != null) {
@@ -396,7 +361,7 @@ public class XMLMatchLineupParser {
 			roleID = Integer.parseInt(tmp.getFirstChild().getNodeValue());
 		}
 
-		// nur wenn Spieler existiert
+		// nur wenn Player existiert
 		if (spielerID > 0) {
 			tmp = (Element) ele.getElementsByTagName("FirstName").item(0);
 			name = tmp.getFirstChild().getNodeValue();
@@ -407,19 +372,42 @@ public class XMLMatchLineupParser {
 
 			// tactic is only set for those in the lineup (and not for the
 			// keeper).
-			if (roleID == ISpielerPosition.keeper) {
+			if (roleID == IMatchRoleID.keeper) {
 				// Diese Werte sind von HT vorgegeben aber nicht garantiert
 				// mitgeliefert in xml, daher selbst setzen!
 				behavior = 0;
 
-			} else if ((roleID < ISpielerPosition.startReserves)
-					&& (roleID > ISpielerPosition.keeper)) {
+			} else if ((roleID >= 0)
+					&& (roleID < IMatchRoleID.setPieces)
+					|| ((roleID < IMatchRoleID.startReserves) && (roleID > IMatchRoleID.keeper))) {
 				tmp = (Element) ele.getElementsByTagName("Behaviour").item(0);
 				behavior = Integer.parseInt(tmp.getFirstChild().getNodeValue());
 
-			}
-		}
+				switch (behavior) {
+					case IMatchRoleID.OLD_EXTRA_DEFENDER:
+						roleID = IMatchRoleID.middleCentralDefender;
+						behavior = IMatchRoleID.NORMAL;
+						break;
+					case IMatchRoleID.OLD_EXTRA_MIDFIELD:
+						roleID = IMatchRoleID.centralInnerMidfield;
+						behavior = IMatchRoleID.NORMAL;
+						break;
+					case IMatchRoleID.OLD_EXTRA_FORWARD:
+						roleID = IMatchRoleID.centralForward;
+						behavior = IMatchRoleID.NORMAL;
+						break;
+					case IMatchRoleID.OLD_EXTRA_DEFENSIVE_FORWARD:
+						roleID = IMatchRoleID.centralForward;
+						behavior = IMatchRoleID.DEFENSIVE;
+				}
 
+				// Wash the remaining old positions
+				if (roleID < IMatchRoleID.setPieces) {
+					roleID = MatchRoleID.convertOldRoleToNew(roleID);
+				}
+			}
+
+			}
 		player = new MatchLineupPlayer(-1, -1, spielerID, 0, name, 0);
 		player.setStartBehavior(behavior);
 		player.setStartPosition(roleID);

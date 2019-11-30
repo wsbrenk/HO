@@ -181,7 +181,7 @@ public class HO {
 			interuptionsWindow.setVisible(true);
 		}
 
-		// Check -> Sprachdatei in Ordnung?
+		// Check if language file available
 		interuptionsWindow.setInfoText(4, "Check Languagefiles");
 		HOVerwaltung.checkLanguageFile(UserParameter.instance().sprachDatei);
 		HOVerwaltung.instance().setResource(UserParameter.instance().sprachDatei);
@@ -196,6 +196,7 @@ public class HO {
 
 		interuptionsWindow.setInfoText(5, "Load latest Data");
 		HOVerwaltung.instance().loadLatestHoModel();
+//		HOVerwaltung.instance().getModel().setLineups(HOVerwaltung.instance().getModel().getID());
 		interuptionsWindow.setInfoText(6, "Load  XtraDaten");
 
 		// TableColumn
