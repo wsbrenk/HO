@@ -35,7 +35,7 @@ public class LineupPanel extends core.gui.comp.panel.ImagePanel {
 	}
 
 	public void storeUserSettings(){
-		this.lineupPlayersTable.getTableModel().storeUserSettings();
+		this.lineupPlayersTable.tableModel.storeUserSettings();
 	}
 
 	public void setPlayer(int idPlayer) {

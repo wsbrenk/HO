@@ -1,50 +1,45 @@
-package core.model;
+package core.model
 
-import core.db.AbstractTable;
-import core.db.DBManager;
+import core.db.AbstractTable.Storable
+import core.db.DBManager
 
-import java.util.Objects;
+open class HOConfigurationParameter(val key: String, defaultValue: String?) : Storable() {
+    private var value: String?
 
-public class HOConfigurationParameter extends AbstractTable.Storable {
-
-    static protected final HOProperties parameters = new HOProperties();
-    static private boolean parametersChanged = false;
-
-    private String key;
-    private String value;
-
-    public HOConfigurationParameter(String key, String defaultValue){
-        this.key = key;
-        this.value = parameters.getProperty(key);
-        if (value == null){
-            value = DBManager.instance().loadHOConfigurationParameter(key);
+    init {
+        this.value = parameters.getProperty(key)
+        if (value == null) {
+            value = DBManager.instance().loadHOConfigurationParameter(key)
             if (value == null) {
-                value = defaultValue;
+                value = defaultValue
             }
-            parameters.setProperty(key, value);
+            parameters.setProperty(key, value)
         }
     }
 
-    public String getKey() {
-        return key;
+    fun getValue(): String? {
+        return value
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        if (!Objects.equals(value, this.value)){
-            this.value = value;
-            parameters.setProperty(key, value);
-            parametersChanged = true;
+    fun setValue(value: String) {
+        if (value != this.value) {
+            this.value = value
+            parameters.setProperty(key, value)
+            parametersChanged = true
         }
     }
 
-    static public void storeParameters() {
-        if (parametersChanged){
-            for (var p : parameters.entrySet()){
-                DBManager.instance().saveUserParameter((String)p.getKey(), (String)p.getValue());
+    companion object {
+        @JvmStatic
+        protected val parameters: HOProperties = HOProperties()
+        private var parametersChanged = false
+
+        @JvmStatic
+        fun storeParameters() {
+            if (parametersChanged) {
+                for ((key, value) in parameters) {
+                    DBManager.instance().saveUserParameter(key as String, value as String)
+                }
             }
         }
     }

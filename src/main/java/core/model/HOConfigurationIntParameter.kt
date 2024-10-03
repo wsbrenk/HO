@@ -1,21 +1,21 @@
-package core.model;
+package core.model
 
-public class HOConfigurationIntParameter extends HOConfigurationParameter {
-    private int intValue;
+class HOConfigurationIntParameter(key: String?, defaultValue: Int) :
+    HOConfigurationParameter(key!!, defaultValue.toString()) {
+    private var intValue: Int
 
-    public HOConfigurationIntParameter(String key, int defaultValue) {
-        super(key, String.valueOf(defaultValue));
-        this.intValue = parameters.getInt(key, defaultValue);
+    init {
+        this.intValue = parameters.getInt(key, defaultValue)
     }
 
-    public int getIntValue() {
-        return this.intValue;
+    fun getIntValue(): Int {
+        return this.intValue
     }
 
-    public void setIntValue(int newValue) {
+    fun setIntValue(newValue: Int) {
         if (this.intValue != newValue) {
-            this.intValue = newValue;
-            setValue(String.valueOf(newValue));
+            this.intValue = newValue
+            setValue(newValue.toString())
         }
     }
 }
