@@ -15,6 +15,7 @@
 * Fix null pointer exception in nt team download (#2314)
 
 ### Player overview
+* Fix error storing owner notes with length exceeding the column length (#2358)
 
 ### Team Analyzer
 
@@ -40,12 +41,13 @@
 
 ## Translations
 
-Reports by Contributors - October 19, 2025 - December 30, 2025
+Reports by Contributors - October 19, 2025 - January 01, 2026
 * Ioannidouefty 459
-* wsbrenk 31
+* wsbrenk 107
+* Frankieorabona 49
 * Lidegand 24
 * Kristaps 4
 * Mara 3
 * Joeri Roels 1
 
-Total 522
+Total 647
