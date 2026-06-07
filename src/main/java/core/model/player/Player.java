@@ -888,8 +888,8 @@ public class Player extends AbstractTable.Storable {
         return getInjury().getTypeOfEstimate();
     }
 
-    public Boolean isInvalid() {
-        return getInjury().getIsInvalid();
+    public boolean isChronicInvalid() {
+        return getInjury().isInvalid();
     }
 
     public HODateTime getWhenHealthy() {

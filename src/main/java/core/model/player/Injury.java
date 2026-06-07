@@ -14,6 +14,7 @@ import java.time.temporal.ChronoUnit;
 public class Injury {
 
     private static final int NOT_INJURED = -1;
+    private static final int MAX_DOCTOR_LEVEL = 5;
 
     Injury(Player player) {
         if (!player.isExternallyRecruitedCoach()) {
@@ -47,7 +48,7 @@ public class Injury {
     private static double calcMedicianFactor(int doctorLevel) {
         double x1Factor = 0.2124;
         double x0Factor = 1;
-        return (x1Factor * (double) doctorLevel + x0Factor) / (x0Factor + 5 * x1Factor);
+        return (x1Factor * doctorLevel + x0Factor) / (x0Factor + MAX_DOCTOR_LEVEL * x1Factor);
     }
 
     private static double calculateHealthIncrease(Player player, int doctorLevel, HODateTime dateTime) {
@@ -79,7 +80,7 @@ public class Injury {
         var clubData = DBManager.instance().getVerein(player.getHrfId());
         var doctorLevel = clubData.getAerzte();
 
-        var nextDailyUpdates = HOVerwaltung.instance().getModel().getXtraDaten().getDailyUpdates();
+        var nextDailyUpdates = HOVerwaltung.instance().getModel().getXtraDaten().getDailyUpdates().stream().sorted().toList();
         while (this.whenHealthy == null) {
 
             for (var futureUpdate : nextDailyUpdates) {
@@ -140,7 +141,7 @@ public class Injury {
         return whenSlightlyInjured;
     }
 
-    public boolean getIsInvalid() {
+    public boolean isInvalid() {
         return isInvalid;
     }
 
@@ -153,6 +154,7 @@ public class Injury {
      * Date is null if player is healthy
      */
     private HODateTime whenHealthy;
+
     /**
      * Date when player gets slightly injured
      * Date is null if player is healthy or slightly injured

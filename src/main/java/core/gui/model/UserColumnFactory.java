@@ -997,7 +997,7 @@ public final class UserColumnFactory {
         playerAdditionalArray[32] = new PlayerColumn(906, "ls.player.when.healthy", 20) {
             @Override
             public IHOTableCellEntry getTableEntry(Player player, Player playerCompare) {
-                if ( !player.isInvalid()) {
+                if ( !player.isChronicInvalid()) {
                     var text = "";
                     var sortValue = 0L;
                     if (player.getWhenHealthy() != null) {
