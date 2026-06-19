@@ -1,11 +1,9 @@
 package core.model.player;
 
 import core.constants.player.PlayerSkill;
-import core.db.DBManager;
 import core.model.HOVerwaltung;
 import core.util.HODateTime;
 import core.util.HOLogger;
-
 import java.time.temporal.ChronoUnit;
 
 /**
@@ -77,10 +75,12 @@ public class Injury {
             typeOfEstimate = TypeOfEstimate.REALISTIC_ESTIMATE;
         }
 
-        var clubData = DBManager.instance().getVerein(player.getHrfId());
+        var hoModel = HOVerwaltung.instance().getModel();
+        var persistenceManager = hoModel.getPersistenceManager();
+        var clubData = persistenceManager.getVerein(player.getHrfId());
         var doctorLevel = clubData.getAerzte();
 
-        var nextDailyUpdates = HOVerwaltung.instance().getModel().getXtraDaten().getDailyUpdates().stream().sorted().toList();
+        var nextDailyUpdates = hoModel.getXtraDaten().getDailyUpdates().stream().sorted().toList();
         while (this.whenHealthy == null) {
 
             for (var futureUpdate : nextDailyUpdates) {
@@ -108,7 +108,8 @@ public class Injury {
     private double loadFormBeforeInjured(Player player) {
         var date = player.getHrfDate();
         while (true) {
-            var playerBefore = DBManager.instance().getLatestPlayerDownloadBefore(player.getPlayerId(), date.toDbTimestamp());
+            var persistenceManager = HOVerwaltung.instance().getModel().getPersistenceManager();
+            var playerBefore = persistenceManager.getLatestPlayerDownloadBefore(player.getPlayerId(), date.toDbTimestamp());
             if (playerBefore != null) {
                 if (playerBefore.getInjuryWeeks() == NOT_INJURED) {
                     return playerBefore.getSkill(PlayerSkill.FORM);

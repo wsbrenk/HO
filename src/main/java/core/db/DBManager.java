@@ -396,6 +396,14 @@ public class DBManager implements PersistenceManager {
 				.loadPlayersBefore(hrfId);
 	}
 
+    /**
+     * Returns the player situation before date
+     *
+     * @param playerId ID of the player.
+     * @param before Timestamp.
+     * @return Player – Player's status before given timestamp.  Null if not found.
+     */
+    @Override
 	public Player getLatestPlayerDownloadBefore(int playerId, Timestamp before) {
 		return ((SpielerTable) getTable(SpielerTable.TABLENAME))
 				.loadPlayerBefore(playerId, before);
@@ -1371,7 +1379,8 @@ public class DBManager implements PersistenceManager {
 		HOConfigurationParameter.storeParameters();
 	}
 
-	public String loadHOConfigurationParameter(String key) {
+    @Override
+    public String loadHOConfigurationParameter(String key) {
 		UserConfigurationTable table = (UserConfigurationTable) getTable(UserConfigurationTable.TABLENAME);
 		return table.loadParameter(key);
 	}
