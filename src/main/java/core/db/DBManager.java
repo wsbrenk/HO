@@ -748,10 +748,9 @@ public class DBManager implements PersistenceManager {
 	/**
 	 * Gets faktoren from db.
 	 */
-	public void getFaktorenFromDB() {
-		((FaktorenTable) getTable(FaktorenTable.TABLENAME)).getFaktorenFromDB();
+	public List<FactorObject> getFaktorenFromDB() {
+		return ((FaktorenTable) getTable(FaktorenTable.TABLENAME)).getFaktorenFromDB();
 	}
-
 
 	/**
 	 * Gets tournament details from db.
@@ -759,7 +758,6 @@ public class DBManager implements PersistenceManager {
 	 * @param tournamentId the tournament id
 	 * @return the tournament details from db
 	 */
-// Tournament Details
 	public TournamentDetails getTournamentDetailsFromDB(int tournamentId) {
 		TournamentDetails oTournamentDetails;
 		oTournamentDetails = ((TournamentDetailsTable) getTable(TournamentDetailsTable.TABLENAME)).getTournamentDetails(tournamentId);

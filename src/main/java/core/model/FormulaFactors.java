@@ -1,5 +1,6 @@
 package core.model;
 
+import core.db.DBManager;
 import core.file.FileLoader;
 import core.file.xml.XMLManager;
 import core.model.player.IMatchRoleID;
@@ -100,9 +101,16 @@ public class FormulaFactors {
     public static FormulaFactors instance() {
         if (m_clInstance == null) {
             m_clInstance = new FormulaFactors();
-            m_clInstance.importDefaults();
+            var factors = DBManager.instance().getFaktorenFromDB();
+            if (!factors.isEmpty()) {
+                for (var factor : factors) {
+                    m_clInstance.setPositionFactor(factor.getPosition(), factor);
+                }
+            } else {
+                // use hardcoded values
+                m_clInstance.importDefaults();
+            }
         }
-
         return m_clInstance;
     }
 
@@ -151,7 +159,7 @@ public class FormulaFactors {
     public void readFromXML(String defaults) {
 
     	InputStream predictionIS = FileLoader.instance().getFileInputStream(new String[]{defaults, "prediction/defaults.xml"});
-    	
+
     	if (predictionIS!=null) {
     		Document doc = XMLManager.parseFile(predictionIS);
             //Reading xml ==========================================
@@ -459,7 +467,7 @@ public class FormulaFactors {
 
     /**
      * Get last change date
-     * 
+     *
      * @return last change date
      */
 	public static Date getLastChange() {

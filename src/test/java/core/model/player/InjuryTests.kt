@@ -68,6 +68,10 @@ class TestPersistenceManager : PersistenceManager {
         TODO("Not yet implemented")
     }
 
+    override fun loadHOConfigurationParameter(key: String?): String? {
+        TODO("Not yet implemented")
+    }
+
     override fun loadPreviousMatchLineup(teamId: Int): MatchLineupTeam? {
         TODO("Not yet implemented")
     }

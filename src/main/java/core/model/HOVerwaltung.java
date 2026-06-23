@@ -88,10 +88,6 @@ public class HOVerwaltung {
 	public static HOVerwaltung instance() {
 		if (m_clInstance == null) {
 			m_clInstance = new HOVerwaltung();
-
-			// TODO This seems to have side effects other than loading
-			//   parameters from DB, this probably should be wrapped properly.
-			DBManager.instance().getFaktorenFromDB();
 		}
 		return m_clInstance;
 	}
@@ -220,7 +216,7 @@ public class HOVerwaltung {
 	 *
 	 * @param key
 	 *            Key to be searched in language files
-	 * 
+	 *
 	 * @return String connected to the key or !key! if nothing can be found in
 	 *         language files
 	 */
