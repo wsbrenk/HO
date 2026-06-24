@@ -109,11 +109,11 @@ class InjuryTests {
 
 
         val player = Player()
-        val injury = Injury(player);
+        val injury = Injury(player)
         assertEquals(false, injury.isInvalid)
-        assertEquals(HODateTime.fromHT("2026-01-02 18:00:00"), injury.whenHealthy);
-        assertEquals(HODateTime.fromHT("2026-01-02 18:00:00"), injury.whenSlightlyInjured);
-        assertEquals(Injury.TypeOfEstimate.REALISTIC_ESTIMATE, injury.typeOfEstimate);
+        assertEquals(HODateTime.fromHT("2026-01-02 18:00:00"), injury.whenHealthy)
+        assertEquals(HODateTime.fromHT("2026-01-02 18:00:00"), injury.whenSlightlyInjured)
+        assertEquals(Injury.TypeOfEstimate.REALISTIC_ESTIMATE, injury.typeOfEstimate)
 
     }
 }

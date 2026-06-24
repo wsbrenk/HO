@@ -6,7 +6,6 @@ import core.file.xml.XMLManager;
 import core.model.player.IMatchRoleID;
 import core.util.HOLogger;
 import java.io.InputStream;
-import java.util.Date;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
@@ -28,7 +27,7 @@ public class FormulaFactors {
     /**
      * Last change date
      */
-    private static Date lastChange = new Date();
+//    private static Date lastChange = new Date();
 
     //~ Instance fields ----------------------------------------------------------------------------
 
@@ -84,16 +83,12 @@ public class FormulaFactors {
     // off inner
     FactorObject foIM_OFF;
 
-    //~ Constructors -------------------------------------------------------------------------------
-
     /**
      * Creates a new instance of FormulaFactors
      */
     private FormulaFactors() {
-        resetLastChange();
+//        resetLastChange();
     }
-
-    //~ Methods ------------------------------------------------------------------------------------
 
     /**
      * Get the singleton FormulaFactors instance.
@@ -158,10 +153,10 @@ public class FormulaFactors {
      */
     public void readFromXML(String defaults) {
 
-    	InputStream predictionIS = FileLoader.instance().getFileInputStream(new String[]{defaults, "prediction/defaults.xml"});
+        InputStream predictionIS = FileLoader.instance().getFileInputStream(new String[]{defaults, "prediction/defaults.xml"});
 
-    	if (predictionIS!=null) {
-    		Document doc = XMLManager.parseFile(predictionIS);
+        if (predictionIS != null) {
+            Document doc = XMLManager.parseFile(predictionIS);
             //Reading xml ==========================================
             final Element root = doc.getDocumentElement();
 
@@ -186,18 +181,15 @@ public class FormulaFactors {
                 foFW_DEF_TECH = readObject("FW_D_TECH", root);
                 foFW = readObject("FW", root);
                 foFW_TW = readObject("FW_W", root);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 HOLogger.instance().log(getClass(), "Error when parsing formula factors XML: " + e);
             }
-    	} else {
-    		HOLogger.instance().error(getClass(), "Error while loading prediction files (including prediction/defaults.xml)");
-    	}
-
-        resetLastChange();
-
+        } else {
+            HOLogger.instance().error(getClass(), "Error while loading prediction files (including prediction/defaults.xml)");
+        }
+//
+//        resetLastChange();
     }
-
 
     /**
      * Read the single skill contributions for a position.
@@ -212,8 +204,6 @@ public class FormulaFactors {
         final FactorObject factorObject = new FactorObject();
         try {
             root = (Element) root.getElementsByTagName(tagname).item(0);
-
-            //Daten füllen
             ele = (Element) root.getElementsByTagName("Position").item(0);
             factorObject.setPosition(Byte.parseByte(XMLManager.getFirstChildNodeValue(ele)));
             ele = (Element) root.getElementsByTagName("defense").item(0);
@@ -236,13 +226,9 @@ public class FormulaFactors {
             HOLogger.instance().log(getClass(),"FormulaFactor.redxmlException gefangen: " + e);
             HOLogger.instance().log(getClass(),e);
         }
-
         return factorObject;
     }
 
-    /**
-     * gesaved
-     */
     public void save() {
         final FactorObject[] allFaktoren = getAllObj();
 
@@ -264,8 +250,6 @@ public class FormulaFactors {
             doc = builder.newDocument();
             tmpEle = doc.createElement("FormulaFactors");
             doc.appendChild(tmpEle);
-
-            //Objekte schreiben
             writeFaktorObj(doc, foGK, tmpEle, "KEEPER");
             writeFaktorObj(doc, m_clInnenVerteidiger, tmpEle, "DEFENSE");
             writeFaktorObj(doc, m_clInnenVerteidiger_OFF, tmpEle, "DEFENSE_O");
@@ -286,8 +270,6 @@ public class FormulaFactors {
             writeFaktorObj(doc, foFW_DEF_TECH, tmpEle, "FW_D_TECH");
 			writeFaktorObj(doc, foFW_TW, tmpEle, "FW_W");
             writeFaktorObj(doc, foFW, tmpEle, "FW");
-
-            //doc.appendChild ( ele );
             XMLManager.writeXML(doc, filename);
         } catch (Exception e) {
             HOLogger.instance().log(getClass(),"XMLManager.writeXML: " + e);
@@ -299,7 +281,7 @@ public class FormulaFactors {
      * Add data for a single position to the XML tree.
      */
     protected void writeFaktorObj(Document doc, FactorObject obj, Element root, String tagName) {
-        // TODO: fix this one setpieces and normlization factor  (unction that should be called (tbc)  rom the preference tab)
+        // TODO: fix this one setpieces and normalization factor  (unction that should be called (tbc)  rom the preference tab)
         Element ele;
         Element tmpEle;
 
@@ -342,31 +324,29 @@ public class FormulaFactors {
      */
     public FactorObject getPositionFactor(byte playerPosition){
 
-    	switch (playerPosition) {
-	        case IMatchRoleID.KEEPER: 				    	return foGK;
-	        case IMatchRoleID.CENTRAL_DEFENDER:         	return m_clInnenVerteidiger;
-	        case IMatchRoleID.CENTRAL_DEFENDER_OFF:     	return m_clInnenVerteidiger_OFF;
-	        case IMatchRoleID.CENTRAL_DEFENDER_TOWING:		return m_clInnenVerteidiger_AUS;
-	        case IMatchRoleID.BACK_OFF:   	                return foWB_OFF;
-	        case IMatchRoleID.BACK_DEF:   	                return foWB_DEF;
-	        case IMatchRoleID.BACK_TOMID:    	            return foWB_TM;
-	        case IMatchRoleID.BACK:       	                return foWB;
-	        case IMatchRoleID.MIDFIELDER_DEF:        	    return foIM_DEF;
-	        case IMatchRoleID.MIDFIELDER_OFF:        	    return foIM_OFF;
-	        case IMatchRoleID.MIDFIELDER_TOWING:        	return foIM_TW;
-	        case IMatchRoleID.MIDFIELDER:	        	    return foIM;
-	        case IMatchRoleID.WINGER_DEF:        	        return foWI_DEF;
-	        case IMatchRoleID.WINGER_OFF:			        return foWI_OFF;
-	        case IMatchRoleID.WINGER_TOMID:			        return foWI_TM;
-	        case IMatchRoleID.WINGER:				        return foWI;
-	        case IMatchRoleID.FORWARD_DEF:				    return foFW_DEF;
-            case IMatchRoleID.FORWARD_DEF_TECH:             return foFW_DEF_TECH;
-	        case IMatchRoleID.FORWARD:					    return foFW;
-	        case IMatchRoleID.FORWARD_TOWING:				return foFW_TW;
-	        case IMatchRoleID.COACH:
-        default:
-            return null;
-    	}
+        return switch (playerPosition) {
+            case IMatchRoleID.KEEPER -> foGK;
+            case IMatchRoleID.CENTRAL_DEFENDER -> m_clInnenVerteidiger;
+            case IMatchRoleID.CENTRAL_DEFENDER_OFF -> m_clInnenVerteidiger_OFF;
+            case IMatchRoleID.CENTRAL_DEFENDER_TOWING -> m_clInnenVerteidiger_AUS;
+            case IMatchRoleID.BACK_OFF -> foWB_OFF;
+            case IMatchRoleID.BACK_DEF -> foWB_DEF;
+            case IMatchRoleID.BACK_TOMID -> foWB_TM;
+            case IMatchRoleID.BACK -> foWB;
+            case IMatchRoleID.MIDFIELDER_DEF -> foIM_DEF;
+            case IMatchRoleID.MIDFIELDER_OFF -> foIM_OFF;
+            case IMatchRoleID.MIDFIELDER_TOWING -> foIM_TW;
+            case IMatchRoleID.MIDFIELDER -> foIM;
+            case IMatchRoleID.WINGER_DEF -> foWI_DEF;
+            case IMatchRoleID.WINGER_OFF -> foWI_OFF;
+            case IMatchRoleID.WINGER_TOMID -> foWI_TM;
+            case IMatchRoleID.WINGER -> foWI;
+            case IMatchRoleID.FORWARD_DEF -> foFW_DEF;
+            case IMatchRoleID.FORWARD_DEF_TECH -> foFW_DEF_TECH;
+            case IMatchRoleID.FORWARD -> foFW;
+            case IMatchRoleID.FORWARD_TOWING -> foFW_TW;
+            default -> null;
+        };
     }
 
     /**
@@ -462,23 +442,13 @@ public class FormulaFactors {
             HOLogger.instance().log(getClass(),"Error in function setPositionFactor, position could not be recognized");
 
     	}
-    	resetLastChange();
+//    	resetLastChange();
     }
 
-    /**
-     * Get last change date
-     *
-     * @return last change date
-     */
-	public static Date getLastChange() {
-		return lastChange;
-	}
-
-	/**
-	 * Reset last change date to now
-	 */
-	public static void resetLastChange() {
-//		System.out.println ("Resetting last change date in FormulaFactors");
-		lastChange = new Date();
-	}
+//	/**
+//	 * Reset last change date to now
+//	 */
+//	public static void resetLastChange() {
+//		lastChange = new Date();
+//	}
 }

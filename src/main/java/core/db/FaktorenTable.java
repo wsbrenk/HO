@@ -1,7 +1,6 @@
 package core.db;
 
 import core.model.FactorObject;
-import core.model.FormulaFactors;
 import java.sql.Types;
 import java.util.List;
 

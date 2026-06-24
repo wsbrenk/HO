@@ -298,7 +298,6 @@ public class DBManager implements PersistenceManager {
 	 *
 	 * @return the adapter
 	 */
-// Accessor
 	public ConnectionManager getConnectionManager() {
 		return connectionManager;
 	}

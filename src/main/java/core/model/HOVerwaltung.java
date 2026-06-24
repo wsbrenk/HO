@@ -1,6 +1,7 @@
 package core.model;
 
 import core.db.DBManager;
+import core.db.PersistenceManager;
 import core.file.hrf.HRF;
 import core.gui.HOMainFrame;
 import core.gui.RefreshManager;
@@ -207,6 +208,16 @@ public class HOVerwaltung {
 		return new HOModel(id);
 	}
 
+    public PersistenceManager getPersistenceManager() {
+        PersistenceManager ret = null;
+        if (this.getModel() != null){
+            ret = this.getModel().getPersistenceManager();
+        }
+        if (ret == null){
+            ret = DBManager.instance();
+        }
+        return ret;
+    }
 
 	/**
 	 * Returns the String connected to the active language file or connected to
