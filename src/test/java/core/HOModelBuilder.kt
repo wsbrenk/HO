@@ -85,7 +85,7 @@ class TestPersistenceManager : PersistenceManager {
     private var xtras = mutableMapOf(42 to XtraData())
     private var staffMembers = mutableMapOf(42 to StaffMember(42))
     private fun TestClub(hrfId: Int): Verein {
-        var ret = Verein()
+        val ret = Verein()
         ret.aerzte = 5
         ret.hrfId = hrfId
         ret.date = hrfs[hrfId]?.datum
@@ -93,7 +93,7 @@ class TestPersistenceManager : PersistenceManager {
     }
 
     private fun TestPlayers42(): List<Player> {
-        var ret = mutableListOf(
+        val ret = mutableListOf(
             PlayerBuilder().hrfId(42).build(),
             PlayerBuilder().hrfId(42).age(27, 0).build(),
             PlayerBuilder().hrfId(42).age(37, 0).build(),
