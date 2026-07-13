@@ -55,10 +55,10 @@ class PlayerBuilder {
     }
 
     fun build(): Player {
-        var ret = Player()
+        val ret = Player()
         ret.hrfId = hrfId
-        var hrfDate = hrfs[hrfId]?.datum
-        var age = HODateTime.HODuration.between(this.birthday, hrfDate)
+        val hrfDate = hrfs[hrfId]?.datum
+        val age = HODateTime.HODuration.between(this.birthday, hrfDate)
         ret.age = age.seasons
         ret.ageDays = age.days
         ret.injuryWeeks = injuryLevel
@@ -102,11 +102,11 @@ class TestPersistenceManager : PersistenceManager {
     }
 
     private fun StaffMember(hrfId: Int) : List<StaffMember>{
-        var doctor = StaffMember()
+        val doctor = StaffMember()
         doctor.hrfId = hrfId
         doctor.level = 5
         doctor.staffType = StaffType.MEDIC
-        var ret = mutableListOf(
+        val ret = mutableListOf(
             doctor
         )
         return ret
