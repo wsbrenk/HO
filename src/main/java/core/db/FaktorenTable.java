@@ -7,7 +7,6 @@ import java.util.List;
 
 public final class FaktorenTable extends AbstractTable {
 
-	/** tablename **/
 	public static final String TABLENAME = "FAKTOREN";
 
 	FaktorenTable(ConnectionManager adapter){
@@ -42,13 +41,5 @@ public final class FaktorenTable extends AbstractTable {
 
 	public List<FactorObject> getFaktorenFromDB() {
 		return load(FactorObject.class);
-//		if (!factors.isEmpty()) {
-//			for (var factor : factors) {
-//				FormulaFactors.instance().setPositionFactor(factor.getPosition(), factor);
-//			}
-//		} else {
-//			// use hardcoded values
-//			FormulaFactors.instance().importDefaults();
-//		}
 	}
 }
