@@ -20,7 +20,7 @@ class InjuryTest {
 
         val player = Player()
         val injury = Injury(player)
-        assertEquals(false, injury.isInvalid)
+        assertEquals(false, injury.isDisabledPlayer)
         assertIsNot<HODateTime>(injury.whenHealthy)
         assertIsNot<HODateTime>(injury.whenSlightlyInjured)
         assertEquals(Injury.TypeOfEstimate.REALISTIC_ESTIMATE, injury.typeOfEstimate)
@@ -43,7 +43,7 @@ class InjuryTest {
         val players = hoModel.currentPlayers
         players.forEach {p-> run{
             val injury = Injury(p)
-            assertEquals(expectedIsInvalid[p.playerId], injury.isInvalid)
+            assertEquals(expectedIsInvalid[p.playerId], injury.isDisabledPlayer)
             assertEquals(expectedWhenHealthy[p.playerId], injury.whenHealthy)
             assertEquals(expectedWhenSlightlyInjured[p.playerId], injury.whenSlightlyInjured)
             assertEquals(expectedTypeOfEstimate[p.playerId], injury.typeOfEstimate)
