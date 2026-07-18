@@ -1,5 +1,7 @@
 package core
 
+import com.fasterxml.jackson.databind.introspect.TypeResolutionContext
+import core.constants.player.PlayerSkill
 import core.db.PersistenceManager
 import core.file.hrf.HRF
 import core.model.HOModel
@@ -33,9 +35,21 @@ class PlayerBuilder {
     private var injuryLevel: Int = -1
     private var tsi:Int = 1000
     private var hrfId:Int = 42
+    private var playerId:Int = 1
+    private var skills = mutableMapOf<PlayerSkill, Double>()
 
     fun hrfId(id: Int): PlayerBuilder {
         hrfId = id
+        return this
+    }
+
+    fun playerId(id: Int): PlayerBuilder {
+        playerId = id
+        return this
+    }
+
+    fun skill(type: PlayerSkill, value: Double): PlayerBuilder {
+        skills[type] = value
         return this
     }
 
@@ -63,6 +77,8 @@ class PlayerBuilder {
         ret.ageDays = age.days
         ret.injuryWeeks = injuryLevel
         ret.tsi = tsi
+        ret.playerId = playerId
+        skills.forEach {(skillType, skillValue)->ret.setSkillValue(skillType, skillValue)}
         return ret
     }
 }
@@ -73,17 +89,38 @@ class TestPersistenceManager : PersistenceManager {
         42 to TestClub(42),
         43 to TestClub(43),
     )
-
     private var teams = mutableMapOf(
         42 to Team()
     )
-    private var basics = mutableMapOf(42 to Basics())
-    private var players = mutableMapOf(42 to TestPlayers42())
+    private var basics = mutableMapOf(42 to Basic(42), 43 to Basic(43))
+    private var players = mutableMapOf(
+        42 to TestPlayers42(),
+        43 to TestPlayers43(),
+    )
     private var leagues = mutableMapOf(42 to Liga())
     private var stadiums = mutableMapOf(42 to Stadium())
     private var economies = mutableMapOf(42 to Economy())
-    private var xtras = mutableMapOf(42 to XtraData())
+    private var xtras = mutableMapOf(42 to XtraData(42), 43 to XtraData(43))
     private var staffMembers = mutableMapOf(42 to StaffMember(42))
+
+    private fun Basic(hrfId: Int): Basics {
+        val ret = Basics()
+        ret.hrfId = hrfId
+        ret.teamId = 4711
+        ret.datum = hrfs[hrfId]?.datum
+        return ret
+    }
+
+    private fun XtraData(hrfId:Int): XtraData {
+        var ret = XtraData()
+        ret.hrfId = hrfId
+        val date = hrfs[hrfId]?.datum
+        for (i in 0..4) {
+            ret.setDailyUpdate(i, date?.plus(1 + i, ChronoUnit.DAYS))
+        }
+        return ret
+    }
+
     private fun TestClub(hrfId: Int): Verein {
         val ret = Verein()
         ret.aerzte = 5
@@ -94,14 +131,58 @@ class TestPersistenceManager : PersistenceManager {
 
     private fun TestPlayers42(): List<Player> {
         val ret = mutableListOf(
-            PlayerBuilder().hrfId(42).build(),
-            PlayerBuilder().hrfId(42).age(27, 0).build(),
-            PlayerBuilder().hrfId(42).age(37, 0).build(),
+            PlayerBuilder().hrfId(42)
+                .skill(PlayerSkill.PLAYMAKING, 7.0)
+                .skill(PlayerSkill.DEFENDING, 5.45)
+                .skill(PlayerSkill.FORM, 5.0)
+                .skill(PlayerSkill.KEEPER, 1.0)
+                .skill(PlayerSkill.PASSING, 5.0)
+                .skill(PlayerSkill.SCORING, 5.0)
+                .skill(PlayerSkill.WINGER, 5.0)
+                .skill(PlayerSkill.STAMINA, 5.0)
+                .build(),
+            PlayerBuilder().hrfId(42).age(27, 0).playerId(2)
+                .skill(PlayerSkill.PLAYMAKING, 7.0)
+                .skill(PlayerSkill.DEFENDING, 5.45)
+                .skill(PlayerSkill.FORM, 5.0)
+                .skill(PlayerSkill.KEEPER, 1.0)
+                .skill(PlayerSkill.PASSING, 5.0)
+                .skill(PlayerSkill.SCORING, 5.0)
+                .skill(PlayerSkill.WINGER, 5.0)
+                .skill(PlayerSkill.STAMINA, 5.0)
+                .build(),
+            PlayerBuilder().hrfId(42).age(37, 0).playerId(3)
+                .skill(PlayerSkill.PLAYMAKING, 11.0)
+                .skill(PlayerSkill.DEFENDING, 6.75)
+                .skill(PlayerSkill.FORM, 5.0)
+                .skill(PlayerSkill.KEEPER, 1.0)
+                .skill(PlayerSkill.PASSING, 5.0)
+                .skill(PlayerSkill.SCORING, 5.0)
+                .skill(PlayerSkill.WINGER, 5.0)
+                .skill(PlayerSkill.STAMINA, 5.0)
+                .build(),
         )
         return ret
     }
 
-    private fun StaffMember(hrfId: Int) : List<StaffMember>{
+    private fun TestPlayers43(): List<Player> {
+        var ret = TestPlayers42()
+        var downloadTimeInterval = HODateTime.HODuration.between(hrfs[42]?.datum, hrfs[43]?.datum)
+        var injuryLevel = 0;
+        ret.forEach { p ->
+            run {
+                var age = HODateTime.HODuration(p.age, p.ageDays).plus(downloadTimeInterval)
+                p.injuryWeeks = injuryLevel++
+                p.tsi = (p.tsi * (0.91 - p.injuryWeeks*0.1)).toInt()
+                p.hrfId = 43
+                p.age = age.seasons
+                p.ageDays = age.days
+            }
+        }
+        return ret
+    }
+
+    private fun StaffMember(hrfId: Int): List<StaffMember> {
         val doctor = StaffMember()
         doctor.hrfId = hrfId
         doctor.level = 5
@@ -182,16 +263,29 @@ class TestPersistenceManager : PersistenceManager {
 
     override fun getLatestPlayerDownloadBefore(
         playerId: Int,
-        before: Timestamp?
+        beforeTimestamp: Timestamp?
     ): Player? {
-        TODO("Not yet implemented")
+
+        var ret: Player? = null
+        val before = HODateTime.fromDbTimestamp(beforeTimestamp)
+
+        this.players.forEach { l ->
+            run {
+                var date = hrfs[l.key]?.datum
+                if (date == null || !date.isBefore(before)) {
+                    return ret
+                }
+                l.value.forEach { player -> if (player.playerId == playerId) ret = player }
+            }
+        }
+        return ret
     }
 }
 
 class HOModelBuilder {
 
-    private var hrfId:Int = -1
-    private var persistenceManager:PersistenceManager = TestPersistenceManager()
+    private var hrfId: Int = -1
+    private var persistenceManager: PersistenceManager = TestPersistenceManager()
 
     fun hrfId(id: Int): HOModelBuilder {
         hrfId = id
@@ -203,7 +297,7 @@ class HOModelBuilder {
         return this
     }
 
-    fun build():HOModel {
+    fun build(): HOModel {
         return HOModel(hrfId, persistenceManager)
     }
 }
