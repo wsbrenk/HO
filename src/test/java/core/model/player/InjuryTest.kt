@@ -40,7 +40,7 @@ class InjuryTest {
         )
         val expectedTypeOfEstimate = mutableMapOf( 1 to Injury.TypeOfEstimate.REALISTIC_ESTIMATE, 2 to Injury.TypeOfEstimate.REALISTIC_ESTIMATE, 3 to Injury.TypeOfEstimate.REALISTIC_ESTIMATE)
 
-        var players = hoModel.currentPlayers
+        val players = hoModel.currentPlayers
         players.forEach {p-> run{
             val injury = Injury(p)
             assertEquals(expectedIsInvalid[p.playerId], injury.isInvalid)

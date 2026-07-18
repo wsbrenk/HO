@@ -1,6 +1,5 @@
 package core
 
-import com.fasterxml.jackson.databind.introspect.TypeResolutionContext
 import core.constants.player.PlayerSkill
 import core.db.PersistenceManager
 import core.file.hrf.HRF
@@ -112,7 +111,7 @@ class TestPersistenceManager : PersistenceManager {
     }
 
     private fun XtraData(hrfId:Int): XtraData {
-        var ret = XtraData()
+        val ret = XtraData()
         ret.hrfId = hrfId
         val date = hrfs[hrfId]?.datum
         for (i in 0..4) {
@@ -166,12 +165,12 @@ class TestPersistenceManager : PersistenceManager {
     }
 
     private fun TestPlayers43(): List<Player> {
-        var ret = TestPlayers42()
-        var downloadTimeInterval = HODateTime.HODuration.between(hrfs[42]?.datum, hrfs[43]?.datum)
-        var injuryLevel = 0;
+        val ret = TestPlayers42()
+        val downloadTimeInterval = HODateTime.HODuration.between(hrfs[42]?.datum, hrfs[43]?.datum)
+        var injuryLevel = 0
         ret.forEach { p ->
             run {
-                var age = HODateTime.HODuration(p.age, p.ageDays).plus(downloadTimeInterval)
+                val age = HODateTime.HODuration(p.age, p.ageDays).plus(downloadTimeInterval)
                 p.injuryWeeks = injuryLevel++
                 p.tsi = (p.tsi * (0.91 - p.injuryWeeks*0.1)).toInt()
                 p.hrfId = 43
@@ -271,7 +270,7 @@ class TestPersistenceManager : PersistenceManager {
 
         this.players.forEach { l ->
             run {
-                var date = hrfs[l.key]?.datum
+                val date = hrfs[l.key]?.datum
                 if (date == null || !date.isBefore(before)) {
                     return ret
                 }
