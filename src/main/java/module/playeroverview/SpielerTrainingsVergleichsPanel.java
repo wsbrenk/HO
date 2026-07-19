@@ -7,6 +7,7 @@ import core.gui.RefreshManager;
 import core.gui.Refreshable;
 import core.gui.comp.panel.ImagePanel;
 import core.gui.model.AufstellungsListRenderer;
+import core.model.HOVerwaltung;
 import core.model.TranslationFacility;
 import core.model.UserParameter;
 import core.model.player.Player;
@@ -173,28 +174,30 @@ public class SpielerTrainingsVergleichsPanel extends ImagePanel
 	}
 
     /**
-     * load all hrf file entries and creates a list of combo box items
+     * Load all hrf file entries, join next daily update date and create a list of combo box items
+     * @return List<CBItem>
      */
     List<CBItem> loadCBItemHRFList() {
-        var hrfs = DBManager.instance().loadAllHRFs(false);
+        var downloadInfo = DBManager.instance().loadDownloadInfo();
         var cbitems = new ArrayList<CBItem>();
-
-        for (var hrf : hrfs) {
-            var date = hrf.getDatum();
+        for (var hrf : downloadInfo) {
+            var date = hrf.getDate();
+            var update = hrf.getUpdate();
             var trainingWeek = date.toTrainingWeek();
+            var stringBuilder = new StringBuilder(date.toLocaleDateTime())
+                .append(" ( ").append(TranslationFacility.tr("Season"))
+                .append(" ").append(trainingWeek.season)
+                .append(" ").append(TranslationFacility.tr("ls.training.week"))
+                .append(" ").append(trainingWeek.week);
+
+            if (update!=null){
+                stringBuilder.append("; ").append(TranslationFacility.tr("ls.next.daily.update"))
+                    .append(": ").append(update.toLocaleDateTime());
+            }
+            stringBuilder.append(" )");
+
             cbitems.add(
-                    new core.datatype.CBItem(
-                            date.toLocaleDateTime()
-                                    + " ( "
-                                    + TranslationFacility.tr("Season")
-                                    + " "
-                                    + trainingWeek.season
-                                    + "  "
-                                    + TranslationFacility.tr("ls.training.week")
-                                    + " "
-                                    + trainingWeek.week
-                                    + " )",
-                            hrf.getHrfId()));
+                    new core.datatype.CBItem(stringBuilder.toString(), hrf.getHrfId()));
         }
         return cbitems;
     }
