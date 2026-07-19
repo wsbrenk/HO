@@ -21,6 +21,7 @@
 * Fix error selecting players with the arrow keys (#2379)
 * Synchronize player selection in training and player overview modules (#2379)
 * Added the columns `Career Assists` and `Assists for the Team` to the overview and details panel. (#2254)
+* Hrf list shows next daily update (#2459)
 
 ### Team Analyzer
 
