@@ -63,9 +63,10 @@ public class Injury {
 
     /**
      * Calculate the player's recovery from injuries
-     * First the current health of the player is estimated. Health value if 1 if player is not injured.
+     * First the current health of the player is estimated. Health value is 1 if player is not injured.
      * Injury level are reported by hattrick.
      * There are 5 possible injury levels, which are indicated on the player's page and expressed as a percentage of remaining health
+     * <p>
      * Health Level, Health range
      * Plaster          0.9 <= health < 1
      * 1                0.8 <= health < 0.9
@@ -112,14 +113,14 @@ public class Injury {
 
     /**
      * Calculate the current health of the player.
-     * Formala of the health is health = currentTSI / tSInotInjured
+     * Formula of the health is health = currentTSI / tSInotInjured
      * Tsi of the not injured player is calculated with the current skill values of the player.
      * In two cases, it can happen that the health calculated this way does not match the level reported by Hattrick:
-     * (1) Directly after the match, when the player gets injured the currentTSI does not reflect the injury but remains on
+     * (1) Directly after the match, when the player gets injured the current TSI does not reflect the injury but remains on
      * the healthy value (until the first daily update?).
      * (2) The form skill can vary and lead to an error in the calculated TSI value. Same with all other skill values
      * if they are not adjusted correctly in the skills editor panel.
-     * In this cases the type of estimate is not set to realistic but either optimistic or pessimistic.
+     * In these cases the type of estimate is not set to realistic but either optimistic or pessimistic.
      * @param player Player
      * @return Double Health value [0..1]
      */

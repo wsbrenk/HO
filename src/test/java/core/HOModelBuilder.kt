@@ -160,6 +160,16 @@ class TestPersistenceManager : PersistenceManager {
                 .skill(PlayerSkill.WINGER, 5.0)
                 .skill(PlayerSkill.STAMINA, 5.0)
                 .build(),
+            PlayerBuilder().hrfId(42).age(41, 0).tsi(500).playerId(4)
+                .skill(PlayerSkill.PLAYMAKING, 10.0)
+                .skill(PlayerSkill.DEFENDING, 5.0)
+                .skill(PlayerSkill.FORM, 5.0)
+                .skill(PlayerSkill.KEEPER, 1.0)
+                .skill(PlayerSkill.PASSING, 5.0)
+                .skill(PlayerSkill.SCORING, 5.0)
+                .skill(PlayerSkill.WINGER, 5.0)
+                .skill(PlayerSkill.STAMINA, 5.0)
+                .build(),
         )
         return ret
     }
