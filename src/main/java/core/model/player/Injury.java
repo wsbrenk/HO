@@ -9,7 +9,7 @@ import java.time.temporal.ChronoUnit;
 /**
  * Health calculation based on Schum formula (<a href="https://www82.hattrick.org/Forum/Read.aspx?t=17404127&n=6&v=0&mr=0">...</a>)
  */
-public class Injury {
+class Injury {
 
     private static final int NOT_INJURED = -1;
     private static final int MAX_DOCTOR_LEVEL = 5;
