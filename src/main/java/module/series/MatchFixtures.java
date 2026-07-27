@@ -239,7 +239,7 @@ public class MatchFixtures extends AbstractTable.Storable {
         var teamsInSeries = getTeamsInSeries();
         if (teamsInSeries.size() != 8) {
             for (var t : teamsInSeries) {
-                findReplacementOfTeam(currentTeams, t);
+                findReplacements(currentTeams, t, 1);
             }
         }
         return currentTeams;
@@ -291,6 +291,15 @@ public class MatchFixtures extends AbstractTable.Storable {
                 .toList();
     }
 
+    private boolean isReplaced(ArrayList<List<Integer>> currentTeams, Integer t){
+        for (var ids : currentTeams) {
+            if (ids.contains(t)) {
+                return false;
+            } // not replaced
+        }
+        return true;
+    }
+
     /**
      * Find team replacements during the series
      * The examined team's id will be added to the list of ids of the current teams if it was replaced during the series
@@ -298,35 +307,35 @@ public class MatchFixtures extends AbstractTable.Storable {
      * @param t             The examined team
      */
     private void findReplacementOfTeam(ArrayList<List<Integer>> currentTeams, Integer t) {
-        for (var ids : currentTeams) {
-            if (ids.contains(t)) {
-                return;
-            } // not replaced
-        }
+        if (!isReplaced(currentTeams, t) ) {return;}
 
         // Find replacement of team
         List<Integer> replaces = new ArrayList<>();
         replaces.add(t);
 
         while (!replaces.isEmpty()) {
-            var replaceTeam = replaces.get(replaces.size()-1);
+            var isTeamFound = false;
+            var replaceTeam = replaces.get(replaces.size() - 1);
             for (var i = 0; i < 14; i++) {
                 int finalI = i;
                 var match = m_vEintraege.stream().filter(p -> p.getSpieltag() == 1 + finalI && (p.getHeimId() == replaceTeam || p.getGastId() == replaceTeam)).findAny();
                 if (match.isPresent()) {
+                    isTeamFound = true;
                     // Find reverse match
                     if (match.get().getHeimId() == replaceTeam) {
                         var opponentAtRound = match.get().getGastId();
                         var reverseMatch = m_vEintraege.stream().filter(p -> p.getSpieltag() == 14 - finalI && (p.getHeimId() == opponentAtRound)).findAny();
                         if (reverseMatch.isEmpty()) {
+                            // Opponent team not found in the second-leg match
                             var replacedBy = isReplacedBy(currentTeams, opponentAtRound);
                             if (replacedBy != null) {
+                                // Check if replacement of opponent team is found
                                 reverseMatch = m_vEintraege.stream().filter(p -> p.getSpieltag() == 14 - finalI && (p.getHeimId() == replacedBy)).findAny();
                             }
                         }
                         if (reverseMatch.isPresent()) {
                             var replacement = reverseMatch.get().getGastId();
-                            CurrentTeamsAddReplacement(currentTeams, replacement, replaceTeam);
+                            addCurrentTeamsReplacement(currentTeams, replacement, replaceTeam);
                             replaces.remove(replaceTeam);
                             break;
                         } else if (isReplacedBy(currentTeams, opponentAtRound) == null) {
@@ -344,7 +353,7 @@ public class MatchFixtures extends AbstractTable.Storable {
                         }
                         if (reverseMatch.isPresent()) {
                             var replacement = reverseMatch.get().getHeimId();
-                            CurrentTeamsAddReplacement(currentTeams, replacement, replaceTeam);
+                            addCurrentTeamsReplacement(currentTeams, replacement, replaceTeam);
                             replaces.remove(replaceTeam);
                             break;
                         } else if (isReplacedBy(currentTeams, opponentAtRound) == null) {
@@ -354,7 +363,34 @@ public class MatchFixtures extends AbstractTable.Storable {
                     }
                 }
             }
+            if (!isTeamFound) {
+                break; // Ignore it (Should not happen)
+            }
         }
+    }
+
+    private boolean findReplacements(ArrayList<List<Integer>> currentTeams, int teamId, int startAtRound) {
+        if(!isReplaced(currentTeams, teamId)) {return false;}
+        var match = m_vEintraege.stream().filter(p -> p.getSpieltag() == startAtRound && (p.getHeimId() == teamId || p.getGastId() == teamId)).findAny();
+        if (match.isPresent()) {
+            var opponentAtRound = match.get().getHeimId() == teamId ? match.get().getGastId() : match.get().getHeimId();
+            var reverseMatch = m_vEintraege.stream().filter(p -> p.getSpieltag() == 15 - startAtRound && (p.getHeimId() == opponentAtRound || p.getGastId() == opponentAtRound)).findAny();
+            if (reverseMatch.isPresent()) {
+                var ret = reverseMatch.get().getHeimId() == opponentAtRound ? reverseMatch.get().getGastId() : reverseMatch.get().getHeimId();
+                if (ret != teamId) {
+                    if (addCurrentTeamsReplacement(currentTeams, teamId, ret)) {
+                        return true;
+                    } else {
+                        // TODO: ????
+                    }
+                }
+            }
+        }
+
+        if (startAtRound < 14) {
+            return findReplacements(currentTeams, teamId, startAtRound + 1);
+        }
+        return false;
     }
 
     /**
@@ -378,13 +414,17 @@ public class MatchFixtures extends AbstractTable.Storable {
      * @param replacement   Id of the replacing team
      * @param replaceTeam   Id of the replaced team
      */
-    private void CurrentTeamsAddReplacement(ArrayList<List<Integer>> currentTeams, int replacement, Integer replaceTeam) {
-        for ( var ids : currentTeams) {
-            if ( ids.contains(replacement)) {
+    private boolean addCurrentTeamsReplacement(ArrayList<List<Integer>> currentTeams, int replacement, Integer replaceTeam) {
+        for (var ids : currentTeams) {
+            if (ids.contains(replacement)) {
                 ids.add(replaceTeam);
-                return;
+                return true;
+            } else if (ids.contains(replaceTeam)) {
+                ids.add(replacement);
+                return true;
             }
         }
+        return false;
     }
 
     /**

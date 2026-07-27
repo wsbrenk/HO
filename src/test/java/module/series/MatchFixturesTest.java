@@ -11,17 +11,82 @@ import java.util.List;
 class MatchFixturesTest {
 
     @Test
-    void createSeriesFixtures() {
+    void matchFixturesReplaceTwoTeamAtRound1Test() {
+        var teams = create8Teams();
+        var team9 = new TeamStats();
+        var team10 = new TeamStats();
+        team9.setTeamId(9);
+        team10.setTeamId(10);
+        var fixtures = MatchFixtures.createFixtures(HODateTime.fromHTWeek(new HODateTime.HTWeek(89, 1)), teams);
+        var pair1 = fixtures.get(0);
+        pair1.setHeimId(team9.getTeamId());     // Team9 is replaced by Team1 after round 1
+        pair1.setGastId(team10.getTeamId());    // Team10 is replaced by Team2 after round 1
+        for (int i=0; i<4; i++){
+            // All matches in round 1 ended 1-0
+            var pair = fixtures.get(i);
+            pair.setToreHeim(1);
+            pair.setToreGast(0);
+        }
+        var matchFixtures = new MatchFixtures();
+        matchFixtures.addFixtures(fixtures);
+        var table = matchFixtures.getTable();
+    }
 
+    @Test
+    void matchFixturesReplaceTwoTeamAtRound2Test() {
+        var teams = create8Teams();
+        var team9 = new TeamStats();
+        var team10 = new TeamStats();
+        team9.setTeamId(9);
+        team10.setTeamId(10);
+        var fixtures = MatchFixtures.createFixtures(HODateTime.fromHTWeek(new HODateTime.HTWeek(89, 1)), teams);
+        var pair1 = fixtures.get(4);
+        pair1.setHeimId(team9.getTeamId());     // Team9 is replaced by Team1 after round 1
+        pair1.setGastId(team10.getTeamId());    // Team10 is replaced by Team2 after round 1
+        for (int i = 0; i < 8; i++) {
+            // All matches in round 1 and 2 ended 1-0
+            var pair = fixtures.get(i);
+            pair.setToreHeim(1);
+            pair.setToreGast(0);
+        }
+        var matchFixtures = new MatchFixtures();
+        matchFixtures.addFixtures(fixtures);
+        var table = matchFixtures.getTable();
+    }
+
+    @Test
+    void matchFixturesReplaceTeamEnteredInRound2() {
+        var teams = create8Teams();
+        var team9 = new TeamStats();
+        var team10 = new TeamStats();
+        team9.setTeamId(9);
+        team10.setTeamId(10);
+        var fixtures = MatchFixtures.createFixtures(HODateTime.fromHTWeek(new HODateTime.HTWeek(89, 1)), teams);
+        var pair1 = fixtures.get(0);
+        pair1.setHeimId(team9.getTeamId());     // Team9 is replaced by Team1 after round 1
+        var pair8 = fixtures.get(7*4);
+        pair1.setGastId(team10.getTeamId());    // Team1 is replaced by Team10 after round 8
+        for (int i = 0; i < 14*4; i++) {
+            // All matches ended 1-0
+            var pair = fixtures.get(i);
+            pair.setToreHeim(1);
+            pair.setToreGast(0);
+        }
+        var matchFixtures = new MatchFixtures();
+        matchFixtures.addFixtures(fixtures);
+        var table = matchFixtures.getTable();
+    }
+
+    private List<TeamStats> create8Teams() {
         var teams = List.of(
-                new TeamStats(),
-                new TeamStats(),
-                new TeamStats(),
-                new TeamStats(),
-                new TeamStats(),
-                new TeamStats(),
-                new TeamStats(),
-                new TeamStats()
+            new TeamStats(),
+            new TeamStats(),
+            new TeamStats(),
+            new TeamStats(),
+            new TeamStats(),
+            new TeamStats(),
+            new TeamStats(),
+            new TeamStats()
         );
 
         int i = 1;
@@ -29,7 +94,12 @@ class MatchFixturesTest {
             team.setTeamId(i);
             ++i;
         }
+        return teams;
+    }
 
+    @Test
+    void createSeriesFixtures() {
+        var teams = create8Teams();
         var fixtures = MatchFixtures.createFixtures(HODateTime.fromHTWeek(new HODateTime.HTWeek(89, 1)), teams);
 
         /*
@@ -81,7 +151,7 @@ class MatchFixturesTest {
         Assertions.assertTrue(containsFixtures(fixtures, 7, 6, 8));
 
     }
-    
+
     private boolean containsFixtures(List<Paarung> fixtures, int matchDay, int home, int away) {
         return fixtures.stream().anyMatch(m->m.getSpieltag()==matchDay && m.getHeimId()==home && m.getGastId()== away) &&
                 fixtures.stream().anyMatch(m->m.getSpieltag()==15-matchDay && m.getHeimId()==away && m.getGastId() == home);
