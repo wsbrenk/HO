@@ -2,61 +2,54 @@ package core.db;
 
 import core.util.HODateTime;
 
-import java.sql.Timestamp;
-
 /**
  * Information of the hattrick downloads
+ *
+ * @param hrfId  Identifier of the download
+ * @param date   Date of the download
+ * @param update Date of the next hattrick's daily update
  */
-public class DownloadInfo {
-
-    /**
-     * Identifier of the download
-     */
-    private final int hrfId;
-    /**
-     * Date of the download
-     */
-    private final HODateTime date;
-    /**
-     * Date of the next hattrick's daily update
-     */
-    private final HODateTime update;
+public record DownloadInfo(int hrfId, HODateTime date, HODateTime update) {
 
     /**
      * Create a new download info object
      * Database timestamps are converted to HODateTime objects
-     * @param hrfId int
-     * @param date Timestamp
-     * @param update Timestamp
+     *
+     * @param hrfId  int
+     * @param date   HODateTime
+     * @param update HODateTime
      */
-    public DownloadInfo(int hrfId, Timestamp date, Timestamp update) {
-        this.hrfId = hrfId;
-        this.date = HODateTime.fromDbTimestamp(date);
-        this.update = HODateTime.fromDbTimestamp(update);
+    public DownloadInfo {
     }
 
     /**
      * Get the hrf id
+     *
      * @return int
      */
-    public int getHrfId() {
+    @Override
+    public int hrfId() {
         return hrfId;
     }
 
     /**
      * Get the download date
+     *
      * @return HODateTime
      */
-    public HODateTime getDate() {
+    @Override
+    public HODateTime date() {
         return date;
     }
 
     /**
      * Get the next daily update
      * Another download might make sense then
+     *
      * @return HODateTime
      */
-    public HODateTime getUpdate() {
+    @Override
+    public HODateTime update() {
         return update;
     }
 }

@@ -2444,7 +2444,7 @@ public class DBManager implements PersistenceManager {
                 var hrf_id = rs.getInt(1);
                 var date = rs.getTimestamp(2);
                 var update = rs.getTimestamp(3);
-                ret.add(new DownloadInfo(hrf_id, date, update));
+                ret.add(new DownloadInfo(hrf_id, HODateTime.fromDbTimestamp(date), HODateTime.fromDbTimestamp(update)));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
