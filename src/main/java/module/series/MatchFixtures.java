@@ -380,15 +380,17 @@ public class MatchFixtures extends AbstractTable.Storable {
                 if (ret != teamId) {
                     if (addCurrentTeamsReplacement(currentTeams, teamId, ret)) {
                         return true;
-                    } else {
-                        // TODO: ????
-                    }
-                }
-            }
+                    } // Both teams were replaced - they are not in the list of current teams
+                } // ret == teamId can happen when reverse match is found in the first leg of the season (startAtRound > 7)
+            } // opponent team is also replaced
         }
-
         if (startAtRound < 14) {
             return findReplacements(currentTeams, teamId, startAtRound + 1);
+        }
+
+        if (startAtRound == 1){
+            // Both teams were replaced in round 1
+
         }
         return false;
     }
