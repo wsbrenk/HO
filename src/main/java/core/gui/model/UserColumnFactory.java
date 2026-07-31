@@ -1003,7 +1003,7 @@ public final class UserColumnFactory {
         playerAdditionalArray[32] = new PlayerColumn(906, "ls.player.when.healthy", 20) {
             @Override
             public IHOTableCellEntry getTableEntry(Player player, Player playerCompare) {
-                if ( !player.isChronicInvalid()) {
+                if (!player.isSportsInvalid()) {
                     var text = "";
                     var sortValue = 0L;
                     if (player.getWhenHealthy() != null) {
@@ -1012,7 +1012,8 @@ public final class UserColumnFactory {
                                 sortValue = 1L;
                                 text += ">= ";
                                 break;
-                            case REALISTIC_ESTIMATE: break;
+                            case REALISTIC_ESTIMATE:
+                                break;
                             case PESSIMISTIC_ESTIMATE:
                                 sortValue = -1L;
                                 text += "<= ";

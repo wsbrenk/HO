@@ -92,7 +92,7 @@ class Injury {
             for (var futureUpdate : nextDailyUpdates) {
                 var increase = calculateHealthIncrease(player, doctorLevel, futureUpdate);
                 if (increase < 0) {
-                    isDisabledPlayer = true;
+                    isSportsInvalid = true;
                     return; // No recovery possible
                 }
                 calculatedHealth += increase;
@@ -192,8 +192,8 @@ class Injury {
      * Disabled player cannot recover from injury anymore
      * @return boolean
      */
-    public boolean isDisabledPlayer() {
-        return isDisabledPlayer;
+    public boolean isSportsInvalid() {
+        return isSportsInvalid;
     }
 
     /**
@@ -222,7 +222,7 @@ class Injury {
     /**
      * True if the player cannot recover from injury anymore
      */
-    private boolean isDisabledPlayer = false;
+    private boolean isSportsInvalid = false;
 
     /**
      * Type of recovery estimate.

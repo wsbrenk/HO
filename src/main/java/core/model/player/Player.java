@@ -889,8 +889,8 @@ public class Player extends AbstractTable.Storable {
         return getInjury().getTypeOfEstimate();
     }
 
-    public boolean isChronicInvalid() {
-        return getInjury().isDisabledPlayer();
+    public boolean isSportsInvalid() {
+        return getInjury().isSportsInvalid();
     }
 
     public HODateTime getWhenHealthy() {
