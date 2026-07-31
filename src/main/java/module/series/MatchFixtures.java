@@ -245,6 +245,45 @@ public class MatchFixtures extends AbstractTable.Storable {
         return currentTeams;
     }
 
+    public void generatePermutations() {
+        final List<Paarung> fixturesOfMatchDay = getFixturesOfMatchDay(14);
+        int[] arr = {0, 1, 2, 3};
+        int matchesPerRound = 4;
+        int[] indexes = new int[matchesPerRound]; // Control array for Heap's algorithm
+        Arrays.fill(indexes, 0);
+
+        // Print the first permutation
+//        System.out.println(Arrays.toString(arr));
+
+        int i = 0;
+        while (i < matchesPerRound) {
+            if (indexes[i] < i) {
+                // Swap depending on even/odd index
+                if (i % 2 == 0) {
+                    swap(arr, 0, i);
+                } else {
+                    swap(arr, indexes[i], i);
+                }
+//                System.out.println(Arrays.toString(arr));
+                if (checkPermutation(fixturesOfMatchDay, arr, 14)){
+
+                }
+                indexes[i]++;
+                i = 0; // Reset index
+            } else {
+                indexes[i] = 0;
+                i++;
+            }
+        }
+    }
+
+    // Swap helper method
+    private static void swap(int[] arr, int a, int b) {
+        int temp = arr[a];
+        arr[a] = arr[b];
+        arr[b] = temp;
+    }
+
     /**
      * Calculates the series table of given match day
      * @param maxMatchDay   1..14
