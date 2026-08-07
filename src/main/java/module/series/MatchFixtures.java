@@ -8,6 +8,8 @@ import core.net.OnlineWorker;
 import core.util.HODateTime;
 import core.util.HOLogger;
 import org.javatuples.Pair;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
  * Spielplan represents a game schedule, i.e. a particular season in a series.
  */
 public class MatchFixtures extends AbstractTable.Storable {
+    public static final int NUMBER_OF_TEAMS_PER_LEAGUE = 8;
     //~ Instance fields ----------------------------------------------------------------------------
 
     protected LigaTabelle m_clTabelle;
@@ -103,6 +106,11 @@ public class MatchFixtures extends AbstractTable.Storable {
                 .filter(fixture -> fixture.getSpieltag() == gameDay)
                 .collect(Collectors.toList());
     }
+
+    // TODO: Try to get correct mapping
+    // Map <fixtureSlot, List<teamIds>>
+    // fixtureSlot 1..8
+    // First teamId is current team in the fixture slot, followed by replaced teams
 
     /**
      * Get all teams that played during the season
@@ -237,7 +245,23 @@ public class MatchFixtures extends AbstractTable.Storable {
 
         // Determine if teams were replaced during series
         var teamsInSeries = getTeamsInSeries();
-        if (teamsInSeries.size() != 8) {
+        if (teamsInSeries.size() != NUMBER_OF_TEAMS_PER_LEAGUE) {
+            var teamSlots = findTeamSlots(currentTeams);
+            if ( teamSlots != null ) {
+                for (var t : teamsInSeries){
+                    if (!isContained(currentTeams, t)) {
+                        findTeamSlot(teamSlots, t);
+                    }
+                }
+                var nteams = 0;
+                currentTeams = new ArrayList<>();
+                for (var v : teamSlots.values()) {
+                    nteams += v.size();
+                    currentTeams.add(v);
+                }
+                if ( nteams == teamsInSeries.size() ) {return currentTeams;}
+            }
+
             for (var t : teamsInSeries) {
                 findReplacements(currentTeams, t, 1);
             }
@@ -245,17 +269,70 @@ public class MatchFixtures extends AbstractTable.Storable {
         return currentTeams;
     }
 
-    public void generatePermutations() {
-        final List<Paarung> fixturesOfMatchDay = getFixturesOfMatchDay(14);
+    private boolean findTeamSlot(Map<Integer, List<Integer>> teamSlots, Integer teamId) {
+        for (int matchDay=1; matchDay < 14; matchDay++) {
+            var fixtures = getFixturesOfMatchDay(matchDay);
+            var indexPairs = getMatchDayIndexPairs(matchDay);
+            for ( var fixture : fixtures) {
+                Integer opponent = null;
+                if (fixture.getGastId() == teamId) {
+                    opponent = fixture.getHeimId();
+                }
+                else if (fixture.getHeimId() == teamId) {
+                    opponent = fixture.getGastId();
+                }
+                if (opponent != null) {
+                    for ( var slot : teamSlots.entrySet() ) {
+                        if ( slot.getValue().contains(opponent) ) {
+                            var opponentSlot = slot.getKey();
+                            for  (var index : indexPairs) {
+                                Integer teamSlot = null;
+                                if (Objects.equals(index.getValue0(), opponentSlot)) {
+                                    teamSlot = index.getValue1();
+                                }
+                                else if (Objects.equals(index.getValue1(), opponentSlot)) {
+                                    teamSlot = index.getValue0();
+                                }
+                                if (teamSlot != null) {
+                                    teamSlots.get(teamSlot).add(teamId);
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private List<Pair<Integer, Integer>> getMatchDayIndexPairs(int matchDay) {
+        if (matchDay < 8) return new ArrayList<>(fixtureEntryIndices.get(matchDay-1));
+        var i = 14 - matchDay;
+        var ret = new ArrayList<Pair<Integer, Integer>>();
+        var pairs = fixtureEntryIndices.get(i);
+        for (var pair : pairs) {
+            ret.add(new Pair<>(pair.getValue1(), pair.getValue0()));
+        }
+        return ret;
+    }
+
+    private Map<Integer, List<Integer>> findTeamSlots(ArrayList<List<Integer>> currentTeams) {
+        final List<Paarung> fixturesOfLastMatchDay = getFixturesOfMatchDay(14);
         int[] arr = {0, 1, 2, 3};
         int matchesPerRound = 4;
         int[] indexes = new int[matchesPerRound]; // Control array for Heap's algorithm
         Arrays.fill(indexes, 0);
 
-        // Print the first permutation
-//        System.out.println(Arrays.toString(arr));
-
+        int n=0;
         int i = 0;
+
+        var ret = getTeamSlotMapping(fixturesOfLastMatchDay, arr);
+        if (checkTeamSlotMapping(ret, 13)){
+            HOLogger.instance().info(getClass(), Arrays.toString(arr));
+            return ret;
+        }
+
         while (i < matchesPerRound) {
             if (indexes[i] < i) {
                 // Swap depending on even/odd index
@@ -264,9 +341,12 @@ public class MatchFixtures extends AbstractTable.Storable {
                 } else {
                     swap(arr, indexes[i], i);
                 }
-//                System.out.println(Arrays.toString(arr));
-                if (checkPermutation(fixturesOfMatchDay, arr, 14)){
-
+                System.out.println(++n);
+                System.out.println(Arrays.toString(arr));
+                ret = getTeamSlotMapping(fixturesOfLastMatchDay, arr);
+                if (checkTeamSlotMapping(ret, 13)){
+                    HOLogger.instance().info(getClass(), Arrays.toString(arr));
+                    return ret;
                 }
                 indexes[i]++;
                 i = 0; // Reset index
@@ -275,6 +355,46 @@ public class MatchFixtures extends AbstractTable.Storable {
                 i++;
             }
         }
+        return null;
+    }
+
+    private boolean checkTeamSlotMapping(HashMap<Integer, List<Integer>> ret, int previousRound) {
+        var fixtures = getFixturesOfMatchDay(previousRound);
+        var index = 14 - previousRound;
+        var fixtureIndices = fixtureEntryIndices.get(index);
+        for (var f : fixtures) {
+            var val0 = f.getHeimId();
+            var val1 = f.getGastId();
+            var found = false;
+            for (var i : fixtureIndices) {
+                var list0 = ret.get(i.getValue1());
+                var list1 = ret.get(i.getValue0());
+                if (list0.contains(val0) && list1.contains(val1)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) return false;
+        }
+        if ( previousRound > 12 ) return checkTeamSlotMapping(ret, previousRound-1);
+        return true;
+    }
+
+    private static @NotNull HashMap<Integer, List<Integer>> getTeamSlotMapping(List<Paarung> fixturesOfMatchDay, int[] arr) {
+        var ret =  new HashMap<Integer, List<Integer>>();
+        var fixtureIndicesOfRound14 = fixtureEntryIndices.get(0); // First round (same as round 14, but home and guest swapped
+        for (int k = 0; k < fixturesOfMatchDay.size(); k++) {
+            var pair = fixturesOfMatchDay.get(arr[k]);
+            var fixtureIndexPair = fixtureIndicesOfRound14.get(k);
+            var teamSlot = fixtureIndexPair.getValue0();
+            var guestTeamId = pair.getGastId();
+
+            ret.put(teamSlot, List.of(guestTeamId));
+            teamSlot = fixtureIndexPair.getValue1();
+            var homeTeamId = pair.getHeimId();
+            ret.put(teamSlot, List.of(homeTeamId));
+        }
+        return ret;
     }
 
     // Swap helper method
@@ -330,13 +450,13 @@ public class MatchFixtures extends AbstractTable.Storable {
                 .toList();
     }
 
-    private boolean isReplaced(ArrayList<List<Integer>> currentTeams, Integer t){
+    private boolean isContained(ArrayList<List<Integer>> currentTeams, Integer t){
         for (var ids : currentTeams) {
             if (ids.contains(t)) {
-                return false;
+                return true;
             } // not replaced
         }
-        return true;
+        return false;
     }
 
     /**
@@ -346,7 +466,7 @@ public class MatchFixtures extends AbstractTable.Storable {
      * @param t             The examined team
      */
     private void findReplacementOfTeam(ArrayList<List<Integer>> currentTeams, Integer t) {
-        if (!isReplaced(currentTeams, t) ) {return;}
+        if (isContained(currentTeams, t)) {return;}
 
         // Find replacement of team
         List<Integer> replaces = new ArrayList<>();
@@ -409,7 +529,7 @@ public class MatchFixtures extends AbstractTable.Storable {
     }
 
     private boolean findReplacements(ArrayList<List<Integer>> currentTeams, int teamId, int startAtRound) {
-        if(!isReplaced(currentTeams, teamId)) {return false;}
+        if(isContained(currentTeams, teamId)) {return false;}
         var match = m_vEintraege.stream().filter(p -> p.getSpieltag() == startAtRound && (p.getHeimId() == teamId || p.getGastId() == teamId)).findAny();
         if (match.isPresent()) {
             var opponentAtRound = match.get().getHeimId() == teamId ? match.get().getGastId() : match.get().getHeimId();
