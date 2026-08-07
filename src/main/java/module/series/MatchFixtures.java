@@ -246,7 +246,7 @@ public class MatchFixtures extends AbstractTable.Storable {
         // Determine if teams were replaced during series
         var teamsInSeries = getTeamsInSeries();
         if (teamsInSeries.size() != NUMBER_OF_TEAMS_PER_LEAGUE) {
-            var teamSlots = findTeamSlots(currentTeams);
+            var teamSlots = findTeamSlots();
             if ( teamSlots != null ) {
                 for (var t : teamsInSeries){
                     if (!isContained(currentTeams, t)) {
@@ -317,7 +317,7 @@ public class MatchFixtures extends AbstractTable.Storable {
         return ret;
     }
 
-    private Map<Integer, List<Integer>> findTeamSlots(ArrayList<List<Integer>> currentTeams) {
+    private Map<Integer, List<Integer>> findTeamSlots() {
         final List<Paarung> fixturesOfLastMatchDay = getFixturesOfMatchDay(14);
         int[] arr = {0, 1, 2, 3};
         int matchesPerRound = 4;
