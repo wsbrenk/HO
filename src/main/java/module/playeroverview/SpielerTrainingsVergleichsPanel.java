@@ -168,7 +168,7 @@ public class SpielerTrainingsVergleichsPanel extends ImagePanel
         var downloadInfo = DBManager.instance().loadDownloadInfo();
         var items = new ArrayList<CBItem>();
         for (var info : downloadInfo) {
-            items.add(new CBItem(getDownloadInformationString(info), info.hrfId()));
+            items.add(new CBItem(createDownloadInformationString(info), info.hrfId()));
         }
         return items;
     }
@@ -178,9 +178,9 @@ public class SpielerTrainingsVergleichsPanel extends ImagePanel
      * @param info DownloadInfo
      * @return String
      */
-    private String getDownloadInformationString(DownloadInfo info) {
+    private static String createDownloadInformationString(DownloadInfo info) {
         var date = info.date();
-        var update = info.update();
+        var update = info.nextDailyUpdate();
         var trainingWeek = date.toTrainingWeek();
         var string = date.toLocaleDateTime()
             + " ( " + TranslationFacility.tr("Season")
