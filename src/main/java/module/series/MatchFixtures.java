@@ -16,9 +16,6 @@ import java.util.stream.Collectors;
  * Spielplan represents a game schedule, i.e. a particular season in a series.
  */
 public class MatchFixtures extends AbstractTable.Storable {
-    public static final int NUMBER_OF_TEAMS_PER_LEAGUE = 8;
-    //~ Instance fields ----------------------------------------------------------------------------
-
     protected LigaTabelle m_clTabelle;
     protected String m_sLigaName = "";
     protected Tabellenverlauf m_clVerlauf;
@@ -104,20 +101,6 @@ public class MatchFixtures extends AbstractTable.Storable {
                 .stream()
                 .filter(fixture -> fixture.getSpieltag() == gameDay)
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * Get all teams that played during the season
-     * There might be teams replaced
-     * @return Set of team ids (size >= 8)
-     */
-    public Set<Integer> getTeamsInSeries() {
-        var ret = new HashSet<Integer>();
-        for (var p : m_vEintraege) {
-            ret.add(p.getHeimId());
-            ret.add(p.getGastId());
-        }
-        return ret;
     }
 
     /**
@@ -311,136 +294,6 @@ public class MatchFixtures extends AbstractTable.Storable {
             if (ids.contains(t)) {
                 return true;
             } // not replaced
-        }
-        return false;
-    }
-
-    /**
-     * Find team replacements during the series
-     * The examined team's id will be added to the list of ids of the current teams if it was replaced during the series
-     * @param currentTeams  List of the current teams
-     * @param t             The examined team
-     */
-    private void findReplacementOfTeam(ArrayList<List<Integer>> currentTeams, Integer t) {
-        if (isContained(currentTeams, t)) {return;}
-
-        // Find replacement of team
-        List<Integer> replaces = new ArrayList<>();
-        replaces.add(t);
-
-        while (!replaces.isEmpty()) {
-            var isTeamFound = false;
-            var replaceTeam = replaces.get(replaces.size() - 1);
-            for (var i = 0; i < 14; i++) {
-                int finalI = i;
-                var match = m_vEintraege.stream().filter(p -> p.getSpieltag() == 1 + finalI && (p.getHeimId() == replaceTeam || p.getGastId() == replaceTeam)).findAny();
-                if (match.isPresent()) {
-                    isTeamFound = true;
-                    // Find reverse match
-                    if (match.get().getHeimId() == replaceTeam) {
-                        var opponentAtRound = match.get().getGastId();
-                        var reverseMatch = m_vEintraege.stream().filter(p -> p.getSpieltag() == 14 - finalI && (p.getHeimId() == opponentAtRound)).findAny();
-                        if (reverseMatch.isEmpty()) {
-                            // Opponent team not found in the second-leg match
-                            var replacedBy = isReplacedBy(currentTeams, opponentAtRound);
-                            if (replacedBy != null) {
-                                // Check if replacement of opponent team is found
-                                reverseMatch = m_vEintraege.stream().filter(p -> p.getSpieltag() == 14 - finalI && (p.getHeimId() == replacedBy)).findAny();
-                            }
-                        }
-                        if (reverseMatch.isPresent()) {
-                            var replacement = reverseMatch.get().getGastId();
-                            addCurrentTeamsReplacement(currentTeams, replacement, replaceTeam);
-                            replaces.remove(replaceTeam);
-                            break;
-                        } else if (isReplacedBy(currentTeams, opponentAtRound) == null) {
-                            // opponent of this round is also replaced, try next round to find replacement of replaceTeam
-                            replaces.add(opponentAtRound);
-                        }
-                    } else {
-                        var opponentAtRound = match.get().getHeimId();
-                        var reverseMatch = m_vEintraege.stream().filter(p -> p.getSpieltag() == 14 - finalI && (p.getGastId() == opponentAtRound)).findAny();
-                        if (reverseMatch.isEmpty()) {
-                            var replacedBy = isReplacedBy(currentTeams, opponentAtRound);
-                            if (replacedBy != null) {
-                                reverseMatch = m_vEintraege.stream().filter(p -> p.getSpieltag() == 14 - finalI && (p.getGastId() == replacedBy)).findAny();
-                            }
-                        }
-                        if (reverseMatch.isPresent()) {
-                            var replacement = reverseMatch.get().getHeimId();
-                            addCurrentTeamsReplacement(currentTeams, replacement, replaceTeam);
-                            replaces.remove(replaceTeam);
-                            break;
-                        } else if (isReplacedBy(currentTeams, opponentAtRound) == null) {
-                            // opponent of this round is also replaced, try next round to find replacement of replaceTeam
-                            replaces.add(opponentAtRound);
-                        }
-                    }
-                }
-            }
-            if (!isTeamFound) {
-                break; // Ignore it (Should not happen)
-            }
-        }
-    }
-
-    private boolean findReplacements(ArrayList<List<Integer>> currentTeams, int teamId, int startAtRound) {
-        if(isContained(currentTeams, teamId)) {return false;}
-        var match = m_vEintraege.stream().filter(p -> p.getSpieltag() == startAtRound && (p.getHeimId() == teamId || p.getGastId() == teamId)).findAny();
-        if (match.isPresent()) {
-            var opponentAtRound = match.get().getHeimId() == teamId ? match.get().getGastId() : match.get().getHeimId();
-            var reverseMatch = m_vEintraege.stream().filter(p -> p.getSpieltag() == 15 - startAtRound && (p.getHeimId() == opponentAtRound || p.getGastId() == opponentAtRound)).findAny();
-            if (reverseMatch.isPresent()) {
-                var ret = reverseMatch.get().getHeimId() == opponentAtRound ? reverseMatch.get().getGastId() : reverseMatch.get().getHeimId();
-                if (ret != teamId) {
-                    if (addCurrentTeamsReplacement(currentTeams, teamId, ret)) {
-                        return true;
-                    } // Both teams were replaced - they are not in the list of current teams
-                } // ret == teamId can happen when reverse match is found in the first leg of the season (startAtRound > 7)
-            } // opponent team is also replaced
-        }
-        if (startAtRound < 14) {
-            return findReplacements(currentTeams, teamId, startAtRound + 1);
-        }
-
-        if (startAtRound == 1){
-            // Both teams of one fixture were replaced in round 1
-
-
-        }
-        return false;
-    }
-
-    /**
-     * Check if team is already registered as replaced team in list of current teams
-     * @param currentTeams      Current teams including replacements
-     * @param opponentAtRound   Team id
-     * @return Integer          Null, if not replaced
-     */
-    private Integer isReplacedBy(ArrayList<List<Integer>> currentTeams, int opponentAtRound) {
-        for (var t : currentTeams) {
-            if (t.size() > 1 && t.get(1) == opponentAtRound) {
-                return t.get(0);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Add team id of replaced team to the replacement team in current team list
-     * @param currentTeams  List of current teams
-     * @param replacement   Id of the replacing team
-     * @param replaceTeam   Id of the replaced team
-     */
-    private boolean addCurrentTeamsReplacement(ArrayList<List<Integer>> currentTeams, int replacement, Integer replaceTeam) {
-        for (var ids : currentTeams) {
-            if (ids.contains(replacement)) {
-                ids.add(replaceTeam);
-                return true;
-            } else if (ids.contains(replaceTeam)) {
-                ids.add(replacement);
-                return true;
-            }
         }
         return false;
     }

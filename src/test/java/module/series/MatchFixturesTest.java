@@ -4,12 +4,8 @@ import core.file.xml.TeamStats;
 import core.model.series.LigaTabelle;
 import core.model.series.Paarung;
 import core.util.HODateTime;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 class MatchFixturesTest {
