@@ -1,48 +1,90 @@
 package module.series;
 
 import core.file.xml.TeamStats;
+import core.model.series.LigaTabelle;
 import core.model.series.Paarung;
 import core.util.HODateTime;
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 class MatchFixturesTest {
 
     @Test
-    void matchFixturesReplaceTwoTeamAtRound1Test() {
+    void matchFixturesReplaceTeamsAfterRound1Test() {
         var teams = create8Teams();
-        var team9 = new TeamStats();
-        var team10 = new TeamStats();
-        team9.setTeamId(9);
-        team10.setTeamId(10);
-        var fixtures = MatchFixtures.createFixtures(HODateTime.fromHTWeek(new HODateTime.HTWeek(89, 1)), teams);
-        var pair1 = fixtures.get(0);
-        pair1.setHeimId(team9.getTeamId());     // Team9 is replaced by Team1 after round 1
-        pair1.setGastId(team10.getTeamId());    // Team10 is replaced by Team2 after round 1
-        for (int i=0; i<4; i++){
-            // All matches in round 1 ended 1-0
-            var pair = fixtures.get(i);
-            pair.setToreHeim(1);
-            pair.setToreGast(0);
+
+        for (int replaceTeams = 1; replaceTeams <= teams.size(); replaceTeams++) {
+            var fixtures = MatchFixtures.createFixtures(HODateTime.fromHTWeek(new HODateTime.HTWeek(89, 1)), teams);
+
+            // Set replacements
+            for (int i = 0; i < replaceTeams; ++i){
+                var replacedTeamId = 9+i;
+                var pair = fixtures.get(i/2);
+                if ( i%2 == 0){
+                    pair.setHeimId(replacedTeamId); // replaced Team is replaced by pair.getHeimId after round 1
+                }
+                else {
+                    pair.setGastId(replacedTeamId); // replaced Team is replaced by pair.getGatd after round 1
+                }
+            }
+
+            // Set match results of round 1
+            for (int i = 0; i < 4; i++) {
+                // All matches in round 1 ended 1-0
+                var pair = fixtures.get(i);
+                pair.setToreHeim(1);
+                pair.setToreGast(0);
+            }
+
+            // Calculate series table
+            var matchFixtures = new MatchFixtures();
+            matchFixtures.addFixtures(fixtures);
+            var table = matchFixtures.getTable();
+            Assertions.assertNotNull(table);
+
+            // Compare with expected table
+            var expectedTable = List.of(
+                List.of(1, 1, 1, 0, 3),
+                List.of(3, 1, 1, 0, 3),
+                List.of(5, 1, 1, 0, 3),
+                List.of(7, 1, 1, 0, 3),
+                List.of(2, 1, 0, 1, 0),
+                List.of(4, 1, 0, 1, 0),
+                List.of(6, 1, 0, 1, 0),
+                List.of(8, 1, 0, 1, 0)
+            );
+            assertTableEquals(expectedTable, table);
         }
-        var matchFixtures = new MatchFixtures();
-        matchFixtures.addFixtures(fixtures);
-        var table = matchFixtures.getTable();
+    }
+
+    private void assertTableEquals(List<List<Integer>> expectedTable, LigaTabelle table) {
+        int i = 0;
+        for (var expected: expectedTable){
+            var tableEntry = table.getEntries().get(i++);
+            Assertions.assertEquals(expected.get(0), tableEntry.getTeamId());
+            Assertions.assertEquals(expected.get(1), tableEntry.getAnzSpiele());
+            Assertions.assertEquals(expected.get(2), tableEntry.getGoalsFor());
+            Assertions.assertEquals(expected.get(3), tableEntry.getGoalsAgainst());
+            Assertions.assertEquals(expected.get(4), tableEntry.getPoints());
+        }
     }
 
     @Test
-    void matchFixturesReplaceTwoTeamAtRound2Test() {
+    void matchFixturesReplaceTwoTeamsAfterRound2Test() {
         var teams = create8Teams();
-        var team9 = new TeamStats();
-        var team10 = new TeamStats();
-        team9.setTeamId(9);
-        team10.setTeamId(10);
         var fixtures = MatchFixtures.createFixtures(HODateTime.fromHTWeek(new HODateTime.HTWeek(89, 1)), teams);
-        var pair1 = fixtures.get(4);
-        pair1.setHeimId(team9.getTeamId());     // Team9 is replaced by Team1 after round 1
-        pair1.setGastId(team10.getTeamId());    // Team10 is replaced by Team2 after round 1
+        // Team9 is replaced by Team1 after round 2
+        fixtures.get(0).setHeimId(9);
+        fixtures.get(4).setGastId(9);
+        // Team10 is replaced by Team2 after round 1
+        fixtures.get(0).setGastId(10);
+        fixtures.get(5).setHeimId(10);
+
         for (int i = 0; i < 8; i++) {
             // All matches in round 1 and 2 ended 1-0
             var pair = fixtures.get(i);
@@ -52,20 +94,37 @@ class MatchFixturesTest {
         var matchFixtures = new MatchFixtures();
         matchFixtures.addFixtures(fixtures);
         var table = matchFixtures.getTable();
+        Assertions.assertNotNull(table);
+
+        // Compare with expected table
+        var expectedTable = List.of(
+            List.of(1, 2, 1, 1, 3),
+            List.of(2, 2, 1, 1, 3),
+            List.of(3, 2, 1, 1, 3),
+            List.of(4, 2, 1, 1, 3),
+            List.of(5, 2, 1, 1, 3),
+            List.of(6, 2, 1, 1, 3),
+            List.of(7, 2, 1, 1, 3),
+            List.of(8, 2, 1, 1, 3)
+        );
+        assertTableEquals(expectedTable, table);
     }
 
     @Test
     void matchFixturesReplaceTeamEnteredInRound2() {
         var teams = create8Teams();
-        var team9 = new TeamStats();
-        var team10 = new TeamStats();
-        team9.setTeamId(9);
-        team10.setTeamId(10);
         var fixtures = MatchFixtures.createFixtures(HODateTime.fromHTWeek(new HODateTime.HTWeek(89, 1)), teams);
-        var pair1 = fixtures.get(0);
-        pair1.setHeimId(team9.getTeamId());     // Team9 is replaced by Team1 after round 1
-        var pair8 = fixtures.get(7*4);
-        pair1.setGastId(team10.getTeamId());    // Team1 is replaced by Team10 after round 8
+
+        // Team9 is replaced by Team10 after round 1
+        fixtures.get(0).setHeimId(9); // 1
+        fixtures.get(4).setGastId(10); // 2
+        fixtures.get(8).setHeimId(10);  // 3
+        fixtures.get(12).setGastId(10); // 4
+        fixtures.get(16).setHeimId(10); // 5
+        fixtures.get(20).setGastId(10); // 6
+        fixtures.get(24).setHeimId(10); // 7
+        fixtures.get(28).setGastId(10); // Team10 is replaced by Team1 after round 8
+
         for (int i = 0; i < 14*4; i++) {
             // All matches ended 1-0
             var pair = fixtures.get(i);
@@ -75,6 +134,20 @@ class MatchFixturesTest {
         var matchFixtures = new MatchFixtures();
         matchFixtures.addFixtures(fixtures);
         var table = matchFixtures.getTable();
+        Assertions.assertNotNull(table);
+
+        // Compare with expected table
+        var expectedTable = List.of(
+            List.of(1, 14, 7, 7, 21),
+            List.of(2, 14, 7, 7, 21),
+            List.of(3, 14, 7, 7, 21),
+            List.of(4, 14, 7, 7, 21),
+            List.of(5, 14, 7, 7, 21),
+            List.of(6, 14, 7, 7, 21),
+            List.of(7, 14, 7, 7, 21),
+            List.of(8, 14, 7, 7, 21)
+        );
+        assertTableEquals(expectedTable, table);
     }
 
     private List<TeamStats> create8Teams() {
