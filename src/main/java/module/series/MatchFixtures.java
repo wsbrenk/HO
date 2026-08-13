@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Spielplan represents a game schedule, i.e. a particular season in a series.
+ * MatchFixtures represents a game schedule, i.e. a particular season in a series.
  */
 public class MatchFixtures extends AbstractTable.Storable {
     protected LigaTabelle m_clTabelle;
@@ -23,15 +23,18 @@ public class MatchFixtures extends AbstractTable.Storable {
     protected List<Paarung> m_vEintraege = new ArrayList<>();
     protected int m_iLigaId = -1;
     protected int m_iSaison = -1;
-    //~ Constructors -------------------------------------------------------------------------------
-    // Always keep a single entry per season in the db so old data is kept in the new schedule.
+
     /**
-     * Creates a new instance of Spielplan
+     * Constructor
      */
     public MatchFixtures() {
     }
 
-    //~ Methods ------------------------------------------------------------------------------------
+
+    /**
+     * Get list of fixtures
+     * @return List<Paarung>
+     */
     public final List<Paarung> getMatches() {
         return m_vEintraege;
     }
@@ -121,9 +124,10 @@ public class MatchFixtures extends AbstractTable.Storable {
         return m_iSaison;
     }
 
-    ////////////////////////////////////////////////////////////////////////////////
-    //Liga Tabelle
-    ////////////////////////////////////////////////////////////////////////////////
+    /**
+     * Get league table
+     * @return LigaTabelle
+     */
     public final LigaTabelle getTable() {
         if (m_clTabelle == null) {
             m_clTabelle = calculateSeriesTable();
@@ -144,6 +148,10 @@ public class MatchFixtures extends AbstractTable.Storable {
         return m_clVerlauf;
     }
 
+    /**
+     * Add one fixture
+     * @param spiel Paarung
+     */
     public final void addEintrag(Paarung spiel) {
         if ((spiel != null) && (!m_vEintraege.contains(spiel))) {
             m_vEintraege.add(spiel);
@@ -232,6 +240,11 @@ public class MatchFixtures extends AbstractTable.Storable {
         return ret;
     }
 
+    /**
+     * Get the team slot indexes of fixtures at specified round
+     * @param matchDay Round [1..14]
+     * @return List of 4 fixtures (pairs)
+     */
     private List<Pair<Integer, Integer>> getMatchDayIndexPairs(int matchDay) {
         if (matchDay < 8) return new ArrayList<>(fixtureEntryIndices.get(matchDay-1));
         var i = 14 - matchDay;
@@ -287,15 +300,6 @@ public class MatchFixtures extends AbstractTable.Storable {
                 .filter(fixture -> (ids.contains(fixture.getHeimId()) || (ids.contains(fixture.getGastId()))))
                 .sorted()
                 .toList();
-    }
-
-    private boolean isContained(ArrayList<List<Integer>> currentTeams, Integer t){
-        for (var ids : currentTeams) {
-            if (ids.contains(t)) {
-                return true;
-            } // not replaced
-        }
-        return false;
     }
 
     /**
@@ -470,6 +474,10 @@ public class MatchFixtures extends AbstractTable.Storable {
         }
     }
 
+    /**
+     * Add a list of fixtures
+     * @param fixtures List<Paarung>
+     */
     public void addFixtures(List<Paarung> fixtures) {
         m_vEintraege.addAll(fixtures);
     }
