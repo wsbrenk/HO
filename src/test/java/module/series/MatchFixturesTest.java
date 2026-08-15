@@ -6,16 +6,17 @@ import core.model.series.Paarung;
 import core.util.HODateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 class MatchFixturesTest {
 
     @Test
     void matchFixturesReplaceTeamsAfterRound1Test() {
-        var teams = create8Teams();
-
-        for (int replaceTeams = 1; replaceTeams <= teams.size(); replaceTeams++) {
-            var fixtures = MatchFixtures.createFixtures(HODateTime.fromHTWeek(new HODateTime.HTWeek(89, 1)), teams);
+        for (int replaceTeams = 1; replaceTeams <= 8; replaceTeams++) {
+            var fixtures = GetFixtures();
 
             // Set replacements
             for (int i = 0; i < replaceTeams; ++i){
@@ -39,7 +40,7 @@ class MatchFixturesTest {
 
             // Calculate series table
             var matchFixtures = new MatchFixtures();
-            matchFixtures.addFixtures(fixtures);
+            matchFixtures.addFixtures(shuffleFixtures(fixtures));
             var table = matchFixtures.getTable();
             Assertions.assertNotNull(table);
 
@@ -58,6 +59,30 @@ class MatchFixturesTest {
         }
     }
 
+    /**
+     * Fixture list order created by Hattrick does not correspond to the order given in MatchFixtures.fixtureEntryIndices.
+     * To reflect this behavior, we shuffle the order of our list.
+     * @return List of Paarung
+     */
+    private List<Paarung> shuffleFixtures(List<Paarung> fixtures) {
+        var ret = new ArrayList<Paarung>();
+        var round = new ArrayList<Paarung>();
+        for (var pair : fixtures) {
+            round.add(pair);
+            if (round.size() == 4) {
+                Collections.shuffle(round);
+                ret.addAll(round);
+                round.clear();
+            }
+        }
+        return ret;
+    }
+
+    private List<Paarung> GetFixtures() {
+        var teams = create8Teams();
+        return MatchFixtures.createFixtures(HODateTime.fromHTWeek(new HODateTime.HTWeek(89, 1)), teams);
+    }
+
     private void assertTableEquals(List<List<Integer>> expectedTable, LigaTabelle table) {
         int i = 0;
         for (var expected: expectedTable){
@@ -72,8 +97,7 @@ class MatchFixturesTest {
 
     @Test
     void matchFixturesReplaceTwoTeamsAfterRound2Test() {
-        var teams = create8Teams();
-        var fixtures = MatchFixtures.createFixtures(HODateTime.fromHTWeek(new HODateTime.HTWeek(89, 1)), teams);
+        var fixtures = GetFixtures();
         // Team9 is replaced by Team1 after round 2
         fixtures.get(0).setHeimId(9);
         fixtures.get(4).setGastId(9);
@@ -88,7 +112,7 @@ class MatchFixturesTest {
             pair.setToreGast(0);
         }
         var matchFixtures = new MatchFixtures();
-        matchFixtures.addFixtures(fixtures);
+        matchFixtures.addFixtures(shuffleFixtures(fixtures));
         var table = matchFixtures.getTable();
         Assertions.assertNotNull(table);
 
@@ -108,8 +132,7 @@ class MatchFixturesTest {
 
     @Test
     void matchFixturesReplaceTeamEnteredInRound2() {
-        var teams = create8Teams();
-        var fixtures = MatchFixtures.createFixtures(HODateTime.fromHTWeek(new HODateTime.HTWeek(89, 1)), teams);
+        var fixtures = GetFixtures();
 
         // Team9 is replaced by Team10 after round 1
         fixtures.get(0).setHeimId(9); // 1
@@ -128,7 +151,7 @@ class MatchFixturesTest {
             pair.setToreGast(0);
         }
         var matchFixtures = new MatchFixtures();
-        matchFixtures.addFixtures(fixtures);
+        matchFixtures.addFixtures(shuffleFixtures(fixtures));
         var table = matchFixtures.getTable();
         Assertions.assertNotNull(table);
 
