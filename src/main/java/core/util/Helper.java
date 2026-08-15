@@ -106,7 +106,7 @@ public class Helper {
 	 * Calculate cell width
 	 */
 	public static int calcCellWidth(int width) {
-		return (int) (((float) width) * UserParameter.instance().fontSize / 12.0);
+		return (int) (((float) width * 1.2) * UserParameter.instance().fontSize / 12.0);
 	}
 
 	/**

@@ -112,28 +112,28 @@ class SeriesTablePanel extends ImagePanel {
 		columnModel.getColumn(1).setPreferredWidth(Helper.calcCellWidth(200));
 
 		// Points
-		columnModel.getColumn(2).setPreferredWidth(Helper.calcCellWidth(30));
+		columnModel.getColumn(2).setPreferredWidth(Helper.calcCellWidth(35));
 
 		// # Played matches
-		columnModel.getColumn(3).setPreferredWidth(Helper.calcCellWidth(25));
+		columnModel.getColumn(3).setPreferredWidth(Helper.calcCellWidth(35));
 
 		// # Victories
-		columnModel.getColumn(4).setPreferredWidth(Helper.calcCellWidth(25));
+		columnModel.getColumn(4).setPreferredWidth(Helper.calcCellWidth(35));
 
 		// # Draws
-		columnModel.getColumn(5).setPreferredWidth(Helper.calcCellWidth(25));
+		columnModel.getColumn(5).setPreferredWidth(Helper.calcCellWidth(35));
 
 		// # Losses
-		columnModel.getColumn(6).setPreferredWidth(Helper.calcCellWidth(25));
+		columnModel.getColumn(6).setPreferredWidth(Helper.calcCellWidth(35));
 
 		// Goals For
-		columnModel.getColumn(7).setPreferredWidth(Helper.calcCellWidth(30));
+		columnModel.getColumn(7).setPreferredWidth(Helper.calcCellWidth(35));
 
 		// Goals Against
-		columnModel.getColumn(8).setPreferredWidth(Helper.calcCellWidth(30));
+		columnModel.getColumn(8).setPreferredWidth(Helper.calcCellWidth(35));
 
 		// Goals Difference
-		columnModel.getColumn(9).setPreferredWidth(Helper.calcCellWidth(30));
+		columnModel.getColumn(9).setPreferredWidth(Helper.calcCellWidth(35));
 
 		// Serie
 		columnModel.getColumn(10).setPreferredWidth(Helper.calcCellWidth(90));
@@ -278,7 +278,7 @@ class SeriesTablePanel extends ImagePanel {
 						((ColorLabelEntry) tableValues[j][7]).setText(entry.getGoalsFor() + "");
 						((ColorLabelEntry) tableValues[j][8]).setText(entry.getGoalsAgainst() + "");
 						((ColorLabelEntry) tableValues[j][9]).setSpecialNumber(entry.getGoalsDiff(), false);
-						
+
 						FormLabel formLabel = new FormLabel(entry.getSerie());
 						formLabel.setBgColor(getColor4Row(j));
 						tableValues[j][10] = formLabel;
