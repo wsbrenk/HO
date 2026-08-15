@@ -60,7 +60,7 @@ public class MatchFixtures extends AbstractTable.Storable {
     /**
      * Container of the 8 team slots of one series
      */
-    private static class TeamSlots {
+    protected static class TeamSlots {
         /**
          * List of the 8 team slots
          */
@@ -345,7 +345,7 @@ public class MatchFixtures extends AbstractTable.Storable {
                     // Both teams are already known
                     Integer finalTeam0Slot = team0Slot.id;
                     Integer finalTeam1Slot = team1Slot.id;
-                    indexPairs.removeIf(p -> p.getValue0() == finalTeam0Slot && p.getValue1() == finalTeam1Slot);
+                    indexPairs.removeIf(p -> Objects.equals(p.getValue0(), finalTeam0Slot) && Objects.equals(p.getValue1(), finalTeam1Slot));
                     continue;
                 }
 
@@ -457,9 +457,9 @@ public class MatchFixtures extends AbstractTable.Storable {
 
     /**
      * Try to find the slot of team at specified match day
-     * @param knownTeamSlots
-     * @param teamId
-     * @param matchDay
+     * @param knownTeamSlots TeamSlots
+     * @param teamId int
+     * @param matchDay Match day [1..14]
      * @return Integer Team slot [1..8] or null if not found
      */
     private TeamSlot findTeamSlot(TeamSlots knownTeamSlots, int teamId, int matchDay) {
@@ -491,21 +491,6 @@ public class MatchFixtures extends AbstractTable.Storable {
                     return knownTeamSlots.findTeamSlot(newTeam);
                 }
             }
-        }
-        return null;
-    }
-
-    /**
-     * Get the slot of team
-     * @param knownSlots
-     * @param teamId
-     * @return Team slot [1..8] of null if not found
-     */
-    private Integer getTeamSlot(List<ArrayList<Integer>> knownSlots, int teamId) {
-        int slot = 0;
-        for (var ids : knownSlots) {
-            slot++;
-            if ( ids.contains(teamId) ) {return slot;}
         }
         return null;
     }
@@ -552,29 +537,29 @@ public class MatchFixtures extends AbstractTable.Storable {
     /**
      * Check if the current teams are mapped to the correct slots
      * Checks if the correct matches of the last 3 match days will be created by the current mapping
-     * @param ret
-     * @param previousRound
+     * @param teamSlots TeamSlots
+     * @param matchDay Match day
      * @return true, if mapping is oK
      */
-    private boolean checkTeamSlotMapping(TeamSlots ret, int previousRound) {
-        var fixtures = getFixturesOfMatchDay(previousRound);
-        var index = 14 - previousRound;
+    private boolean checkTeamSlotMapping(TeamSlots teamSlots, int matchDay) {
+        var fixtures = getFixturesOfMatchDay(matchDay);
+        var index = 14 - matchDay;
         var fixtureIndices = fixtureEntryIndices.get(index);
         for (var f : fixtures) {
             var val0 = f.getHeimId();
             var val1 = f.getGastId();
             var found = false;
             for (var i : fixtureIndices) {
-                var list0 = ret.get(i.getValue1());
-                var list1 = ret.get(i.getValue0());
-                if (list0.contains(val0) && list1.contains(val1)) {
+                var list0 = teamSlots.get(i.getValue1());
+                var list1 = teamSlots.get(i.getValue0());
+                if (list0 != null && list0.contains(val0) && list1 != null && list1.contains(val1)) {
                     found = true;
                     break;
                 }
             }
             if (!found) return false;
         }
-        if ( previousRound > 12 ) return checkTeamSlotMapping(ret, previousRound-1);
+        if ( matchDay > 12 ) return checkTeamSlotMapping(teamSlots, matchDay-1);
         return true;
     }
 
@@ -607,7 +592,7 @@ public class MatchFixtures extends AbstractTable.Storable {
      * @return LigaTabelle – Computed series table.
      */
     private LigaTabelle calculateSeriesTable() {
-        return calculateSeriesTable(14, getTeamSlotsInSeries());
+        return calculateSeriesTable(14, Objects.requireNonNull(getTeamSlotsInSeries()));
     }
 
     /**
@@ -807,6 +792,7 @@ public class MatchFixtures extends AbstractTable.Storable {
             var tabelle = new LigaTabelle[spieltag];
 
             var currentTeams = getTeamSlotsInSeries();
+            assert currentTeams != null;
             for (int i = spieltag; i > 0; i--) {
                 tabelle[i - 1] = calculateSeriesTable(i, currentTeams);
             }
