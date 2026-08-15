@@ -21,7 +21,7 @@ public class MatchFixtures extends AbstractTable.Storable {
     /**
      * Team slot of a league series
      */
-    private static class TeamSlot {
+    protected static class TeamSlot {
 
         /**
          * Id references index numbers in fixtureEntryIndices
@@ -622,17 +622,16 @@ public class MatchFixtures extends AbstractTable.Storable {
         ligaTabelle.setLigaId(m_iLigaId);
         ligaTabelle.setLigaName(m_sLigaName);
 
-        for( var ids : teams.teamSlots) {
-            ligaTabelle.addEintrag(calculateTableEntry(ids, maxMatchDay));
+        for (var teamSlot : teams.teamSlots) {
+            ligaTabelle.addEintrag(calculateTableEntry(teamSlot, maxMatchDay));
         }
 
-        if(ligaTabelle.getEntries().get(0).getAnzSpiele() > 0) {
+        if (ligaTabelle.getEntries().get(0).getAnzSpiele() > 0) {
             ligaTabelle.sort();
             calculatePreviousTablePositions(ligaTabelle, teams);
-        }
-        else {
+        } else {
             var seriesDetails = OnlineWorker.getSeriesDetails(this.getLigaId());
-            for ( var t : ligaTabelle.getEntries()){
+            for (var t : ligaTabelle.getEntries()) {
                 var details = seriesDetails.get(String.valueOf(t.getTeamId()));
                 var position = details.getPosition();
                 t.setPosition(position);
@@ -647,23 +646,23 @@ public class MatchFixtures extends AbstractTable.Storable {
     /**
      * Get all matches of the current team and eventually the team which was replaced by the current team
      * during the series
-     * @param ids Of the teams
+     * @param teamSlot Team slot
      * @return List of fixtures
      */
-    private List<Paarung> getMatchesByTeamIds(TeamSlot ids) {
+    private List<Paarung> getMatchesByTeamIds(TeamSlot teamSlot) {
         return m_vEintraege.stream()
-                .filter(fixture -> (ids.contains(fixture.getHeimId()) || (ids.contains(fixture.getGastId()))))
+                .filter(fixture -> (teamSlot.contains(fixture.getHeimId()) || (teamSlot.contains(fixture.getGastId()))))
                 .sorted()
                 .toList();
     }
 
     /**
-     * Creates a league table from the matches of a team.
-     *
+     * Creates a league table from the matches of a team slot.
+     * @param teamSlot Team slot
      * @param maxMatchDay Day until which the table is being calculated (1–14)
      */
-    private SerieTableEntry calculateTableEntry(TeamSlot ids, int maxMatchDay) {
-        var matches = getMatchesByTeamIds(ids);
+    private SerieTableEntry calculateTableEntry(TeamSlot teamSlot, int maxMatchDay) {
+        var matches = getMatchesByTeamIds(teamSlot);
         final SerieTableEntry eintrag = new SerieTableEntry();
         int gameNumber = 0;
         int homeVictories = 0;
@@ -679,13 +678,13 @@ public class MatchFixtures extends AbstractTable.Storable {
         int homePoints = 0;
         int awayPoints = 0;
 
-        eintrag.setTeamId(ids.currentTeamId); // First entry is the current existing teams
+        eintrag.setTeamId(teamSlot.currentTeamId); // First entry is the current existing teams
         var name = "";
 
         for ( var match : matches) {
             if ( match.getSpieltag() > maxMatchDay) { break; }
 
-            var isHomeTeam = ids.contains(match.getHeimId());
+            var isHomeTeam = teamSlot.contains(match.getHeimId());
             name = isHomeTeam?match.getHeimName():match.getGastName();
 
             // Games already played
