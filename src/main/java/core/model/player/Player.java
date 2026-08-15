@@ -885,7 +885,7 @@ public class Player extends AbstractTable.Storable {
         return injury;
     }
 
-    public Injury.TypeOfEstimate getInjuryTypeOfEstimate() {
+    public TypeOfRecoveryEstimation getInjuryTypeOfEstimate() {
         return getInjury().getTypeOfEstimate();
     }
 

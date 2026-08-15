@@ -137,12 +137,12 @@ class Injury {
         var healthMin = 0.9 - player.getInjuryWeeks() * 0.1;
         if (calculatedHealth < healthMin) {
             calculatedHealth = healthMin;
-            typeOfEstimate = TypeOfEstimate.PESSIMISTIC_ESTIMATE;
+            typeOfRecoveryEstimation = TypeOfRecoveryEstimation.PESSIMISTIC_ESTIMATE;
         } else if (calculatedHealth >= healthMin + 0.1) {
             calculatedHealth = healthMin + 0.09;
-            typeOfEstimate = TypeOfEstimate.OPTIMISTIC_ESTIMATE;
+            typeOfRecoveryEstimation = TypeOfRecoveryEstimation.OPTIMISTIC_ESTIMATE;
         } else {
-            typeOfEstimate = TypeOfEstimate.REALISTIC_ESTIMATE;
+            typeOfRecoveryEstimation = TypeOfRecoveryEstimation.REALISTIC_ESTIMATE;
         }
         return calculatedHealth;
     }
@@ -198,13 +198,10 @@ class Injury {
 
     /**
      * Get type of recovery estimate.
-     * @return
-     *  REALISTIC - if date should match the real recovery
-     *  OPTIMISTIC - if date of real recovery is most likely after the estimated date
-     *  PESSIMISTIC  - if date of real recovery is most likely before the estimated date
+     * @return TypeOfRecoveryEstimation
      */
-    public TypeOfEstimate getTypeOfEstimate() {
-        return typeOfEstimate;
+    public TypeOfRecoveryEstimation getTypeOfEstimate() {
+        return typeOfRecoveryEstimation;
     }
 
     /**
@@ -224,17 +221,5 @@ class Injury {
      */
     private boolean isSportsInvalid = false;
 
-    /**
-     * Type of recovery estimate.
-     *  REALISTIC - if date should match the real recovery
-     *  OPTIMISTIC - if date of real recovery is most likely after the estimated date
-     *  PESSIMISTIC  - if date of real recovery is most likely before the estimated date
-     */
-    public enum TypeOfEstimate {
-        REALISTIC_ESTIMATE,
-        OPTIMISTIC_ESTIMATE,
-        PESSIMISTIC_ESTIMATE,
-    }
-
-    private TypeOfEstimate typeOfEstimate = TypeOfEstimate.REALISTIC_ESTIMATE;
+    private TypeOfRecoveryEstimation typeOfRecoveryEstimation = TypeOfRecoveryEstimation.REALISTIC_ESTIMATE;
 }

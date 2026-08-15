@@ -23,7 +23,7 @@ class InjuryTest {
         assertEquals(false, injury.isSportsInvalid)
         assertIsNot<HODateTime>(injury.whenHealthy)
         assertIsNot<HODateTime>(injury.whenSlightlyInjured)
-        assertEquals(Injury.TypeOfEstimate.REALISTIC_ESTIMATE, injury.typeOfEstimate)
+        assertEquals(TypeOfRecoveryEstimation.REALISTIC_ESTIMATE, injury.typeOfEstimate)
 
         val dailyUpdates = hoModel.xtraDaten.dailyUpdates
 
@@ -46,10 +46,10 @@ class InjuryTest {
             4 to null,
         )
         val expectedTypeOfEstimate = mutableMapOf(
-            1 to Injury.TypeOfEstimate.REALISTIC_ESTIMATE,
-            2 to Injury.TypeOfEstimate.REALISTIC_ESTIMATE,
-            3 to Injury.TypeOfEstimate.REALISTIC_ESTIMATE,
-            4 to Injury.TypeOfEstimate.REALISTIC_ESTIMATE,
+            1 to TypeOfRecoveryEstimation.REALISTIC_ESTIMATE,
+            2 to TypeOfRecoveryEstimation.REALISTIC_ESTIMATE,
+            3 to TypeOfRecoveryEstimation.REALISTIC_ESTIMATE,
+            4 to TypeOfRecoveryEstimation.REALISTIC_ESTIMATE,
         )
 
         val players = hoModel.currentPlayers
