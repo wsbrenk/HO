@@ -22,7 +22,9 @@
 * Synchronize player selection in training and player overview modules (#2379)
 * Added the columns `Career Assists` and `Assists for the Team` to the overview and details panel. (#2254)
 
-### Team Analyzer
+### Series
+
+* Fix error in table calculation if more than one team is replaced at one match day (#2453)
 
 ### Hall of fame
 
@@ -57,14 +59,11 @@
 
 * Fixed the missing translation for the home/away `Tactic` and `Details` column and displaying the abbreviation of the
   tactic now in the corresponding column.
+* Fixed a crash that occurred when not ticking `Only matches with SEs`.
 
 ### Option setting
 
 * Add option to select currency setting (#2288)
-
-### Special Events
-
-* Fixed a crash that occurred when not ticking `Only matches with SEs`.
 
 ### Youth
 
