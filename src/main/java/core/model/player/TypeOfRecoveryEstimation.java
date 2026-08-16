@@ -1,13 +1,22 @@
 package core.model.player;
 
 /**
- * Type of recovery estimate.
- * REALISTIC - if date should match the real recovery
- * OPTIMISTIC - if date of real recovery is most likely after the estimated date
- * PESSIMISTIC  - if date of real recovery is most likely before the estimated date
+ * Type of recovery estimation.
  */
 public enum TypeOfRecoveryEstimation {
+
+    /**
+     * The estimated recovery date should match the expected actual recovery date.
+     */
     REALISTIC_ESTIMATE,
+
+    /**
+     * The actual recovery is most likely to occur after the estimated recovery date.
+     */
     OPTIMISTIC_ESTIMATE,
+
+    /**
+     * The actual recovery is most likely to occur before the estimated recovery date.
+     */
     PESSIMISTIC_ESTIMATE,
 }
