@@ -10,6 +10,7 @@ import core.gui.model.UserColumnController;
 import core.model.HOVerwaltung;
 import core.model.TranslationFacility;
 import core.module.config.ModuleConfig;
+import core.util.HOLogger;
 import core.util.Helper;
 import core.util.chart.HOLinesChart;
 import core.util.chart.LinesChartDataModel;
@@ -38,6 +39,7 @@ public class YouthPlayerView extends JPanel implements Refreshable, ListSelectio
     private final YouthSkillInfoEditor[] playerSkillInfoEditors;
     private final JEditorPane playerScoutCommentField;
     private final YouthPlayerDetailsTableModel playerDetailsTableModel;
+    private YouthPlayer selectedPlayer;
 
     public YouthPlayerView() {
         super();
@@ -46,6 +48,7 @@ public class YouthPlayerView extends JPanel implements Refreshable, ListSelectio
         this.playerOverviewTableModel =  UserColumnController.instance().getYouthPlayerOverviewColumnModel();
         playerOverviewTable = new FixedColumnsTable(this.playerOverviewTableModel);
         playerOverviewTable.addListSelectionListener(this);
+        playerOverviewTable.getSelectionModel().setValueIsAdjusting(true);
         this.playerDetailsTableModel = UserColumnController.instance().getYouthPlayerDetailsColumnModel();
         FixedColumnsTable playerDetailsTable = new FixedColumnsTable(this.playerDetailsTableModel);
 
@@ -153,9 +156,15 @@ public class YouthPlayerView extends JPanel implements Refreshable, ListSelectio
         if ( isRefreshingPlayerOverview) return;
         try {
             isRefreshingPlayerOverview = true;
-            var selection = this.playerOverviewTable.getSelectedModelIndex();
+            if ( this.selectedPlayer != null) {
+                HOLogger.instance().info(getClass(), "Selected player before initData: " + this.selectedPlayer.getFullName());
+                this.playerOverviewTable.getSelectionModel().setValueIsAdjusting(true);
+            }
             playerOverviewTableModel.initData();
-            SwingUtilities.invokeLater(() -> this.playerOverviewTable.selectModelIndex(selection));
+            if ( this.selectedPlayer != null ) {
+                selectPlayer(this.selectedPlayer);
+                this.playerOverviewTable.getSelectionModel().setValueIsAdjusting(false);
+            }
         }
         finally {
             isRefreshingPlayerOverview=false;
@@ -231,11 +240,17 @@ public class YouthPlayerView extends JPanel implements Refreshable, ListSelectio
         if (isRefreshingPlayerDetails) return;
         try {
             isRefreshingPlayerDetails = true;   // prevent recursions
-            var player = getSelectedPlayer();
+            this.selectedPlayer = getSelectedPlayer();
+            HOLogger.instance().info(getClass(), "Selected player: " + this.selectedPlayer.getFullName());
+            var player = this.selectedPlayer;
             if (player == null) {
                 // reset previous selection
                 player = playerDetailsTableModel.getYouthPlayer();
-                if (player != null) setSelectedPlayer(player);
+                if (player != null) {
+                    playerOverviewTable.getSelectionModel().setValueIsAdjusting(true);
+                    selectPlayer(player);
+                    playerOverviewTable.getSelectionModel().setValueIsAdjusting(false);
+                }
             }
             if (player != null) {
                 playerNameLabel.setText(player.getFullName());
@@ -290,30 +305,33 @@ public class YouthPlayerView extends JPanel implements Refreshable, ListSelectio
         return null;
     }
 
-    private void setSelectedPlayer(YouthPlayer selectedPlayer) {
+    private void selectPlayer(YouthPlayer p) {
+        this.selectedPlayer = p;
+        if (selectedPlayer == null) {
+            return;
+        }
         var currentPlayers = HOVerwaltung.instance().getModel().getCurrentYouthPlayers();
-        for (int row=0; row<currentPlayers.size(); row++){
+        for (int row = 0; row < currentPlayers.size(); row++) {
             var index = playerOverviewTable.getSelectedModelIndex();
             var player = currentPlayers.get(index);
-            if ( player != null && player.getId() == selectedPlayer.getId()){
-                this.playerOverviewTable.setRowSelectionInterval(row,row);
+            if (player != null && player.getId() == selectedPlayer.getId()) {
+                initSelection(row);
+//                this.playerOverviewTable.setRowSelectionInterval(row, row);
                 break;
             }
         }
     }
 
-    private boolean isSelectionInitialized=false;
     private void initSelection(int row) {
-        isSelectionInitialized=true;
+        this.playerOverviewTable.getSelectionModel().setValueIsAdjusting(true);
         this.playerOverviewTable.setRowSelectionInterval(row,row);
-        isSelectionInitialized=false;
+        this.playerOverviewTable.getSelectionModel().setValueIsAdjusting(false);
     }
 
     @Override
     public void valueChanged(ListSelectionEvent e) {
-        if (!isSelectionInitialized) {
-            refreshPlayerDetails();
-        }
+        if ( e.getValueIsAdjusting() ) return;
+        refreshPlayerDetails();
     }
 
     public void storeUserSettings() {
