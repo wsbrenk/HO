@@ -52,6 +52,7 @@
 
 * Added support of all 13 **Player Categories** (#2418)
 * Fix line feed handling in owner notes. Tooltip shows notes as multiline (#2455)
+* Fix player selection in youth player overview (#2452)
 
 ### Special Events
 

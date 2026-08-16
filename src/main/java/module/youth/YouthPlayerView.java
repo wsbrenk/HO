@@ -10,7 +10,6 @@ import core.gui.model.UserColumnController;
 import core.model.HOVerwaltung;
 import core.model.TranslationFacility;
 import core.module.config.ModuleConfig;
-import core.util.HOLogger;
 import core.util.Helper;
 import core.util.chart.HOLinesChart;
 import core.util.chart.LinesChartDataModel;
@@ -153,21 +152,16 @@ public class YouthPlayerView extends JPanel implements Refreshable, ListSelectio
 
     private boolean isRefreshingPlayerOverview=false;
     private void refreshPlayerOverview() {
-        if ( isRefreshingPlayerOverview) return;
+        if (isRefreshingPlayerOverview) return;
         try {
             isRefreshingPlayerOverview = true;
-            if ( this.selectedPlayer != null) {
-                HOLogger.instance().info(getClass(), "Selected player before initData: " + this.selectedPlayer.getFullName());
-                this.playerOverviewTable.getSelectionModel().setValueIsAdjusting(true);
-            }
+            var selected = this.selectedPlayer;
             playerOverviewTableModel.initData();
-            if ( this.selectedPlayer != null ) {
-                selectPlayer(this.selectedPlayer);
-                this.playerOverviewTable.getSelectionModel().setValueIsAdjusting(false);
+            if (selected != null) {
+                selectPlayer(selected);
             }
-        }
-        finally {
-            isRefreshingPlayerOverview=false;
+        } finally {
+            isRefreshingPlayerOverview = false;
         }
     }
 
@@ -240,9 +234,7 @@ public class YouthPlayerView extends JPanel implements Refreshable, ListSelectio
         if (isRefreshingPlayerDetails) return;
         try {
             isRefreshingPlayerDetails = true;   // prevent recursions
-            this.selectedPlayer = getSelectedPlayer();
-            HOLogger.instance().info(getClass(), "Selected player: " + this.selectedPlayer.getFullName());
-            var player = this.selectedPlayer;
+            var player = getSelectedPlayer();
             if (player == null) {
                 // reset previous selection
                 player = playerDetailsTableModel.getYouthPlayer();
@@ -260,13 +252,12 @@ public class YouthPlayerView extends JPanel implements Refreshable, ListSelectio
                     playerSkillInfoEditors[i].setSkillInfo(player.getSkillInfo(skillId));
                     chartDataModels[i] = new LinesChartDataModel(player.getSkillDevelopment(skillId), skillId.getLanguageString(), true, skillIDColorMap.get(skillId));
                 }
-                youthSkillChart.setAllValues(chartDataModels, player.getSkillDevelopmentDates(), Helper.DEFAULTDEZIMALFORMAT, TranslationFacility.tr("Wochen"), "",false, true);
+                youthSkillChart.setAllValues(chartDataModels, player.getSkillDevelopmentDates(), Helper.DEFAULTDEZIMALFORMAT, TranslationFacility.tr("Wochen"), "", false, true);
                 playerScoutCommentField.setText(getScoutComment(player));
                 playerDetailsTableModel.setYouthPlayer(player);
                 playerDetailsTableModel.initData();
             }
-        }
-        finally {
+        } finally {
             isRefreshingPlayerDetails = false;
         }
     }
@@ -291,41 +282,45 @@ public class YouthPlayerView extends JPanel implements Refreshable, ListSelectio
 
     private YouthPlayer getSelectedPlayer() {
         var row = this.playerOverviewTable.getSelectedRow();
-        if ( row < 0 && this.playerOverviewTable.getRowCount() > 0){
+        if (row < 0 && this.playerOverviewTable.getRowCount() > 0) {
             row = 0;
+            if (this.selectedPlayer != null) {
+                var modelIndex = HOVerwaltung.instance().getModel().getCurrentYouthPlayers().indexOf(this.selectedPlayer);
+                if (modelIndex >= 0) {
+                    row = playerOverviewTable.convertRowIndexToModel(modelIndex);
+                }
+            }
             initSelection(row);
         }
-        if ( row > -1) {
-            var index = playerOverviewTable.getSelectedModelIndex();
+        if (row > -1) {
+            var index = playerOverviewTable.convertRowIndexToModel(row);
             var currentPlayers = HOVerwaltung.instance().getModel().getCurrentYouthPlayers();
             if (currentPlayers != null && currentPlayers.size() > index) {
-                return currentPlayers.get(index);
+                this.selectedPlayer = currentPlayers.get(index);
             }
         }
-        return null;
+        return this.selectedPlayer;
     }
 
-    private void selectPlayer(YouthPlayer p) {
-        this.selectedPlayer = p;
-        if (selectedPlayer == null) {
+    private void selectPlayer(YouthPlayer player) {
+        if (player == null) {
             return;
         }
         var currentPlayers = HOVerwaltung.instance().getModel().getCurrentYouthPlayers();
-        for (int row = 0; row < currentPlayers.size(); row++) {
-            var index = playerOverviewTable.getSelectedModelIndex();
-            var player = currentPlayers.get(index);
-            if (player != null && player.getId() == selectedPlayer.getId()) {
-                initSelection(row);
-//                this.playerOverviewTable.setRowSelectionInterval(row, row);
-                break;
-            }
+        var selected = currentPlayers.stream().filter(p -> p.getId() == player.getId()).findFirst();
+        if (selected.isPresent()) {
+            this.selectedPlayer = selected.get();
+            var index = currentPlayers.indexOf(this.selectedPlayer);
+            var row = this.playerOverviewTable.convertRowIndexToView(index);
+            initSelection(row);
         }
     }
 
     private void initSelection(int row) {
-        this.playerOverviewTable.getSelectionModel().setValueIsAdjusting(true);
-        this.playerOverviewTable.setRowSelectionInterval(row,row);
-        this.playerOverviewTable.getSelectionModel().setValueIsAdjusting(false);
+        if (row < 0 || row > this.playerOverviewTable.getRowCount()) {
+            return;
+        }
+        this.playerOverviewTable.setRowSelectionInterval(row, row);
     }
 
     @Override
