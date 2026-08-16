@@ -47,7 +47,6 @@ public class YouthPlayerView extends JPanel implements Refreshable, ListSelectio
         this.playerOverviewTableModel =  UserColumnController.instance().getYouthPlayerOverviewColumnModel();
         playerOverviewTable = new FixedColumnsTable(this.playerOverviewTableModel);
         playerOverviewTable.addListSelectionListener(this);
-        playerOverviewTable.getSelectionModel().setValueIsAdjusting(true);
         this.playerDetailsTableModel = UserColumnController.instance().getYouthPlayerDetailsColumnModel();
         FixedColumnsTable playerDetailsTable = new FixedColumnsTable(this.playerDetailsTableModel);
 
