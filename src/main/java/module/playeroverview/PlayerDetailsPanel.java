@@ -36,6 +36,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 
 import static core.gui.theme.HOIconName.GOTOANALYSEBOTTOM;
@@ -137,7 +138,10 @@ public final class PlayerDetailsPanel extends ImagePanel implements Refreshable,
     public void actionPerformed(java.awt.event.ActionEvent actionevent) {
         if (actionevent.getSource().equals(m_jbStatistics)) {
             HOMainFrame.instance().showTab(IModule.STATISTICS);
-            ((StatistikMainPanel) HOMainFrame.instance().getTabbedPane().getModulePanel(IModule.STATISTICS)).setShowSpieler(m_clPlayer.getPlayerId());
+            var statisticsPanel = ((StatistikMainPanel) HOMainFrame.instance().getTabbedPane().getModulePanel(IModule.STATISTICS));
+            if (statisticsPanel != null){
+                statisticsPanel.setShowSpieler(m_clPlayer.getPlayerId());
+            }
         } else if (actionevent.getSource().equals(m_jbAnalysisTop)) {
             HOMainFrame.instance().showTab(IModule.PLAYERANALYSIS);
             HOMainFrame.instance().getSpielerAnalyseMainPanel().setSpieler4Top(m_clPlayer.getPlayerId());
@@ -158,12 +162,12 @@ public final class PlayerDetailsPanel extends ImagePanel implements Refreshable,
         if (itemEvent.getStateChange() == java.awt.event.ItemEvent.SELECTED) {
             if (m_clPlayer != null) {
                 if (itemEvent.getSource().equals(m_jcbSquad)) {
-                    m_clPlayer.setTeamInfoSmilie(m_jcbSquad.getSelectedItem().toString());
+                    m_clPlayer.setTeamInfoSmilie(Objects.requireNonNull(m_jcbSquad.getSelectedItem()).toString());
                 } else if (itemEvent.getSource().equals(m_jcbInformation)) {
-                    m_clPlayer.setManuellerSmilie(m_jcbInformation.getSelectedItem().toString());
+                    m_clPlayer.setManuellerSmilie(Objects.requireNonNull(m_jcbInformation.getSelectedItem()).toString());
                 } else if (itemEvent.getSource().equals(m_jcbUserBestPosition)) {
-                    m_clPlayer.setUserPosFlag((byte) ((core.datatype.CBItem) m_jcbUserBestPosition
-                            .getSelectedItem()).getId());
+                    m_clPlayer.setUserPosFlag((byte) ((core.datatype.CBItem) Objects.requireNonNull(m_jcbUserBestPosition
+                        .getSelectedItem())).getId());
                 }
                 HOMainFrame.instance().getSpielerUebersichtPanel().update();
             }
