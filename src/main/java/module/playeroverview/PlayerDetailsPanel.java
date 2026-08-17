@@ -465,8 +465,8 @@ public final class PlayerDetailsPanel extends ImagePanel implements Refreshable,
         label = createLabel("ls.player.tsi");
         constraintsPlayerGeneralPanel.gridx = 1;
         constraintsPlayerGeneralPanel.gridy = 2;
-        constraintsPlayerGeneralPanel.insets = new Insets(0, 3, 5, 0); // It looks like DoubleLabelEntries is adding its own left inset (TODO: Check dependency to user font size setting)
         layoutPlayerGeneralPanel.setConstraints(label, constraintsPlayerGeneralPanel);
+        constraintsPlayerGeneralPanel.insets = new Insets(0, 3, 5, 0); // It looks like DoubleLabelEntries is adding its own left inset
         jpPlayerGeneral.add(label);
 
         constraintsPlayerGeneralPanel.gridx = 2;
