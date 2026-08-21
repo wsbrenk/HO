@@ -29,7 +29,7 @@ public class MatchFixtures extends AbstractTable.Storable {
         /**
          * Id references index numbers in fixtureEntryIndices
          */
-        private int id;
+        private final int id;
 
         /**
          * Team id of the current team of the slot
@@ -63,14 +63,14 @@ public class MatchFixtures extends AbstractTable.Storable {
 
         /**
          * Add replaced team id
+         *
          * @param teamId New team id
-         * @return True, if the id is added, false if it is already contained
          */
-        public boolean addReplacedTeamId(int teamId) {
+        public void addReplacedTeamId(int teamId) {
             if (this.replacedTeamIds == null) {
                 this.replacedTeamIds = new HashSet<>();
             }
-            return this.replacedTeamIds.add(teamId);
+            this.replacedTeamIds.add(teamId);
         }
     }
 
@@ -305,7 +305,7 @@ public class MatchFixtures extends AbstractTable.Storable {
      * @param tabelle       Current series table for which the previous positions are being set.
      * @param currentTeams  List containing the current teams of the series
      */
-    protected final void calculatePreviousTablePositions(LigaTabelle tabelle, TeamSlots currentTeams) {
+    private void calculatePreviousTablePositions(LigaTabelle tabelle, TeamSlots currentTeams) {
 
         if (tabelle.getEntries().isEmpty()) {
             return;
@@ -360,7 +360,7 @@ public class MatchFixtures extends AbstractTable.Storable {
                     continue;
                 }
 
-                if (team0Slot != null) {
+                if (team0Slot.isPresent()) {
                     // Team1 is replaced team
                     // First check opponent of team 0 in reverse match
                     if (findTeamSlotOfHomeTeamInReverseMatch(knownTeamSlots, matchDay, team0, team1)) {
@@ -372,7 +372,7 @@ public class MatchFixtures extends AbstractTable.Storable {
                     unknownTeamSlots.add(team0);
                 }
 
-                if (team1Slot != null) {
+                if (team1Slot.isPresent()) {
                     // Team0 is replaced team
                     // First check opponent of team 1 in reverse match
                     if (findTeamSlotOfGuestTeamInReverseMatch(knownTeamSlots, matchDay, team1, team0)) {
