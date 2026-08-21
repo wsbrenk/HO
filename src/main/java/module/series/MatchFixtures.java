@@ -18,28 +18,32 @@ import java.util.stream.Collectors;
  */
 public class MatchFixtures extends AbstractTable.Storable {
 
+    private static final int TEAMS_PER_LEAGUE = 8;
+    private static final int LAST_MATCHDAY = 14;
+
     /**
      * Team slot of a league series
      */
-    protected static class TeamSlot {
+    private static class TeamSlot {
 
         /**
          * Id references index numbers in fixtureEntryIndices
          */
-        int id;
+        private int id;
 
         /**
          * Team id of the current team of the slot
          */
-        Integer currentTeamId = null;
+        private int currentTeamId;
 
         /**
          * Ids of teams which were replaced during the series
          */
-        List<Integer> replacedTeamIds = null;
+        private Set<Integer> replacedTeamIds = null;
 
         /**
          * Constructor initializes only the slot id
+         *
          * @param id int [1..8]
          */
         public TeamSlot(int id) {
@@ -48,83 +52,91 @@ public class MatchFixtures extends AbstractTable.Storable {
 
         /**
          * The team id is either the current team or contained in the list of replaced teams
+         *
          * @param teamId int
          * @return boolean
          */
         public boolean contains(int teamId) {
-             return this.currentTeamId == teamId ||
-                 this.replacedTeamIds != null && this.replacedTeamIds.contains(teamId);
+            return this.currentTeamId == teamId ||
+                this.replacedTeamIds != null && this.replacedTeamIds.contains(teamId);
+        }
+
+        /**
+         * Add replaced team id
+         * @param teamId New team id
+         * @return True, if the id is added, false if it is already contained
+         */
+        public boolean addReplacedTeamId(int teamId) {
+            if (this.replacedTeamIds == null) {
+                this.replacedTeamIds = new HashSet<>();
+            }
+            return this.replacedTeamIds.add(teamId);
         }
     }
 
     /**
      * Container of the 8 team slots of one series
      */
-    protected static class TeamSlots {
+    private static class TeamSlots {
         /**
          * List of the 8 team slots
          */
-        ArrayList<TeamSlot> teamSlots = new ArrayList<>(8);
+        ArrayList<TeamSlot> teamSlots = new ArrayList<>(TEAMS_PER_LEAGUE);
 
         /**
          * Constructor creates 8 team slots
          */
         public TeamSlots() {
-            for (int i = 1; i <= 8; i++) {
+            for (int i = 1; i <= TEAMS_PER_LEAGUE; i++) {
                 teamSlots.add(new TeamSlot(i));
             }
         }
 
         /**
          * Find the team slot containing the given team id
+         *
          * @param teamId int
-         * @return TeamSlot that contains the id. Null if no slot is found.
+         * @return Optional<TeamSlot> that contains the id. Empty if no slot is found.
          */
-        public TeamSlot findTeamSlot(int teamId) {
+        public Optional<TeamSlot> findTeamSlot(int teamId) {
             for (TeamSlot slot : teamSlots) {
                 if (slot.contains(teamId)) {
-                    return slot;
+                    return Optional.of(slot);
                 }
             }
-            return null;
+            return Optional.empty();
         }
 
         /**
          * Set the current team id of specified slot
+         *
          * @param teamSlot slot number [1..8]
-         * @param teamId the team id
+         * @param teamId   the team id
          */
         public void setCurrentTeamId(int teamSlot, int teamId) {
-            if ( teamSlot > 0 && teamSlot <= 8 ) {
-                this.teamSlots.get(teamSlot-1).currentTeamId = teamId;
-            }
+            var slot = this.teamSlots.get(teamSlot - 1);
+            slot.currentTeamId = teamId;
         }
 
         /**
          * Add a team id to the list of replaced teams in specified slot
+         *
          * @param teamSlot slot number [1..8]
-         * @param teamId the team id
+         * @param teamId   the team id
          */
         public void addReplacedTeamSlot(int teamSlot, int teamId) {
-            if ( teamSlot > 0 && teamSlot <= 8 ) {
-                var slot = this.teamSlots.get(teamSlot-1);
-                if (slot.replacedTeamIds == null) {
-                    slot.replacedTeamIds = new ArrayList<>();
-                }
-                slot.replacedTeamIds.add(teamId);
-            }
+            var slot = this.teamSlots.get(teamSlot - 1);
+            slot.addReplacedTeamId(teamId);
         }
 
         /**
          * Get the team slot by slot number
+         *
          * @param teamSlot slot number [1..8]
          * @return TeamSlot, null if illegal slot number was specified
          */
         public TeamSlot get(int teamSlot) {
-            if (teamSlot > 0 && teamSlot <= 8) {
-                return this.teamSlots.get(teamSlot-1);
-            }
-            return null;
+            return this.teamSlots.get(teamSlot - 1);
         }
     }
 
@@ -324,7 +336,6 @@ public class MatchFixtures extends AbstractTable.Storable {
      * @return List of team slots
      */
     private TeamSlots getTeamSlotsInSeries() {
-
         // Current teams
         var knownTeamSlots = findTeamSlots();
         if (knownTeamSlots == null) {
@@ -332,7 +343,7 @@ public class MatchFixtures extends AbstractTable.Storable {
         }
 
         // Find replaced teams
-        for (var matchDay = 1; matchDay <= 14; matchDay++) {
+        for (var matchDay = 1; matchDay <= LAST_MATCHDAY; matchDay++) {
             var fixtures = getFixturesOfMatchDay(matchDay);
             var unknownTeamSlots = new ArrayList<Integer>();
             var indexPairs = getMatchDayIndexPairs(matchDay);
@@ -341,10 +352,10 @@ public class MatchFixtures extends AbstractTable.Storable {
                 var team1 = fixture.getGastId();
                 var team0Slot = knownTeamSlots.findTeamSlot(team0);
                 var team1Slot = knownTeamSlots.findTeamSlot(team1);
-                if (team0Slot != null && team1Slot != null) {
+                if (team0Slot.isPresent() && team1Slot.isPresent()) {
                     // Both teams are already known
-                    Integer finalTeam0Slot = team0Slot.id;
-                    Integer finalTeam1Slot = team1Slot.id;
+                    Integer finalTeam0Slot = team0Slot.get().id;
+                    Integer finalTeam1Slot = team1Slot.get().id;
                     indexPairs.removeIf(p -> Objects.equals(p.getValue0(), finalTeam0Slot) && Objects.equals(p.getValue1(), finalTeam1Slot));
                     continue;
                 }
@@ -352,107 +363,151 @@ public class MatchFixtures extends AbstractTable.Storable {
                 if (team0Slot != null) {
                     // Team1 is replaced team
                     // First check opponent of team 0 in reverse match
-                    int reverseMatchDay = 15 - matchDay;
-                    var reverseMatch = m_vEintraege.stream().filter(f -> f.getSpieltag() == reverseMatchDay && f.getGastId() == team0).findFirst().orElse(null);
-                    if (reverseMatch != null) {
-                        var newTeam = reverseMatch.getHeimId();
-                        if (newTeam != team1) {
-                            team1Slot = knownTeamSlots.findTeamSlot(newTeam);
-                            if (team1Slot != null) {
-                                knownTeamSlots.addReplacedTeamSlot(team1Slot.id, team1);
-                                continue;
-                            }
-                        } // if matchDay > 7 reverse match is in first leg of the season
-                    } // Team 0 is also replaced later on
-
-                    // Try to find slot of team in next match days
-                    for (var m = matchDay + 1; m < 15; m++) {
-                        team1Slot = findTeamSlot(knownTeamSlots, team1, m);
-                        if (team1Slot != null) {
-                            knownTeamSlots.addReplacedTeamSlot(team1Slot.id, team1);
-                            break;
-                        }
-                    }
-                    if (team1Slot != null) {
-                        // Found it
+                    if (findTeamSlotOfHomeTeamInReverseMatch(knownTeamSlots, matchDay, team0, team1)) {
                         continue;
                     }
+                    if (findTeamSlotInUpcomingMatchDays(knownTeamSlots, matchDay, team1)) {
+                        continue;
+                    }
+                    unknownTeamSlots.add(team0);
                 }
 
                 if (team1Slot != null) {
                     // Team0 is replaced team
                     // First check opponent of team 1 in reverse match
-                    int reverseMatchDay = 15 - matchDay;
-                    var reverseMatch = m_vEintraege.stream().filter(f -> f.getSpieltag() == reverseMatchDay && f.getHeimId() == team1).findFirst().orElse(null);
-                    if (reverseMatch != null) {
-                        var newTeam = reverseMatch.getGastId();
-                        if (newTeam != team0) {
-                            team0Slot = knownTeamSlots.findTeamSlot(newTeam);
-                            if (team0Slot != null) {
-                                knownTeamSlots.addReplacedTeamSlot(team0Slot.id, team0);
-                                continue;
-                            }
-                        } // if matchDay > 7 reverse match is in first leg of the season
-                    } // Team 0 is also replaced later on
-
-                    for (var m = matchDay + 1; m < 15; m++) {
-                        team0Slot = findTeamSlot(knownTeamSlots, team0, m);
-                        if (team0Slot != null) {
-                            knownTeamSlots.addReplacedTeamSlot(team0Slot.id, team0);
-                            break;
-                        }
-                    }
-                    if (team0Slot != null) {
+                    if (findTeamSlotOfGuestTeamInReverseMatch(knownTeamSlots, matchDay, team1, team0)) {
                         continue;
                     }
-                }
-
-                if (team0Slot == null) {
-                    unknownTeamSlots.add(team0);
-                }
-                if (team1Slot == null) {
+                    if (findTeamSlotInUpcomingMatchDays(knownTeamSlots, matchDay, team0)) {
+                        continue;
+                    }
                     unknownTeamSlots.add(team1);
                 }
             }
 
-            if (indexPairs.isEmpty()) {continue;}
-            if (indexPairs.size() == 1) {
-                for (var fixture : fixtures) {
-                    if (unknownTeamSlots.contains(fixture.getHeimId())) {
-                        knownTeamSlots.addReplacedTeamSlot(indexPairs.get(0).getValue0(), fixture.getHeimId());
-                        knownTeamSlots.addReplacedTeamSlot(indexPairs.get(0).getValue1(), fixture.getGastId());
-                    }
+            if (!indexPairs.isEmpty())
+                AnalyseRemainingIndexPairs(indexPairs, matchDay, fixtures, knownTeamSlots, unknownTeamSlots);
+        }
+        return knownTeamSlots;
+    }
+
+    /**
+     * Analyze game assignments that include unknown teams
+     * @param indexPairs Game assignments
+     * @param matchDay Match day
+     * @param fixtures Fixtures of the match day
+     * @param knownTeamSlots Known team slots
+     * @param unknownTeamSlots Unknown team slots
+     */
+    private void AnalyseRemainingIndexPairs(List<Pair<Integer, Integer>> indexPairs, int matchDay, List<Paarung> fixtures, TeamSlots knownTeamSlots, ArrayList<Integer> unknownTeamSlots) {
+        if (indexPairs.size() == 1) {
+            for (var fixture : fixtures) {
+                if (unknownTeamSlots.contains(fixture.getHeimId()) || unknownTeamSlots.contains(fixture.getGastId())) {
+                    knownTeamSlots.addReplacedTeamSlot(indexPairs.get(0).getValue0(), fixture.getHeimId());
+                    knownTeamSlots.addReplacedTeamSlot(indexPairs.get(0).getValue1(), fixture.getGastId());
                 }
-            } else {
-                // more than 2 teamSlots are unknown
-                // Hopefully the match ids are ordered correctly by the hattrick engine
-                var orderedFixtures = fixtures.stream().sorted(Comparator.comparing(Paarung::getMatchId)).toList();
-                indexPairs = getMatchDayIndexPairs(matchDay);
-                int matchIndex = 0;
-                for (var fixture : orderedFixtures) {
-                    var indexPair = indexPairs.get(matchIndex++);
-                    var team0Slot = knownTeamSlots.findTeamSlot(fixture.getHeimId());
-                    if (team0Slot != null) {
-                        if (team0Slot.id != indexPair.getValue0()) {
-                            HOLogger.instance().warning(getClass(), "Team slot mismatch");
-                            break;
-                        }
-                    } else {
-                        knownTeamSlots.addReplacedTeamSlot(indexPair.getValue0(), fixture.getHeimId());
+            }
+        } else {
+            // more than 2 teamSlots are unknown
+            // Hopefully the match ids are ordered correctly by the hattrick engine
+            var orderedFixtures = fixtures.stream().sorted(Comparator.comparing(Paarung::getMatchId)).toList();
+            indexPairs = getMatchDayIndexPairs(matchDay);
+            int matchIndex = 0;
+            for (var fixture : orderedFixtures) {
+                var indexPair = indexPairs.get(matchIndex++);
+                var team0Slot = knownTeamSlots.findTeamSlot(fixture.getHeimId());
+                if (team0Slot.isPresent()) {
+                    if (team0Slot.get().id != indexPair.getValue0()) {
+                        HOLogger.instance().warning(getClass(), "Team slot mismatch");
+                        break;
                     }
-                    var team1Slot = knownTeamSlots.findTeamSlot(fixture.getGastId());
-                    if (team1Slot != null) {
-                        if (team1Slot.id != indexPair.getValue1()) {
-                            HOLogger.instance().warning(getClass(), "Team slot mismatch");
-                            break;
-                        }
-                    } else {
-                        knownTeamSlots.addReplacedTeamSlot(indexPair.getValue1(), fixture.getGastId());
+                } else {
+                    knownTeamSlots.addReplacedTeamSlot(indexPair.getValue0(), fixture.getHeimId());
+                }
+                var team1Slot = knownTeamSlots.findTeamSlot(fixture.getGastId());
+                if (team1Slot.isPresent()) {
+                    if (team1Slot.get().id != indexPair.getValue1()) {
+                        HOLogger.instance().warning(getClass(), "Team slot mismatch");
+                        break;
                     }
+                } else {
+                    knownTeamSlots.addReplacedTeamSlot(indexPair.getValue1(), fixture.getGastId());
                 }
             }
         }
-        return knownTeamSlots;
+    }
+
+    /**
+     * Find team slot in upcoming match days
+     * @param knownTeamSlots Known team slots
+     * @param matchDay Match day
+     * @param teamId Team Id
+     * @return true, if slot was found, false otherwise
+     */
+    private boolean findTeamSlotInUpcomingMatchDays(TeamSlots knownTeamSlots, int matchDay, int teamId) {
+        // Try to find slot of team in next match days
+        for (var m = matchDay + 1; m <= LAST_MATCHDAY; m++) {
+            var team1Slot = findTeamSlot(knownTeamSlots, teamId, m);
+            if (team1Slot.isPresent()) {
+                knownTeamSlots.addReplacedTeamSlot(team1Slot.get().id, teamId);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Find missing team slot in reverse match.
+     * The known opponent of the unknown team is the home team in the reverse match.
+     * @param knownTeamSlots Known team slots
+     * @param matchDay Match day
+     * @param knownTeamId Known opponent team of the unknown team
+     * @param unknownTeamId Unknown team
+     * @return True, if the slot of the unknown team is found, false otherwise
+     */
+    private boolean findTeamSlotOfGuestTeamInReverseMatch(TeamSlots knownTeamSlots, int matchDay, int knownTeamId, int unknownTeamId) {
+        int reverseMatchDay = LAST_MATCHDAY + 1 - matchDay;
+        var reverseMatch = m_vEintraege.stream().filter(f -> f.getSpieltag() == reverseMatchDay && f.getHeimId() == knownTeamId).findFirst().orElse(null);
+        if (reverseMatch != null) {
+            return findUnknownTeamSlot(knownTeamSlots, reverseMatch.getGastId(), unknownTeamId);
+        }
+        return false;
+    }
+
+    /**
+     * Find missing team slot in reverse match.
+     * The known opponent of the unknown team is the guest team in the reverse match.
+     * @param knownTeamSlots Known team slots
+     * @param matchDay Match day
+     * @param knownTeamId Known opponent team of the unknown team
+     * @param unknownTeamId Unknown team
+     * @return True, if the slot of the unknown team is found, false otherwise
+     */
+    private boolean findTeamSlotOfHomeTeamInReverseMatch(TeamSlots knownTeamSlots, int matchDay, int knownTeamId, int unknownTeamId) {
+        int reverseMatchDay = LAST_MATCHDAY + 1 - matchDay;
+        var reverseMatch = m_vEintraege.stream().filter(f -> f.getSpieltag() == reverseMatchDay && f.getGastId() == knownTeamId).findFirst().orElse(null);
+        if (reverseMatch != null) {
+            return findUnknownTeamSlot(knownTeamSlots, reverseMatch.getHeimId(), unknownTeamId);
+        }
+        return false;
+    }
+
+    /**
+     * Find the slot of the unknown team
+     * @param knownTeamSlots Known team slots
+     * @param newTeamId Found team id (Could be the same as the unknown team id)
+     * @param unknownTeamId Team Id of the unknown team
+     * @return True, if slot is found, false otherwise
+     */
+    private boolean findUnknownTeamSlot(TeamSlots knownTeamSlots, int newTeamId, int unknownTeamId) {
+        if (newTeamId != unknownTeamId) {
+            var team1Slot = knownTeamSlots.findTeamSlot(newTeamId);
+            if (team1Slot.isPresent()) {
+                knownTeamSlots.addReplacedTeamSlot(team1Slot.get().id, unknownTeamId);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -462,18 +517,18 @@ public class MatchFixtures extends AbstractTable.Storable {
      * @param matchDay Match day [1..14]
      * @return Integer Team slot [1..8] or null if not found
      */
-    private TeamSlot findTeamSlot(TeamSlots knownTeamSlots, int teamId, int matchDay) {
-        if (matchDay > 14) return null;
+    private Optional<TeamSlot> findTeamSlot(TeamSlots knownTeamSlots, int teamId, int matchDay) {
+        if (matchDay > LAST_MATCHDAY) return Optional.empty();
         var match = m_vEintraege.stream().filter(f -> f.getSpieltag() == matchDay && (f.getGastId() == teamId || f.getHeimId() == teamId)).findFirst().orElse(null);
         if (match == null) {
             // teamId is no longer part of the game
-            return null;
+            return Optional.empty();
         }
 
         var team0 = match.getHeimId();
         var team1 = match.getGastId();
 
-        var reverseMatchDay = 15 - matchDay;
+        var reverseMatchDay = LAST_MATCHDAY + 1 - matchDay;
         if (team0 == teamId) {
             var reversedMatch = m_vEintraege.stream().filter(f -> f.getSpieltag() == reverseMatchDay && f.getHeimId() == team1).findFirst().orElse(null);
             if (reversedMatch != null) {
@@ -482,8 +537,7 @@ public class MatchFixtures extends AbstractTable.Storable {
                     return knownTeamSlots.findTeamSlot(newTeam);
                 }
             }
-        }
-        else { // Team is team1
+        } else { // Team is team1
             var reversedMatch = m_vEintraege.stream().filter(f -> f.getSpieltag() == reverseMatchDay && f.getGastId() == team0).findFirst().orElse(null);
             if (reversedMatch != null) {
                 var newTeam = reversedMatch.getHeimId();
@@ -492,7 +546,7 @@ public class MatchFixtures extends AbstractTable.Storable {
                 }
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -508,7 +562,7 @@ public class MatchFixtures extends AbstractTable.Storable {
 
         int i = 0;
         var ret = getTeamSlotMapping(fixturesOfLastMatchDay, arr);
-        if (checkTeamSlotMapping(ret, 13)) {
+        if (checkTeamSlotMapping(ret, LAST_MATCHDAY - 1)) {
             return ret;
         }
 
@@ -521,7 +575,7 @@ public class MatchFixtures extends AbstractTable.Storable {
                     swap(arr, indexes[i], i);
                 }
                 ret = getTeamSlotMapping(fixturesOfLastMatchDay, arr);
-                if (checkTeamSlotMapping(ret, 13)) {
+                if (checkTeamSlotMapping(ret, LAST_MATCHDAY - 1)) {
                     return ret;
                 }
                 indexes[i]++;
@@ -559,12 +613,12 @@ public class MatchFixtures extends AbstractTable.Storable {
             }
             if (!found) return false;
         }
-        if ( matchDay > 12 ) return checkTeamSlotMapping(teamSlots, matchDay-1);
+        if (matchDay > LAST_MATCHDAY - 2) return checkTeamSlotMapping(teamSlots, matchDay - 1);
         return true;
     }
 
     private static @NotNull TeamSlots getTeamSlotMapping(List<Paarung> fixturesOfMatchDay, int[] arr) {
-        var teamSlots =  new TeamSlots();
+        var teamSlots = new TeamSlots();
         var fixtureIndicesOfRound14 = fixtureEntryIndices.get(0); // First round (same as round 14, but home and guest swapped
         for (int k = 0; k < fixturesOfMatchDay.size(); k++) {
             var pair = fixturesOfMatchDay.get(arr[k]);
@@ -592,7 +646,7 @@ public class MatchFixtures extends AbstractTable.Storable {
      * @return LigaTabelle – Computed series table.
      */
     private LigaTabelle calculateSeriesTable() {
-        return calculateSeriesTable(14, Objects.requireNonNull(getTeamSlotsInSeries()));
+        return calculateSeriesTable(LAST_MATCHDAY, Objects.requireNonNull(getTeamSlotsInSeries()));
     }
 
     /**
@@ -602,7 +656,7 @@ public class MatchFixtures extends AbstractTable.Storable {
      */
     private List<Pair<Integer, Integer>> getMatchDayIndexPairs(int matchDay) {
         if (matchDay < 8) return new ArrayList<>(fixtureEntryIndices.get(matchDay-1));
-        var i = 14 - matchDay;
+        var i = LAST_MATCHDAY - matchDay;
         var ret = new ArrayList<Pair<Integer, Integer>>();
         var pairs = fixtureEntryIndices.get(i);
         for (var pair : pairs) {
