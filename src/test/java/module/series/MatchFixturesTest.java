@@ -21,21 +21,21 @@ class MatchFixturesTest {
             // Set replacements
             for (int i = 0; i < replaceTeams; ++i){
                 var replacedTeamId = 9+i;
-                var pair = fixtures.get(i/2);
+                var fixture = fixtures.get(i/2);
                 if ( i%2 == 0){
-                    pair.setHeimId(replacedTeamId); // replaced Team is replaced by pair.getHeimId after round 1
+                    fixture.setHeimId(replacedTeamId); // replaced Team is replaced by pair.getHeimId after round 1
                 }
                 else {
-                    pair.setGastId(replacedTeamId); // replaced Team is replaced by pair.getGatd after round 1
+                    fixture.setGastId(replacedTeamId); // replaced Team is replaced by pair.getGatd after round 1
                 }
             }
 
             // Set match results of round 1
             for (int i = 0; i < 4; i++) {
                 // All matches in round 1 ended 1-0
-                var pair = fixtures.get(i);
-                pair.setToreHeim(1);
-                pair.setToreGast(0);
+                var fixture = fixtures.get(i);
+                fixture.setToreHeim(1);
+                fixture.setToreGast(0);
             }
 
             // Calculate series table

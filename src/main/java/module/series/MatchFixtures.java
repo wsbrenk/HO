@@ -354,9 +354,7 @@ public class MatchFixtures extends AbstractTable.Storable {
                 var team1Slot = knownTeamSlots.findTeamSlot(team1);
                 if (team0Slot.isPresent() && team1Slot.isPresent()) {
                     // Both teams are already known
-                    Integer finalTeam0Slot = team0Slot.get().id;
-                    Integer finalTeam1Slot = team1Slot.get().id;
-                    indexPairs.removeIf(p -> Objects.equals(p.getValue0(), finalTeam0Slot) && Objects.equals(p.getValue1(), finalTeam1Slot));
+                    removeIndexPair(indexPairs, team0Slot.get(), team1Slot.get());
                     continue;
                 }
 
@@ -364,31 +362,43 @@ public class MatchFixtures extends AbstractTable.Storable {
                     // Team1 is replaced team
                     // First check opponent of team 0 in reverse match
                     if (findTeamSlotOfHomeTeamInReverseMatch(knownTeamSlots, matchDay, team0, team1)) {
+                        removeIndexPair(indexPairs, team0Slot.get(), knownTeamSlots.findTeamSlot(team1).get());
                         continue;
                     }
                     if (findTeamSlotInUpcomingMatchDays(knownTeamSlots, matchDay, team1)) {
+                        removeIndexPair(indexPairs, team0Slot.get(), knownTeamSlots.findTeamSlot(team1).get());
                         continue;
                     }
                     unknownTeamSlots.add(team0);
-                }
-
-                if (team1Slot.isPresent()) {
+                } else if (team1Slot.isPresent()) {
                     // Team0 is replaced team
                     // First check opponent of team 1 in reverse match
                     if (findTeamSlotOfGuestTeamInReverseMatch(knownTeamSlots, matchDay, team1, team0)) {
+                        removeIndexPair(indexPairs, knownTeamSlots.findTeamSlot(team0).get(), team1Slot.get());
                         continue;
                     }
                     if (findTeamSlotInUpcomingMatchDays(knownTeamSlots, matchDay, team0)) {
+                        removeIndexPair(indexPairs, knownTeamSlots.findTeamSlot(team0).get(), team1Slot.get());
                         continue;
                     }
+                    unknownTeamSlots.add(team1);
+                } else {
+                    unknownTeamSlots.add(team0);
                     unknownTeamSlots.add(team1);
                 }
             }
 
-            if (!indexPairs.isEmpty())
+            if (!indexPairs.isEmpty()) {
                 AnalyseRemainingIndexPairs(indexPairs, matchDay, fixtures, knownTeamSlots, unknownTeamSlots);
+            }
         }
         return knownTeamSlots;
+    }
+
+    private void removeIndexPair(List<Pair<Integer, Integer>> indexPairs, TeamSlot team0Slot, TeamSlot team1Slot) {
+        Integer finalTeam0Slot = team0Slot.id;
+        Integer finalTeam1Slot = team1Slot.id;
+        indexPairs.removeIf(p -> Objects.equals(p.getValue0(), finalTeam0Slot) && Objects.equals(p.getValue1(), finalTeam1Slot));
     }
 
     /**
@@ -405,6 +415,7 @@ public class MatchFixtures extends AbstractTable.Storable {
                 if (unknownTeamSlots.contains(fixture.getHeimId()) || unknownTeamSlots.contains(fixture.getGastId())) {
                     knownTeamSlots.addReplacedTeamSlot(indexPairs.get(0).getValue0(), fixture.getHeimId());
                     knownTeamSlots.addReplacedTeamSlot(indexPairs.get(0).getValue1(), fixture.getGastId());
+                    return;
                 }
             }
         } else {
@@ -675,11 +686,9 @@ public class MatchFixtures extends AbstractTable.Storable {
         final LigaTabelle ligaTabelle = new LigaTabelle();
         ligaTabelle.setLigaId(m_iLigaId);
         ligaTabelle.setLigaName(m_sLigaName);
-
         for (var teamSlot : teams.teamSlots) {
             ligaTabelle.addEintrag(calculateTableEntry(teamSlot, maxMatchDay));
         }
-
         if (ligaTabelle.getEntries().get(0).getAnzSpiele() > 0) {
             ligaTabelle.sort();
             calculatePreviousTablePositions(ligaTabelle, teams);
@@ -693,7 +702,6 @@ public class MatchFixtures extends AbstractTable.Storable {
             }
             ligaTabelle.sortByPosition();
         }
-
         return ligaTabelle;
     }
 
