@@ -10,13 +10,14 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
 
 class MatchFixturesTest {
 
     @Test
     void matchFixturesReplaceTeamsAfterRound1Test() {
         for (int replaceTeams = 1; replaceTeams <= 8; replaceTeams++) {
-            var fixtures = GetFixtures();
+            var fixtures = createFixtures();
 
             // Set replacements
             for (int i = 0; i < replaceTeams; ++i){
@@ -64,7 +65,7 @@ class MatchFixturesTest {
      * To reflect this behavior, we shuffle the order of our list.
      * @return List of Paarung
      */
-    private List<Paarung> shuffleFixtures(List<Paarung> fixtures) {
+    private static List<Paarung> shuffleFixtures(List<Paarung> fixtures) {
         var ret = new ArrayList<Paarung>();
         var round = new ArrayList<Paarung>();
         for (var pair : fixtures) {
@@ -78,12 +79,12 @@ class MatchFixturesTest {
         return ret;
     }
 
-    private List<Paarung> GetFixtures() {
+    private static List<Paarung> createFixtures() {
         var teams = create8Teams();
         return MatchFixtures.createFixtures(HODateTime.fromHTWeek(new HODateTime.HTWeek(89, 1)), teams);
     }
 
-    private void assertTableEquals(List<List<Integer>> expectedTable, LigaTabelle table) {
+    private static void assertTableEquals(List<List<Integer>> expectedTable, LigaTabelle table) {
         int i = 0;
         for (var expected: expectedTable){
             var tableEntry = table.getEntries().get(i++);
@@ -97,7 +98,7 @@ class MatchFixturesTest {
 
     @Test
     void matchFixturesReplaceTwoTeamsAfterRound2Test() {
-        var fixtures = GetFixtures();
+        var fixtures = createFixtures();
         // Team9 is replaced by Team1 after round 2
         fixtures.get(0).setHeimId(9);
         fixtures.get(4).setGastId(9);
@@ -132,7 +133,7 @@ class MatchFixturesTest {
 
     @Test
     void matchFixturesReplaceTeamEnteredInRound2() {
-        var fixtures = GetFixtures();
+        var fixtures = createFixtures();
 
         // Team9 is replaced by Team10 after round 1
         fixtures.get(0).setHeimId(9); // 1
@@ -169,24 +170,13 @@ class MatchFixturesTest {
         assertTableEquals(expectedTable, table);
     }
 
-    private List<TeamStats> create8Teams() {
-        var teams = List.of(
-            new TeamStats(),
-            new TeamStats(),
-            new TeamStats(),
-            new TeamStats(),
-            new TeamStats(),
-            new TeamStats(),
-            new TeamStats(),
-            new TeamStats()
-        );
-
-        int i = 1;
-        for (var team : teams) {
-            team.setTeamId(i);
-            ++i;
-        }
-        return teams;
+    private static List<TeamStats> create8Teams() {
+        return IntStream.rangeClosed(1, 8).mapToObj(teamId -> {
+                var teamStats = new TeamStats();
+                teamStats.setTeamId(teamId);
+                return teamStats;
+            }
+        ).toList();
     }
 
     @Test
@@ -244,9 +234,9 @@ class MatchFixturesTest {
 
     }
 
-    private boolean containsFixtures(List<Paarung> fixtures, int matchDay, int home, int away) {
-        return fixtures.stream().anyMatch(m->m.getSpieltag()==matchDay && m.getHeimId()==home && m.getGastId()== away) &&
-                fixtures.stream().anyMatch(m->m.getSpieltag()==15-matchDay && m.getHeimId()==away && m.getGastId() == home);
+    private static boolean containsFixtures(List<Paarung> fixtures, int matchDay, int homeTeamId, int guestTeamId) {
+        return fixtures.stream().anyMatch(m->m.getSpieltag()==matchDay && m.getHeimId()==homeTeamId && m.getGastId()== guestTeamId) &&
+                fixtures.stream().anyMatch(m->m.getSpieltag()==15-matchDay && m.getHeimId()==guestTeamId && m.getGastId() == homeTeamId);
     }
 
 }
