@@ -122,8 +122,10 @@ public class Matchdetails extends AbstractTable.Storable implements core.model.m
     private int soldVIP = -1;
 
     private Integer m_iRegionId;
-    private int ratingIndirectSetPiecesAtt = -1;
-    private int ratingIndirectSetPiecesDef = -1;
+    private int homeRratingIndirectSetPiecesAtt = -1;
+    private int homeRatingIndirectSetPiecesDef = -1;
+    private int guestRratingIndirectSetPiecesAtt = -1;
+    private int guestRatingIndirectSetPiecesDef = -1;
 
     public ArrayList<Injury> getM_Injuries() {
         return m_Injuries;
@@ -238,22 +240,40 @@ public class Matchdetails extends AbstractTable.Storable implements core.model.m
         return ret;
     }
 
-    public void setRatingIndirectSetPiecesAtt(Integer ratingIndirectSetPiecesAtt) {
+    public void setHomeRatingIndirectSetPiecesAtt(Integer ratingIndirectSetPiecesAtt) {
         if ( ratingIndirectSetPiecesAtt != null)
-            this.ratingIndirectSetPiecesAtt = ratingIndirectSetPiecesAtt;
+            this.homeRratingIndirectSetPiecesAtt = ratingIndirectSetPiecesAtt;
     }
 
-    public void setRatingIndirectSetPiecesDef(Integer ratingIndirectSetPiecesDef) {
+    public void setHomeRatingIndirectSetPiecesDef(Integer ratingIndirectSetPiecesDef) {
         if ( ratingIndirectSetPiecesDef != null)
-            this.ratingIndirectSetPiecesDef = ratingIndirectSetPiecesDef;
+            this.homeRatingIndirectSetPiecesDef = ratingIndirectSetPiecesDef;
     }
 
-    public int getRatingIndirectSetPiecesDef() {
-        return ratingIndirectSetPiecesDef;
+    public int getHomeRatingIndirectSetPiecesDef() {
+        return homeRatingIndirectSetPiecesDef;
     }
 
-    public int getRatingIndirectSetPiecesAtt() {
-        return ratingIndirectSetPiecesAtt;
+    public int getHomeRatingIndirectSetPiecesAtt() {
+        return homeRratingIndirectSetPiecesAtt;
+    }
+
+    public void setGuestRatingIndirectSetPiecesAtt(Integer ratingIndirectSetPiecesAtt) {
+        if ( ratingIndirectSetPiecesAtt != null)
+            this.guestRratingIndirectSetPiecesAtt = ratingIndirectSetPiecesAtt;
+    }
+
+    public void setGuestRatingIndirectSetPiecesDef(Integer ratingIndirectSetPiecesDef) {
+        if ( ratingIndirectSetPiecesDef != null)
+            this.guestRatingIndirectSetPiecesDef = ratingIndirectSetPiecesDef;
+    }
+
+    public int getGuestRatingIndirectSetPiecesDef() {
+        return guestRatingIndirectSetPiecesDef;
+    }
+
+    public int getGuestRatingIndirectSetPiecesAtt() {
+        return guestRratingIndirectSetPiecesAtt;
     }
 
     public int getLastMinute() {
