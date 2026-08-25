@@ -22,7 +22,9 @@
 * Synchronize player selection in training and player overview modules (#2379)
 * Added the columns `Career Assists` and `Assists for the Team` to the overview and details panel. (#2254)
 
-### Team Analyzer
+### Matches
+
+* Added indirect set pieces ratings to rating panel (#2433)
 
 ### Hall of fame
 

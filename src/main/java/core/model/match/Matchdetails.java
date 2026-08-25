@@ -122,9 +122,9 @@ public class Matchdetails extends AbstractTable.Storable implements core.model.m
     private int soldVIP = -1;
 
     private Integer m_iRegionId;
-    private int homeRratingIndirectSetPiecesAtt = -1;
+    private int homeRatingIndirectSetPiecesAtt = -1;
     private int homeRatingIndirectSetPiecesDef = -1;
-    private int guestRratingIndirectSetPiecesAtt = -1;
+    private int guestRatingIndirectSetPiecesAtt = -1;
     private int guestRatingIndirectSetPiecesDef = -1;
 
     public ArrayList<Injury> getM_Injuries() {
@@ -242,7 +242,7 @@ public class Matchdetails extends AbstractTable.Storable implements core.model.m
 
     public void setHomeRatingIndirectSetPiecesAtt(Integer ratingIndirectSetPiecesAtt) {
         if ( ratingIndirectSetPiecesAtt != null)
-            this.homeRratingIndirectSetPiecesAtt = ratingIndirectSetPiecesAtt;
+            this.homeRatingIndirectSetPiecesAtt = ratingIndirectSetPiecesAtt;
     }
 
     public void setHomeRatingIndirectSetPiecesDef(Integer ratingIndirectSetPiecesDef) {
@@ -255,12 +255,12 @@ public class Matchdetails extends AbstractTable.Storable implements core.model.m
     }
 
     public int getHomeRatingIndirectSetPiecesAtt() {
-        return homeRratingIndirectSetPiecesAtt;
+        return homeRatingIndirectSetPiecesAtt;
     }
 
     public void setGuestRatingIndirectSetPiecesAtt(Integer ratingIndirectSetPiecesAtt) {
         if ( ratingIndirectSetPiecesAtt != null)
-            this.guestRratingIndirectSetPiecesAtt = ratingIndirectSetPiecesAtt;
+            this.guestRatingIndirectSetPiecesAtt = ratingIndirectSetPiecesAtt;
     }
 
     public void setGuestRatingIndirectSetPiecesDef(Integer ratingIndirectSetPiecesDef) {
@@ -273,7 +273,7 @@ public class Matchdetails extends AbstractTable.Storable implements core.model.m
     }
 
     public int getGuestRatingIndirectSetPiecesAtt() {
-        return guestRratingIndirectSetPiecesAtt;
+        return guestRatingIndirectSetPiecesAtt;
     }
 
     public int getLastMinute() {

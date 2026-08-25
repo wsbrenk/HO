@@ -81,6 +81,8 @@ public class MatchPopulator {
             mr.setCentralDefense(aMatchDetail.getHomeMidDef());
             mr.setRightAttack(aMatchDetail.getHomeRightAtt());
             mr.setRightDefense(aMatchDetail.getHomeRightDef());
+            mr.setIndirectSetPiecesAtt(aMatchDetail.getHomeRatingIndirectSetPiecesAtt());
+            mr.setIndirectSetPiecesDef(aMatchDetail.getHomeRatingIndirectSetPiecesDef());
         } else {
             mr.setMidfield(aMatchDetail.getGuestMidfield());
             mr.setLeftAttack(aMatchDetail.getGuestLeftAtt());
@@ -89,11 +91,11 @@ public class MatchPopulator {
             mr.setCentralDefense(aMatchDetail.getGuestMidDef());
             mr.setRightAttack(aMatchDetail.getGuestRightAtt());
             mr.setRightDefense(aMatchDetail.getGuestRightDef());
+            mr.setIndirectSetPiecesAtt(aMatchDetail.getGuestRatingIndirectSetPiecesAtt());
+            mr.setIndirectSetPiecesDef(aMatchDetail.getGuestRatingIndirectSetPiecesDef());
         }
         mr.setHatStats(mr.computeHatStats());
         mr.setLoddarStats(mr.computeLoddarStats());
-        mr.setIndirectSetPiecesAtt(aMatchDetail.getRatingIndirectSetPiecesAtt());
-        mr.setIndirectSetPiecesDef(aMatchDetail.getRatingIndirectSetPiecesDef());
         return mr;
     }
 
@@ -148,7 +150,7 @@ public class MatchPopulator {
 
         return matchDetail;
     }
-    
+
     private boolean isHome(Matchdetails match) {
         return  match.getHomeTeamId() == SystemManager.getActiveTeamId();
     }
