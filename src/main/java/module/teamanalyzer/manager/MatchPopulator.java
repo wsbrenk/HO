@@ -33,9 +33,8 @@ public class MatchPopulator {
 
         analyzedMatch = new ArrayList<>();
         for (Match match : matches) {
-            Match element = match;
             try {
-                MatchDetail md = populateMatch(element);
+                MatchDetail md = populateMatch(match);
                 if (md != null) {
                     list.add(md);
                     analyzedMatch.add(md);
