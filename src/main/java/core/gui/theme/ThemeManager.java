@@ -2,7 +2,6 @@ package core.gui.theme;
 
 import com.github.weisj.darklaf.properties.icons.DerivableImageIcon;
 import com.github.weisj.darklaf.properties.icons.IconLoader;
-import com.github.weisj.darklaf.util.LogUtil;
 import core.db.DBManager;
 import core.db.user.UserManager;
 import core.file.xml.XMLAvatarsParser;
@@ -37,8 +36,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Manages all the HO Themes.
@@ -82,12 +79,8 @@ public final class ThemeManager {
         createNonExistingDir(teamLogoPath);
         createNonExistingDir(playerAvatarPath);
 
-		IconLoader.updateThemeStatus(new Object());
-
-		// TODO: Workaround some warnings which are issued incorrectly. To silence them you can call
-		LogUtil.getLogger(IconLoader.class).setLevel(Level.SEVERE);
-		Logger.getLogger("com.github.weisj.jsvg.parser.SVGLoader").setLevel(Level.SEVERE);
-	}
+        IconLoader.updateThemeStatus(new Object());
+    }
 
     private static void createNonExistingDir(Path path) {
         try {
