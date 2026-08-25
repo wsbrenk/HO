@@ -151,7 +151,9 @@ public class YouthPlayerView extends JPanel implements Refreshable, ListSelectio
 
     private boolean isRefreshingPlayerOverview=false;
     private void refreshPlayerOverview() {
-        if (isRefreshingPlayerOverview) return;
+        if (isRefreshingPlayerOverview) {
+            return;
+        }
         try {
             isRefreshingPlayerOverview = true;
             var selected = this.selectedPlayer;
@@ -324,7 +326,9 @@ public class YouthPlayerView extends JPanel implements Refreshable, ListSelectio
 
     @Override
     public void valueChanged(ListSelectionEvent e) {
-        if ( e.getValueIsAdjusting() ) return;
+        if (e.getValueIsAdjusting()) {
+            return;
+        }
         refreshPlayerDetails();
     }
 
