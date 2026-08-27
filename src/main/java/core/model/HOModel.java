@@ -672,24 +672,6 @@ public class HOModel {
     }
 
     /**
-     * League id of user's premier team
-     *
-     * @return league id of premier team, if available
-     * otherwise of the current team
-     */
-    public int getLeagueIdPremierTeam() {
-        var xtra = getXtraDaten();
-        if (xtra != null) {
-            var countryId = xtra.getCountryId();
-            if (countryId != null) {
-                var ret = getLeagueId(countryId);
-                if (ret != null) return ret;
-            }
-        }
-        return getBasics().getLiga(); // should no longer happen
-    }
-
-    /**
      * League id of country
      *
      * @param countryId country id

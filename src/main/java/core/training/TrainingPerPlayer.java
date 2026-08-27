@@ -3,10 +3,7 @@ package core.training;
 import core.constants.player.PlayerSkill;
 import core.model.player.Player;
 import core.util.HODateTime;
-import core.util.HOLogger;
-
 import java.time.temporal.ChronoUnit;
-
 import static java.lang.Math.*;
 
 /**

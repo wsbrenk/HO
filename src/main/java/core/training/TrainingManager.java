@@ -115,10 +115,6 @@ public class TrainingManager implements PropertyChangeListener {
         return nextWeekTraining;
     }
 
-    public HODateTime getLastTrainingDate() {
-        return lastTrainingDate;
-    }
-
     public List<TrainingPerWeek> getHistoricalTrainings() {
         return historicalTrainings;
     }
