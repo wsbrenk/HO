@@ -24,12 +24,12 @@ public class TrainingPerPlayer  {
      * Creates a new TrainingPerPlayer object initialized with a specific player
      */
     public TrainingPerPlayer(Player oPlayer) {
-    	_Player = oPlayer; 
+    	_Player = oPlayer;
     }
 
     //~ Methods ------------------------------------------------------------------------------------
 
-    
+
     /**
      * Setter for property player.
      *
@@ -66,9 +66,9 @@ public class TrainingPerPlayer  {
 
 	/**
 	 * set the training point for this instance and
-	 * calculate the sub skills for the player using 
+	 * calculate the sub skills for the player using
 	 * the training week from this training point
-	 *  
+	 *
 	 * @param trainingWeek training week info
 	 */
 	public void setTrainingWeek(TrainingPerWeek trainingWeek) {
@@ -123,18 +123,6 @@ public class TrainingPerPlayer  {
 			var playerAge = this._Player.getAge();
 			var skillLevel = max(0, skillValueBeforeTraining - 1);
 			ret = calcStaminaIncrement(skillLevel, stamina, playerAge, minutes, daysWithoutMatchMinutes >= 14, _Player.getInjuryWeeks());
-			HOLogger.instance().info(getClass(),
-					";" + _Player.getPlayerId() +
-							";" + _Player.getLastName() +
-							";" + trainingDate +
-							";minutes=" + minutes +
-							";intensity=" + this.getTrainingWeek().getTrainingIntensity() +
-							";staminaShare=" + this.getTrainingWeek().getStaminaShare() +
-							";skill=" + skillLevel +
-							";injury=" + _Player.getInjuryWeeks() +
-							";age=" + _Player.getAge() +
-							";daysWithoutMatchMinutes=" + daysWithoutMatchMinutes +
-							";ret=" + ret);
 		}
 		return ret;
 	}
