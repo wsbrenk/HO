@@ -196,7 +196,7 @@ public class StatsPanel extends JPanel {
 
 		int totalCountries = this.model.getTotalCountries();
 		String txt = "";
-		this.visitedValueLabel.setText(String.valueOf(this.model.getVistedCountriesCount()));
+		this.visitedValueLabel.setText(String.valueOf(this.model.getVisitedCountriesCount()));
 		this.hostedValueLabel.setText(String.valueOf(this.model.getHostedCountriesCount()));
 		this.countriesTotalValueLabel.setText(String.valueOf(totalCountries));
 		this.countriesTotalValueLabel2.setText(String.valueOf(totalCountries));

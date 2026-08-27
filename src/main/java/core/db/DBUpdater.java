@@ -153,6 +153,11 @@ final class DBUpdater {
         var hofTable = dbManager.getTable(HallOfFamePlayersTable.TABLENAME);
         hofTable.createTable();
 
+        var ifaMatchTable = dbManager.getTable(IfaMatchTable.TABLENAME);
+        if (ifaMatchTable.tryAddColumn("HOME_COUNTRYID", "INTEGER")){
+            ifaMatchTable.tryAddColumn("AWAY_COUNTRYID", "INTEGER");
+        }
+
 		updateDBVersion(dbVersion, 1000);
 	}
 

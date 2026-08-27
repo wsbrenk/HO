@@ -35,7 +35,7 @@ public class FlagPanel extends JPanel {
 	private void initialize(boolean away, IfaModel ifaModel, FlagDisplayModel flagDisplayModel) {
 		createFlagLabels(away, ifaModel, flagDisplayModel);
 		int totalCountryCount = flagLabels.size();
-		int playedCountryCount = (away) ? ifaModel.getVistedCountriesCount() : ifaModel
+		int playedCountryCount = (away) ? ifaModel.getVisitedCountriesCount() : ifaModel
 				.getHostedCountriesCount();
 
 		setLayout(new GridBagLayout());

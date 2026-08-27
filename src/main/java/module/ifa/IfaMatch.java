@@ -5,94 +5,143 @@ import core.util.HODateTime;
 
 public class IfaMatch extends AbstractTable.Storable {
 
-	private int matchId;
-	private int matchTyp;
-	private HODateTime playedDate;
-	private int homeTeamId;
-	private int awayTeamId;
-	private int homeLeagueId;
-	private int awayLeagueId;
-	private int awayTeamGoals;
-	private int homeTeamGoals;
+    private static final int HATTRICK_INTERNATIONAL_LEAGUE_ID = 1000;
+    private int matchId;
+    private int matchTyp;
+    private HODateTime playedDate;
+    private int homeTeamId;
+    private int awayTeamId;
+    private int homeLeagueId;
+    private int awayLeagueId;
+    private Integer homeCountryId;
+    private Integer awayCountryId;
+    private int awayTeamGoals;
+    private int homeTeamGoals;
 
-	/**
-	 * constructor is used by AbstractTable.load
-	 */
-	public IfaMatch(){}
-	public IfaMatch(int matchTyp){
-		this.matchTyp=matchTyp;
-	}
+    /**
+     * constructor is used by AbstractTable.load
+     */
+    public IfaMatch() {
+    }
 
-	public int getMatchTyp(){
-		return matchTyp;
-	}
+    public IfaMatch(int matchTyp) {
+        this.matchTyp = matchTyp;
+    }
 
-	public void setMatchTyp(int v){
-		this.matchTyp = v;
-	}
+    public int getMatchTyp() {
+        return matchTyp;
+    }
 
-	public final int getMatchId() {
-		return matchId;
-	}
+    public void setMatchTyp(int v) {
+        this.matchTyp = v;
+    }
 
-	public final void setMatchId(int matchId) {
-		this.matchId = matchId;
-	}
-	
-	public HODateTime getPlayedDate() {
-		return playedDate;
-	}
+    public final int getMatchId() {
+        return matchId;
+    }
 
-	public void setPlayedDate(HODateTime playedDate) {
-		// be defensive, java.util.Date is not immutable
-		this.playedDate = playedDate;
-	}
+    public final void setMatchId(int matchId) {
+        this.matchId = matchId;
+    }
 
-	public final int getHomeTeamId() {
-		return homeTeamId;
-	}
+    public HODateTime getPlayedDate() {
+        return playedDate;
+    }
 
-	public final void setHomeTeamId(int homeTeamId) {
-		this.homeTeamId = homeTeamId;
-	}
+    public void setPlayedDate(HODateTime playedDate) {
+        // be defensive, java.util.Date is not immutable
+        this.playedDate = playedDate;
+    }
 
-	public final int getAwayTeamId() {
-		return awayTeamId;
-	}
+    public final int getHomeTeamId() {
+        return homeTeamId;
+    }
 
-	public final void setAwayTeamId(int awayTeamId) {
-		this.awayTeamId = awayTeamId;
-	}
+    public final void setHomeTeamId(int homeTeamId) {
+        this.homeTeamId = homeTeamId;
+    }
 
-	public final int getHomeLeagueId() {
-		return homeLeagueId;
-	}
+    public final int getAwayTeamId() {
+        return awayTeamId;
+    }
 
-	public final void setHomeLeagueId(int homeLeagueId) {
-		this.homeLeagueId = homeLeagueId;
-	}
+    public final void setAwayTeamId(int awayTeamId) {
+        this.awayTeamId = awayTeamId;
+    }
 
-	public final int getAwayLeagueId() {
-		return awayLeagueId;
-	}
+    public final int getHomeLeagueId() {
+        return homeLeagueId;
+    }
 
-	public final void setAwayLeagueId(int awayLeagueId) {
-		this.awayLeagueId = awayLeagueId;
-	}
+    public final void setHomeLeagueId(int homeLeagueId) {
+        this.homeLeagueId = homeLeagueId;
+    }
 
-	public final int getAwayTeamGoals() {
-		return awayTeamGoals;
-	}
+    public final int getAwayLeagueId() {
+        return awayLeagueId;
+    }
 
-	public final void setAwayTeamGoals(int awayTeamGoals) {
-		this.awayTeamGoals = awayTeamGoals;
-	}
+    public final void setAwayLeagueId(int awayLeagueId) {
+        this.awayLeagueId = awayLeagueId;
+    }
 
-	public final int getHomeTeamGoals() {
-		return homeTeamGoals;
-	}
+    public final Integer getHomeCountryId() {
+        return getHomeCountryIdWithReload(false);
+    }
 
-	public final void setHomeTeamGoals(int homeTeamGoals) {
-		this.homeTeamGoals = homeTeamGoals;
-	}
+    public final Integer getHomeCountryIdWithReload(boolean isReload) {
+        if (homeCountryId == null) {
+            if (homeCountryId < HATTRICK_INTERNATIONAL_LEAGUE_ID) {
+                homeCountryId = homeLeagueId;
+            }
+            else if (isReload){
+                downLoadMatch();
+            }
+        }
+        return homeCountryId;
+    }
+
+    private void downLoadMatch() {
+        PluginIfaUtils.downloadMatch(this);
+    }
+
+    public final void setHomeCountryId(int id) {
+        this.homeCountryId = id;
+    }
+
+    public final Integer getAwayCountryIdWithReload(boolean isReload) {
+        if (awayCountryId == null) {
+            if (awayLeagueId < HATTRICK_INTERNATIONAL_LEAGUE_ID) {
+                awayCountryId = awayLeagueId;
+            }
+            else if (isReload){
+                downLoadMatch();
+            }
+        }
+        return awayCountryId;
+    }
+
+    public final Integer getAwayCountryId() {
+        return getAwayCountryIdWithReload(false);
+    }
+
+    public final void setAwayCountryId(int id) {
+        this.awayCountryId = id;
+    }
+
+    public final int getAwayTeamGoals() {
+        return awayTeamGoals;
+    }
+
+    public final void setAwayTeamGoals(int awayTeamGoals) {
+        this.awayTeamGoals = awayTeamGoals;
+    }
+
+    public final int getHomeTeamGoals() {
+        return homeTeamGoals;
+    }
+
+    public final void setHomeTeamGoals(int homeTeamGoals) {
+        this.homeTeamGoals = homeTeamGoals;
+    }
 }

@@ -6,7 +6,6 @@ import module.ifa.IfaMatch;
 import module.ifa.PluginIfaUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +31,8 @@ public class IfaModel {
 	private void init() {
 		this.visited.clear();
 		this.hosted.clear();
-		this.visited.addAll(Arrays.asList(DBManager.instance().getIFAMatches(false)));
-		this.hosted.addAll(Arrays.asList(DBManager.instance().getIFAMatches(true)));
+		this.visited.addAll(DBManager.instance().getIFAMatches(false));
+		this.hosted.addAll(DBManager.instance().getIFAMatches(true));
 
 		this.maxCoolness = 0.0;
 		this.totalCountries = 0;
@@ -116,7 +115,7 @@ public class IfaModel {
 		init();
 	}
 
-	public int getVistedCountriesCount() {
+	public int getVisitedCountriesCount() {
 		return getVisitedStatistic().size();
 	}
 
@@ -161,14 +160,12 @@ public class IfaModel {
 	private void createVisitedStatistic() {
 		Map<Integer, IfaStatistic> map = new HashMap<>();
 		for (IfaMatch match : this.visited) {
-			var league = WorldDetailsManager.instance().getWorldDetailLeagueByLeagueId(match.getHomeLeagueId());
-			if (league == null) continue;
-			Integer id = league.getCountryId();
-			IfaStatistic stat = map.get(id);
+            var countryId = match.getHomeCountryIdWithReload(true);
+			IfaStatistic stat = map.get(countryId);
 			if (stat == null) {
 				stat = new IfaStatistic();
-				stat.setCountry(new Country(id));
-				map.put(id, stat);
+				stat.setCountry(new Country(countryId));
+				map.put(countryId, stat);
 			}
 			updateStats(stat, match, true);
 		}
@@ -178,21 +175,33 @@ public class IfaModel {
 	private void createHostedStatistic() {
 		Map<Integer, IfaStatistic> map = new HashMap<>();
 		for (IfaMatch match : this.hosted) {
-			var league = WorldDetailsManager.instance().getWorldDetailLeagueByLeagueId(match.getAwayLeagueId());
-			if (league == null) continue;
-			Integer id = league.getCountryId();
-			IfaStatistic stat = map.get(id);
+            var countryId = match.getAwayCountryIdWithReload(true);
+			IfaStatistic stat = map.get(countryId);
 			if (stat == null) {
 				stat = new IfaStatistic();
-				stat.setCountry(new Country(id));
-				map.put(id, stat);
+				stat.setCountry(new Country(countryId));
+				map.put(countryId, stat);
 			}
 			updateStats(stat, match, false);
 		}
 		this.hostedStatistic = new ArrayList<>(map.values());
 	}
 
-	public int getTotalCountries() {
+    /**
+     * Alternative country for ifa statistics
+     * Replaced by <a href="https://github.com/ho-dev/HattrickOrganizer/issues/2249">...</a>
+     * @param leagueId int League id
+     * @return Integer of league's country, null if not found
+     */
+    private Integer getLeagueCountryId(int leagueId) {
+        var league = WorldDetailsManager.instance().getWorldDetailLeagueByLeagueId(leagueId);
+        if (league != null) {
+            return league.getCountryId();
+        }
+        return null;
+    }
+
+    public int getTotalCountries() {
 		return this.totalCountries;
 	}
 }

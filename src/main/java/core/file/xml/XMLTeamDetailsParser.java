@@ -91,7 +91,7 @@ public class XMLTeamDetailsParser {
 
 			// We need to find the correct team in doc
 			final Element team = selectTeamWithId(doc, teamId);
-			if (team == null) { 
+			if (team == null) {
 				return hash;
 			}
 
@@ -189,11 +189,11 @@ public class XMLTeamDetailsParser {
 		root = (Element) root.getElementsByTagName("Teams").item(0);
 
 		NodeList list = root.getElementsByTagName("Team");
-		
-		for (int i = 0; (list != null) && (i < list.getLength()); i++) {
+
+		for (int i = 0; i < list.getLength(); i++) {
 			Element team = (Element) list.item(i);
 			Element ele;
-			
+
 			TeamInfo info = new TeamInfo();
 
 			ele = (Element) team.getElementsByTagName("TeamID").item(0);
@@ -208,22 +208,30 @@ public class XMLTeamDetailsParser {
 			ele = (Element) team.getElementsByTagName("IsPrimaryClub").item(0);
 			info.setPrimaryTeam(Boolean.parseBoolean(XMLManager.getFirstChildNodeValue(ele)));
 
-			
+            // League element
 			Element league = (Element) team.getElementsByTagName("League").item(0);
 			ele = (Element) league.getElementsByTagName("LeagueName").item(0);
-			info.setCountry(XMLManager.getFirstChildNodeValue(ele));
-			
+			info.setLeague(XMLManager.getFirstChildNodeValue(ele));
+
 			ele = (Element) league.getElementsByTagName("LeagueID").item(0);
 			info.setLeagueId(Integer.parseInt(XMLManager.getFirstChildNodeValue(ele)));
-			
+
 			ele = (Element) team.getElementsByTagName("LeagueLevelUnit").item(0);
 			ele = (Element) ele.getElementsByTagName("LeagueLevelUnitName").item(0);
-			info.setLeague(XMLManager.getFirstChildNodeValue(ele));
-			
+			info.setLeagueLevel(XMLManager.getFirstChildNodeValue(ele));
+
+            // Country element
+            Element country = (Element) team.getElementsByTagName("Country").item(0);
+            ele = (Element) country.getElementsByTagName("CountryName").item(0);
+            info.setCountry(XMLManager.getFirstChildNodeValue(ele));
+
+            ele = (Element) country.getElementsByTagName("CountryID").item(0);
+            info.setCountryId(Integer.parseInt(XMLManager.getFirstChildNodeValue(ele)));
+
 			ret.add(info);
 		}
-		
+
 		return ret;
 	}
-		
+
 }
