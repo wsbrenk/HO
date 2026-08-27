@@ -98,7 +98,7 @@ public class ConvertXml2Hrf {
 			}
 		}
 
-		Map<String, String> teamdetailsDataMap = XMLTeamDetailsParser.parseTeamdetailsFromString(teamDetails, teamId);
+		Map<String, String> teamdetailsDataMap = XMLTeamDetailsParser.parseTeamDetailsFromString(teamDetails, teamId);
 		if (teamdetailsDataMap.isEmpty()) return null;
 
 		HOMainFrame.instance().setInformation(Helper.getTranslation("ls.update_status.team_logo"), progressIncrement);

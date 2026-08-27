@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -18,43 +17,7 @@ public class XMLTeamDetailsParser {
 
 	private XMLTeamDetailsParser() {}
 
-	public static String fetchRegionID(String xmlFile) {
-		return fetchTeamDetail(xmlFile, "Region", "RegionID");
-	}
-
-	public static String fetchLogoURI(String xmlFile) {
-		return fetchTeamDetail(xmlFile, "LogoURL", null);
-	}
-
-	private static String fetchTeamDetail(String xmlFile, String section, String attribute){
-		try {
-			Document doc = XMLManager.parseString(xmlFile);
-
-			if (doc == null) {
-				return "-1";
-			}
-
-			// Tabelle erstellen
-			Element root = doc.getDocumentElement();
-
-			// Root wechseln
-			root = (Element) root.getElementsByTagName("Team").item(0);
-			root = (Element) root.getElementsByTagName(section).item(0);
-
-			if(attribute != null) {
-				root = (Element) root.getElementsByTagName(attribute).item(0);
-			}
-
-			return XMLManager.getFirstChildNodeValue(root);
-
-		} catch (Exception ex) {
-			HOLogger.instance().log(XMLTeamDetailsParser.class, ex);
-		}
-
-		return "-1";
-	}
-
-	public static Map<String, String> parseTeamdetailsFromString(String inputStream, int teamId) {
+	public static Map<String, String> parseTeamDetailsFromString(String inputStream, int teamId) {
 		return parseDetails(XMLManager.parseString(inputStream), teamId);
 	}
 
@@ -165,7 +128,7 @@ public class XMLTeamDetailsParser {
 		if ( ele != null) {
 			root = ele;
 			NodeList list = root.getElementsByTagName("Team");
-			for (int i = 0; (list != null) && (i < list.getLength()); i++) {
+			for (int i = 0; i < list.getLength(); i++) {
 				team = (Element) list.item(i);
 
 				ele = (Element) team.getElementsByTagName("TeamID").item(0);

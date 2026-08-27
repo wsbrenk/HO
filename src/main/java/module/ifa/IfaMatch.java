@@ -91,7 +91,7 @@ public class IfaMatch extends AbstractTable.Storable {
 
     public final Integer getHomeCountryIdWithReload(boolean isReload) {
         if (homeCountryId == null) {
-            if (homeCountryId < HATTRICK_INTERNATIONAL_LEAGUE_ID) {
+            if (homeLeagueId < HATTRICK_INTERNATIONAL_LEAGUE_ID) {
                 homeCountryId = homeLeagueId;
             }
             else if (isReload){
