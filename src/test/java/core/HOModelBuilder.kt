@@ -84,6 +84,10 @@ class PlayerBuilder {
 
 class TestPersistenceManager : PersistenceManager {
 
+    private var hoConfig = mutableMapOf(
+        "CurrencyCountryId" to "3"
+    )
+
     private var clubs = mutableMapOf(
         42 to TestClub(42),
         43 to TestClub(43),
@@ -182,7 +186,7 @@ class TestPersistenceManager : PersistenceManager {
             run {
                 val age = HODateTime.HODuration(p.age, p.ageDays).plus(downloadTimeInterval)
                 p.injuryWeeks = injuryLevel++
-                p.tsi = (p.tsi * (0.91 - p.injuryWeeks*0.1)).toInt()
+                p.tsi = (p.tsi * (1.0 - 0.19 * p.injuryWeeks)).toInt()
                 p.hrfId = 43
                 p.age = age.seasons
                 p.ageDays = age.days
@@ -251,7 +255,7 @@ class TestPersistenceManager : PersistenceManager {
     }
 
     override fun loadHOConfigurationParameter(key: String?): String? {
-        TODO("Not yet implemented")
+        return hoConfig[key]
     }
 
     override fun loadPreviousMatchLineup(teamId: Int): MatchLineupTeam? {

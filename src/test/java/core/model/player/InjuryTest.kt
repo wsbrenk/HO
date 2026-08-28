@@ -34,22 +34,22 @@ class InjuryTest {
             4 to true,
         )
         val expectedWhenHealthy = mutableMapOf(
-            1 to dailyUpdates[2],
+            1 to dailyUpdates[0],
             2 to dailyUpdates[4].plus(7, ChronoUnit.DAYS),
-            3 to dailyUpdates[4].plus(13 * 7, ChronoUnit.DAYS),
+            3 to dailyUpdates[2].plus(14 * 7, ChronoUnit.DAYS),
             4 to null,
         )
         val expectedWhenSlightlyInjured = mutableMapOf(
             1 to null,
             2 to dailyUpdates[4],
-            3 to dailyUpdates[3].plus(8 * 7, ChronoUnit.DAYS),
+            3 to dailyUpdates[0].plus(9 * 7, ChronoUnit.DAYS),
             4 to null,
         )
         val expectedTypeOfEstimate = mutableMapOf(
-            1 to TypeOfRecoveryEstimation.REALISTIC_ESTIMATE,
+            1 to TypeOfRecoveryEstimation.OPTIMISTIC_ESTIMATE,
             2 to TypeOfRecoveryEstimation.REALISTIC_ESTIMATE,
-            3 to TypeOfRecoveryEstimation.REALISTIC_ESTIMATE,
-            4 to TypeOfRecoveryEstimation.REALISTIC_ESTIMATE,
+            3 to TypeOfRecoveryEstimation.PESSIMISTIC_ESTIMATE,
+            4 to TypeOfRecoveryEstimation.PESSIMISTIC_ESTIMATE,
         )
 
         val players = hoModel.currentPlayers
