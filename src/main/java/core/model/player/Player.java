@@ -2040,12 +2040,13 @@ public class Player extends AbstractTable.Storable {
         boolean experienceSubDone = this.getExperience() > playerBefore.getExperience(); // Do not calculate sub on experience skill up
         var experienceSub = experienceSubDone ? 0 : playerBefore.getSubExperience(); // set sub to 0 on skill up
         for (var skill : trainingSkills) {
-            calcSubSkill(skill, playerBefore, trainingWeeks, experienceSub, experienceSubDone);
+            experienceSubDone = calcSubSkill(skill, playerBefore, trainingWeeks, experienceSub, experienceSubDone);
+            experienceSub = getSubExperience();
         }
         adjustFormSub();
     }
 
-    private void calcSubSkill(PlayerSkill skill, Player playerBefore, List<TrainingPerWeek> trainingWeeks, double experienceSub, boolean experienceSubDone) {
+    private boolean calcSubSkill(PlayerSkill skill, Player playerBefore, List<TrainingPerWeek> trainingWeeks, double experienceSub, boolean experienceSubDone) {
         var sub = playerBefore.getSub4Skill(skill);
         var valueBeforeTraining = playerBefore.getValue4Skill(skill);
         var valueAfterTraining = this.getValue4Skill(skill);
@@ -2061,8 +2062,7 @@ public class Player extends AbstractTable.Storable {
             if (player != null && !player.getHrfDate().isAfter(lastTrainingDate)) {
                 var trainings = TrainingManager.instance().getHistoricalTraining(lastTrainingDate);
                 if (!trainings.isEmpty()) {
-                    calcSubSkill(skill, player, trainings, experienceSub, experienceSubDone);
-                    return;
+                    return calcSubSkill(skill, player, trainings, experienceSub, experienceSubDone);
                 }
             }
         }
@@ -2100,13 +2100,13 @@ public class Player extends AbstractTable.Storable {
                         var inc = trainingPerPlayer.getExperienceSub();
                         experienceSub += inc;
                         if (experienceSub > 0.99) experienceSub = 0.99;
+                        experienceSubDone = true;
                         var tp = trainingPerPlayer.getTrainingPair();
                         if (tp == null) {
                             HOLogger.instance().warning(getClass(), "no training info found for " + this.getFullName());
                         }
                     }
                 }
-
             }
         }
 
@@ -2119,6 +2119,7 @@ public class Player extends AbstractTable.Storable {
 
         this.setSubskill4PlayerSkill(skill, sub);
         this.setSubExperience(experienceSub);
+        return experienceSubDone;
     }
 
     /**

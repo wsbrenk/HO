@@ -80,9 +80,7 @@ public class TrainingManager implements PropertyChangeListener {
         List<TrainingPerWeek> result = historicalTrainings.stream()
             .filter(t -> t.getTrainingDate().isBefore(endDate) && !startDate.isAfter(t.getTrainingDate()))
             .collect(Collectors.toList());
-
         result.forEach(TrainingPerWeek::loadMatches);
-
         return result;
     }
 
@@ -90,9 +88,7 @@ public class TrainingManager implements PropertyChangeListener {
         List<TrainingPerWeek> result = historicalTrainings.stream()
             .filter(t -> t.getTrainingDate().equals(trainingDate))
             .collect(Collectors.toList());
-
         result.forEach(TrainingPerWeek::loadMatches);
-
         return result;
     }
 
