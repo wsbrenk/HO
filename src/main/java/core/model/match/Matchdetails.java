@@ -242,12 +242,12 @@ public class Matchdetails extends AbstractTable.Storable implements core.model.m
 
     public void setHomeRatingIndirectSetPiecesAtt(Integer ratingIndirectSetPiecesAtt) {
         if ( ratingIndirectSetPiecesAtt != null)
-            this.homeRatingIndirectSetPiecesAtt = ratingIndirectSetPiecesAtt;
+            homeRatingIndirectSetPiecesAtt = ratingIndirectSetPiecesAtt;
     }
 
     public void setHomeRatingIndirectSetPiecesDef(Integer ratingIndirectSetPiecesDef) {
         if ( ratingIndirectSetPiecesDef != null)
-            this.homeRatingIndirectSetPiecesDef = ratingIndirectSetPiecesDef;
+            homeRatingIndirectSetPiecesDef = ratingIndirectSetPiecesDef;
     }
 
     public int getHomeRatingIndirectSetPiecesDef() {
