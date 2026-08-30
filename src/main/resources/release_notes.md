@@ -52,6 +52,10 @@
 
 * Added support of all 13 **Player Categories** (#2418)
 * Fix line feed handling in owner notes. Tooltip shows notes as multiline (#2455)
+* The bug where the number `100` was displayed for the shirt number when the player had no shirt number has been fixed.
+  Instead, nothing is shown now if no number assigned. (#2420)
+* Fix out of bound exception on download when youth player were removed during the week (#2442)
+
 
 ### Special Events
 
@@ -66,11 +70,9 @@
 
 * Fixed a crash that occurred when not ticking `Only matches with SEs`.
 
-### Youth
+### International Friendly Analyzer
 
-* The bug where the number `100` was displayed for the shirt number when the player had no shirt number has been fixed.
-  Instead, nothing is shown now if no number assigned. (#2420)
-* Fix out of bound exception on download when youth player were removed during the week (#2442)
+* Statistics regarding team's country ID instead of league ID (#2249)
 
 ### Tools
 
