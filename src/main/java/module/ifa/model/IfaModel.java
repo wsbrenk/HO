@@ -1,6 +1,7 @@
 package module.ifa.model;
 
 import core.db.DBManager;
+import core.model.WorldDetailLeague;
 import core.model.WorldDetailsManager;
 import module.ifa.IfaMatch;
 import module.ifa.PluginIfaUtils;
@@ -35,7 +36,7 @@ public class IfaModel {
 		this.maxCoolness = 0.0;
 		this.totalCountries = 0;
 		WorldDetailsManager.instance().getLeagues().stream()
-				.filter(l -> l.isNationalLeague())
+				.filter(WorldDetailLeague::isNationalLeague)
 				.forEach(l -> {
 					this.maxCoolness += PluginIfaUtils.getCoolness(l.getCountryId());
 					this.totalCountries++;
@@ -158,7 +159,7 @@ public class IfaModel {
 	private void createVisitedStatistic() {
 		Map<Integer, IfaStatistic> map = new HashMap<>();
 		for (IfaMatch match : this.visited) {
-            addStatistic(map,match,  match.getHomeCountryIdWithReload(true));
+            addStatistic(map,match,  match.getHomeCountryIdWithReload(true), true);
 		}
 		this.visitedStatistic = new ArrayList<>(map.values());
 	}
@@ -166,12 +167,12 @@ public class IfaModel {
 	private void createHostedStatistic() {
 		Map<Integer, IfaStatistic> map = new HashMap<>();
 		for (IfaMatch match : this.hosted) {
-            addStatistic(map,match,  match.getAwayCountryIdWithReload(true));
+            addStatistic(map,match,  match.getAwayCountryIdWithReload(true), false);
 		}
 		this.hostedStatistic = new ArrayList<>(map.values());
 	}
 
-    private void addStatistic(Map<Integer, IfaStatistic> map, IfaMatch match, Integer countryId) {
+    private void addStatistic(Map<Integer, IfaStatistic> map, IfaMatch match, Integer countryId, boolean isVisited) {
         if (countryId == null ||  countryId <= 0) { return; }
         IfaStatistic stat = map.get(countryId);
         if (stat == null) {
@@ -179,7 +180,7 @@ public class IfaModel {
             stat.setCountry(new Country(countryId));
             map.put(countryId, stat);
         }
-        updateStats(stat, match, false);
+        updateStats(stat, match, isVisited);
     }
 
     /**

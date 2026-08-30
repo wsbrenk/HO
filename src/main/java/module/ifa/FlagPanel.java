@@ -94,7 +94,7 @@ public class FlagPanel extends JPanel {
 	private void createFlagLabels(boolean away, IfaModel ifaModel, FlagDisplayModel flagDisplayModel) {
 		this.flagLabels = new ArrayList<>();
 		WorldDetailsManager.instance().getLeagues().stream()
-				.filter(l -> l.isNationalLeague())
+				.filter(WorldDetailLeague::isNationalLeague)
 				.sorted((l1, l2) -> ObjectUtils.compare(l1.getCountryName(), l2.getCountryName()))
 				.forEach(l -> addFlagLabel(l, away, ifaModel, flagDisplayModel));
 	}
