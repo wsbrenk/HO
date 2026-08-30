@@ -121,7 +121,7 @@ public class IfaMatch extends AbstractTable.Storable {
         PluginIfaUtils.downloadMatch(this);
     }
 
-    public final void setHomeCountryId(int id) {
+    public final void setHomeCountryId(Integer id) {
         this.homeCountryId = id;
     }
 
@@ -129,7 +129,7 @@ public class IfaMatch extends AbstractTable.Storable {
         return getAwayCountryIdWithReload(false);
     }
 
-    public final void setAwayCountryId(int id) {
+    public final void setAwayCountryId(Integer id) {
         this.awayCountryId = id;
     }
 

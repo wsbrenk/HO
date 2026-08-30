@@ -49,7 +49,7 @@ public class PluginIfaUtils {
     }
 
     public static void updateMatchesTable() {
-        int retiries = 1;
+        int retries = 1;
         HODateTime time;
         do {
             time = HOVerwaltung.instance().getModel().getBasics().getActivationDate();
@@ -57,7 +57,7 @@ public class PluginIfaUtils {
                 break;
             }
             DownloadDialog.instance();
-        } while (retiries-- > 0);
+        } while (retries-- > 0);
 
         try {
             HOMainFrame.instance().resetInformation();
