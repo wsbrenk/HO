@@ -3,64 +3,83 @@ package core.model.player
 import core.HOModelBuilder
 import core.model.HOVerwaltung
 import core.util.HODateTime
+import org.assertj.core.api.AssertionsForClassTypes.assertThat
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.Arguments.of
+import org.junit.jupiter.params.provider.MethodSource
 import java.time.temporal.ChronoUnit
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertIsNot
+import java.util.stream.Stream
 
 class InjuryTest {
-    @Test
-    fun testInjury() {
 
+    private fun getPlayerById(playerId: Int): Player =
+        HOVerwaltung.instance()
+            .model
+            .currentPlayers
+            .single { it.playerId == playerId }
+
+    companion object {
+        private const val REFERENCE_DATE_STR = "2026-06-30 14:00:00"
+        private const val HRF_MOCK_ID = 43
+        private const val HRF_43_DATE_OFFSET = 4
+        private val referenceDate = HODateTime.fromHT(REFERENCE_DATE_STR).plus(HRF_43_DATE_OFFSET, ChronoUnit.DAYS)
+
+        @JvmStatic
+        private fun testData(): Stream<Arguments> = Stream.of(
+            of(
+                1,
+                false,
+                referenceDate.plus(1, ChronoUnit.DAYS),
+                null,
+                TypeOfRecoveryEstimation.OPTIMISTIC_ESTIMATE,
+            ),
+            of(
+                2,
+                false,
+                referenceDate.plus(5 + 7, ChronoUnit.DAYS),
+                referenceDate.plus(5, ChronoUnit.DAYS),
+                TypeOfRecoveryEstimation.REALISTIC_ESTIMATE,
+            ),
+            of(
+                3,
+                false,
+                referenceDate.plus(3 + 14 * 7, ChronoUnit.DAYS),
+                referenceDate.plus(1 + 9 * 7, ChronoUnit.DAYS),
+                TypeOfRecoveryEstimation.PESSIMISTIC_ESTIMATE,
+            ),
+            of(
+                4,
+                true,
+                null,
+                null,
+                TypeOfRecoveryEstimation.PESSIMISTIC_ESTIMATE,
+            ),
+        )
+    }
+
+    @BeforeEach
+    fun setup() {
         val hoAdmin = HOVerwaltung.instance()
-        val hoModel = HOModelBuilder()
-            .hrfId(43)
-            .build()
-        hoAdmin.model = hoModel
+        val model = HOModelBuilder().hrfId(HRF_MOCK_ID).build()
+        hoAdmin.model = model
+    }
 
-        val player = Player()
+    @ParameterizedTest
+    @MethodSource("testData")
+    fun testInjury(
+        playerId: Int,
+        expectedIsSportsInvalid: Boolean,
+        expectedWhenHealthy: HODateTime?,
+        expectedWhenSlightlyInjured: HODateTime?,
+        expectedTypeOfEstimate: TypeOfRecoveryEstimation
+    ) {
+        val player = getPlayerById(playerId)
         val injury = Injury(player)
-        assertEquals(false, injury.isSportsInvalid)
-        assertIsNot<HODateTime>(injury.whenHealthy)
-        assertIsNot<HODateTime>(injury.whenSlightlyInjured)
-        assertEquals(TypeOfRecoveryEstimation.REALISTIC_ESTIMATE, injury.typeOfEstimate)
-
-        val dailyUpdates = hoModel.xtraDaten.dailyUpdates
-
-        val expectedIsDisabledPlayer = mutableMapOf(
-            1 to false,
-            2 to false,
-            3 to false,
-            4 to true,
-        )
-        val expectedWhenHealthy = mutableMapOf(
-            1 to dailyUpdates[0],
-            2 to dailyUpdates[4].plus(7, ChronoUnit.DAYS),
-            3 to dailyUpdates[2].plus(14 * 7, ChronoUnit.DAYS),
-            4 to null,
-        )
-        val expectedWhenSlightlyInjured = mutableMapOf(
-            1 to null,
-            2 to dailyUpdates[4],
-            3 to dailyUpdates[0].plus(9 * 7, ChronoUnit.DAYS),
-            4 to null,
-        )
-        val expectedTypeOfEstimate = mutableMapOf(
-            1 to TypeOfRecoveryEstimation.OPTIMISTIC_ESTIMATE,
-            2 to TypeOfRecoveryEstimation.REALISTIC_ESTIMATE,
-            3 to TypeOfRecoveryEstimation.PESSIMISTIC_ESTIMATE,
-            4 to TypeOfRecoveryEstimation.PESSIMISTIC_ESTIMATE,
-        )
-
-        val players = hoModel.currentPlayers
-        players.forEach { p ->
-            run {
-                val injury = Injury(p)
-                assertEquals(expectedIsDisabledPlayer[p.playerId], injury.isSportsInvalid)
-                assertEquals(expectedWhenHealthy[p.playerId], injury.whenHealthy)
-                assertEquals(expectedWhenSlightlyInjured[p.playerId], injury.whenSlightlyInjured)
-                assertEquals(expectedTypeOfEstimate[p.playerId], injury.typeOfEstimate)
-            }
-        }
+        assertThat(injury.isSportsInvalid).isEqualTo(expectedIsSportsInvalid)
+        assertThat(injury.whenHealthy).isEqualTo(expectedWhenHealthy)
+        assertThat(injury.whenSlightlyInjured).isEqualTo(expectedWhenSlightlyInjured)
+        assertThat(injury.typeOfEstimate).isEqualTo(expectedTypeOfEstimate)
     }
 }
