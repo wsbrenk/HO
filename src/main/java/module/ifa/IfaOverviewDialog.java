@@ -16,8 +16,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -92,7 +90,6 @@ public class IfaOverviewDialog extends JDialog {
 		static final int COL_COOLNESS = 2;
 		static final int COL_VISITED = 3;
 		static final int COL_HOSTED = 4;
-		private static final long serialVersionUID = 4643461935740184896L;
 		private final List<Entry> list;
 
         MyTableModel() {
