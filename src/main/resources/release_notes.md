@@ -21,6 +21,7 @@
 * Fix error selecting players with the arrow keys (#2379)
 * Synchronize player selection in training and player overview modules (#2379)
 * Added the columns `Career Assists` and `Assists for the Team` to the overview and details panel. (#2254)
+* New columns "Recovered on" and "Slightly injured on" (#2363)
 * Hrf list shows next daily update (#2459)
 
 ### Team Analyzer
@@ -79,6 +80,7 @@
 
 * Removed the superfluous space for the `Spectators` in braces at the end.
 * Added the image of the stadium and made the view better arranged. (#2140)
+* Added a local cache with TTL for stadium images and manual reload by clicking on the image. (#2440)
 
 ### Misc
 
@@ -93,15 +95,15 @@ Reports by Contributors - October 19, 2025 - June 19, 2026
 
 * Jösgall 1005
 * Ioannidouefty 459
-* wsbrenk 113
+* wsbrenk 122
 * Frankieorabona 73
+* Lidegand 72
 * \_KOHb\_ 54
 * Sebastian Reddig 35
 * Walter 28
-* Lidegand 24
 * Kristaps 11
 * Stefan Schenke 5
 * Mara 3
 * Joeri Roels 1
 
-Total 1711
+Total 1868
