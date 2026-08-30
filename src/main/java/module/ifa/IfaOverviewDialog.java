@@ -22,8 +22,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static module.ifa.model.IfaModel.APACHE_LEAGUE_ID;
-
 public class IfaOverviewDialog extends JDialog {
 
 	private static final long serialVersionUID = 5745450861289812050L;
@@ -115,7 +113,7 @@ public class IfaOverviewDialog extends JDialog {
 		MyTableModel() {
 			this.list = new ArrayList<>();
 			WorldDetailsManager.instance().getLeagues().stream()
-					.filter(l->l.getLeagueId()!=APACHE_LEAGUE_ID).forEach(l->addEntry(l));
+					.filter(l-> l.isNationalLeague()).forEach(l->addEntry(l));
 		}
 
 		private void addEntry(WorldDetailLeague league) {

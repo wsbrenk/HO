@@ -4,9 +4,10 @@ import core.db.AbstractTable;
 import core.model.WorldDetailsManager;
 import core.util.HODateTime;
 
+import static core.model.WorldDetailLeague.HATTRICK_INTERNATIONAL_LEAGUE_ID;
+
 public class IfaMatch extends AbstractTable.Storable {
 
-    private static final int HATTRICK_INTERNATIONAL_LEAGUE_ID = 1000;
     private int matchId;
     private int matchTyp;
     private HODateTime playedDate;
@@ -90,21 +91,27 @@ public class IfaMatch extends AbstractTable.Storable {
         return getHomeCountryIdWithReload(false);
     }
 
+    public final Integer getAwayCountryIdWithReload(boolean isReload) {
+        if (awayCountryId == null) {
+            awayCountryId = getCountryIdFromLeagueOrReload(awayLeagueId, isReload);
+        }
+        return awayCountryId;
+    }
+
     public final Integer getHomeCountryIdWithReload(boolean isReload) {
         if (homeCountryId == null) {
-            homeCountryId = getCountryIdFromLeague(homeLeagueId);
-            if (homeCountryId == null && isReload){
-                downLoadMatch();
-            }
+            homeCountryId = getCountryIdFromLeagueOrReload(homeLeagueId, isReload);
         }
         return homeCountryId;
     }
 
-    private Integer getCountryIdFromLeague(int leagueId) {
+    private Integer getCountryIdFromLeagueOrReload(int leagueId, boolean isReload) {
         if (leagueId < HATTRICK_INTERNATIONAL_LEAGUE_ID) {
             var league = WorldDetailsManager.instance().getWorldDetailLeagueByLeagueId(leagueId);
             if (league != null) {
                 return league.getCountryId();
+            } else if (isReload) {
+                downLoadMatch();
             }
         }
         return null;
@@ -116,16 +123,6 @@ public class IfaMatch extends AbstractTable.Storable {
 
     public final void setHomeCountryId(int id) {
         this.homeCountryId = id;
-    }
-
-    public final Integer getAwayCountryIdWithReload(boolean isReload) {
-        if (awayCountryId == null) {
-            awayCountryId = getCountryIdFromLeague(awayLeagueId);
-            if (awayCountryId == null && isReload){
-                downLoadMatch();
-            }
-        }
-        return awayCountryId;
     }
 
     public final Integer getAwayCountryId() {
