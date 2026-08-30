@@ -1,6 +1,7 @@
 package module.ifa;
 
 import core.db.AbstractTable;
+import core.model.WorldDetailsManager;
 import core.util.HODateTime;
 
 public class IfaMatch extends AbstractTable.Storable {
@@ -91,14 +92,22 @@ public class IfaMatch extends AbstractTable.Storable {
 
     public final Integer getHomeCountryIdWithReload(boolean isReload) {
         if (homeCountryId == null) {
-            if (homeLeagueId < HATTRICK_INTERNATIONAL_LEAGUE_ID) {
-                homeCountryId = homeLeagueId;
-            }
-            else if (isReload){
+            homeCountryId = getCountryIdFromLeague(homeLeagueId);
+            if (homeCountryId == null && isReload){
                 downLoadMatch();
             }
         }
         return homeCountryId;
+    }
+
+    private Integer getCountryIdFromLeague(int leagueId) {
+        if (leagueId < HATTRICK_INTERNATIONAL_LEAGUE_ID) {
+            var league = WorldDetailsManager.instance().getWorldDetailLeagueByLeagueId(leagueId);
+            if (league != null) {
+                return league.getCountryId();
+            }
+        }
+        return null;
     }
 
     private void downLoadMatch() {
@@ -111,10 +120,8 @@ public class IfaMatch extends AbstractTable.Storable {
 
     public final Integer getAwayCountryIdWithReload(boolean isReload) {
         if (awayCountryId == null) {
-            if (awayLeagueId < HATTRICK_INTERNATIONAL_LEAGUE_ID) {
-                awayCountryId = awayLeagueId;
-            }
-            else if (isReload){
+            awayCountryId = getCountryIdFromLeague(awayLeagueId);
+            if (awayCountryId == null && isReload){
                 downLoadMatch();
             }
         }
