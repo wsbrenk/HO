@@ -20,13 +20,12 @@ class MatchFixturesTest {
             var fixtures = createFixtures();
 
             // Set replacements
-            for (int i = 0; i < replaceTeams; ++i){
-                var replacedTeamId = 9+i;
-                var fixture = fixtures.get(i/2);
-                if ( i%2 == 0){
+            for (int i = 0; i < replaceTeams; ++i) {
+                var replacedTeamId = 9 + i;
+                var fixture = fixtures.get(i / 2);
+                if (i % 2 == 0) {
                     fixture.setHeimId(replacedTeamId); // replaced Team is replaced by pair.getHeimId after round 1
-                }
-                else {
+                } else {
                     fixture.setGastId(replacedTeamId); // replaced Team is replaced by pair.getGatd after round 1
                 }
             }

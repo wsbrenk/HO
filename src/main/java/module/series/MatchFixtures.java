@@ -667,12 +667,10 @@ public class MatchFixtures extends AbstractTable.Storable {
             return new ArrayList<>(fixtureEntryIndices.get(matchDay-1));
         }
         var i = LAST_MATCHDAY - matchDay;
-        var ret = new ArrayList<Pair<Integer, Integer>>();
         var pairs = fixtureEntryIndices.get(i);
-        for (var pair : pairs) {
-            ret.add(new Pair<>(pair.getValue1(), pair.getValue0()));
-        }
-        return ret;
+        return pairs.stream()
+            .map(pair -> Pair.with(pair.getValue1(), pair.getValue0()))
+            .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**
