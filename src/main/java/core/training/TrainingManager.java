@@ -27,9 +27,6 @@ public class TrainingManager implements PropertyChangeListener {
     private TrainingWeekManager recentTrainings;                            // trainings that took place (if any null otherwise) since last entry in Training table  => Created at initialization
     private List<TrainingPerWeek> historicalTrainings;                    // used to populate training history, no match information => Created at initialization
 
-    private HODateTime lastTrainingDate;
-
-
     public void propertyChange(PropertyChangeEvent evt) {
         HOLogger.instance().debug(this.getClass(), "HOVerwaltung model changed => TrainingManager and TrainingWeekManager are reinitialized");
         m_clInstance = null;
@@ -69,7 +66,6 @@ public class TrainingManager implements PropertyChangeListener {
         }
         // Load next week training
         nextWeekTraining = recentTrainings.getNextWeekTraining();
-        lastTrainingDate = recentTrainings.getLastUpdateDate();
         HOVerwaltung.instance().addPropertyChangeListener(this);
     }
 

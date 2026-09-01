@@ -62,7 +62,7 @@ public class TrainingPerWeek extends AbstractTable.Storable {
         var _lastMatchDate = o_TrainingDate;
         var teamId = HOVerwaltung.instance().getModel().getBasics().getTeamId();
         o_Matches = DBManager.instance().loadOfficialMatchesBetween(teamId, _firstMatchDate, _lastMatchDate);
-        o_NTMatches = DBManager.instance().loadNTMatchesBetween(teamId,_firstMatchDate, _lastMatchDate);
+        o_NTMatches = DBManager.instance().loadNTMatchesBetween(teamId, _firstMatchDate, _lastMatchDate);
     }
 
     public List<MatchKurzInfo> getMatches() {
