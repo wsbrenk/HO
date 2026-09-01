@@ -123,7 +123,6 @@ public class XMLMatchdetailsParser {
      */
     private static void readHighlights(Document doc, Matchdetails md, MatchLineup lineup) {
         final ArrayList<MatchEvent> matchEvents = new ArrayList<>();
-        //final Vector<Integer> broken = new Vector<>(); // TODO: I guess this one can be deleted if things are done properly (akasolace)
         Element root, ele;
         NodeList eventList;
 		int iMinute, iSubjectPlayerID, iSubjectTeamID, iObjectPlayerID, iMatchEventID, iMatchPart, iEventVariation;
@@ -133,11 +132,7 @@ public class XMLMatchdetailsParser {
             //get Root element
             root = doc.getDocumentElement();
             root = (Element) root.getElementsByTagName("Match").item(0);
-            //get both teams
-            ele = (Element) root.getElementsByTagName("HomeTeam").item(0);
-            final String homeTeamID = XMLManager.getFirstChildNodeValue((Element) ele.getElementsByTagName("HomeTeamID").item(0));
 			ele = (Element) root.getElementsByTagName("EventList").item(0);
-
 			eventList = ele.getElementsByTagName("Event");
 
 			//now go through the match events
