@@ -2056,7 +2056,7 @@ public class Player extends AbstractTable.Storable {
     public void calcSubSkills(int previousID, List<TrainingPerWeek> inTrainingWeeks) {
         List<TrainingPerWeek> trainingWeeks = new ArrayList<>(inTrainingWeeks);
         var playerBefore = DBManager.instance().getSpieler(previousID).stream()
-                .filter(i -> i.getPlayerId() == this.getPlayerId()).findFirst().orElse(null);
+                .filter(player -> player.getPlayerId() == this.getPlayerId()).findFirst().orElse(null);
         if (playerBefore == null) {
             playerBefore = this.copyPlayer();
         }
@@ -2083,7 +2083,7 @@ public class Player extends AbstractTable.Storable {
             var nextTrainingDate = DBManager.instance().getXtraDaten(playerBefore.getHrfId()).getNextTrainingDate();
             var lastTrainingDate = nextTrainingDate.plusDaysAtSameLocalTime(-7);
             var hrfIdBeforeLastTraining = DBManager.instance().getHRFID4Date(lastTrainingDate.toDbTimestamp());
-            var player = DBManager.instance().getSpieler(hrfIdBeforeLastTraining).stream().filter(i -> i.getPlayerId() == this.getPlayerId()).findFirst().orElse(null);
+            var player = DBManager.instance().getSpieler(hrfIdBeforeLastTraining).stream().filter(p -> p.getPlayerId() == this.getPlayerId()).findFirst().orElse(null);
             if (player != null && !player.getHrfDate().isAfter(lastTrainingDate)) {
                 var trainings = TrainingManager.instance().getHistoricalTraining(lastTrainingDate);
                 if (!trainings.isEmpty()) {
