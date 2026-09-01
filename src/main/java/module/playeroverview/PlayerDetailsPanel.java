@@ -55,7 +55,7 @@ import static core.util.Helper.INTEGERFORMAT;
 public final class PlayerDetailsPanel extends ImagePanel implements Refreshable, ItemListener, ActionListener {
 
     private static final long SECONDS_PER_WEEK = 7 * 24 * 60 * 60;
-    private final int MATCH_HISTORY_LENGTH = 3;
+    private static final int MATCH_HISTORY_LENGTH = 3;
     private static final Icon iconStar = ImageUtilities.getStarIcon(ThemeManager.getColor(HOColorName.PLAYER_DETAILS_STARS_FILL));
 
     private final Color BGcolor = ThemeManager.getColor(HOColorName.PANEL_BG);
@@ -139,7 +139,7 @@ public final class PlayerDetailsPanel extends ImagePanel implements Refreshable,
         if (actionevent.getSource().equals(m_jbStatistics)) {
             HOMainFrame.instance().showTab(IModule.STATISTICS);
             var statisticsPanel = ((StatistikMainPanel) HOMainFrame.instance().getTabbedPane().getModulePanel(IModule.STATISTICS));
-            if (statisticsPanel != null){
+            if (statisticsPanel != null) {
                 statisticsPanel.setShowSpieler(m_clPlayer.getPlayerId());
             }
         } else if (actionevent.getSource().equals(m_jbAnalysisTop)) {
@@ -150,8 +150,7 @@ public final class PlayerDetailsPanel extends ImagePanel implements Refreshable,
             HOMainFrame.instance().getSpielerAnalyseMainPanel().setSpieler4Bottom(m_clPlayer.getPlayerId());
         } else if (actionevent.getSource().equals(m_jbOffsets)) {
             new PlayerSubskillOffsetDialog(HOMainFrame.instance(), m_clPlayer).setVisible(true);
-        }
-        else if ( actionevent.getSource().equals(jlPlayerAvatar)){
+        } else if (actionevent.getSource().equals(jlPlayerAvatar)) {
             ThemeManager.instance().downloadPlayerAvatar(m_clPlayer.getPlayerId());
             refresh();
         }
