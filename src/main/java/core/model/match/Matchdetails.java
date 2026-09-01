@@ -259,13 +259,15 @@ public class Matchdetails extends AbstractTable.Storable implements core.model.m
     }
 
     public void setGuestRatingIndirectSetPiecesAtt(Integer ratingIndirectSetPiecesAtt) {
-        if ( ratingIndirectSetPiecesAtt != null)
+        if (ratingIndirectSetPiecesAtt != null) {
             this.guestRatingIndirectSetPiecesAtt = ratingIndirectSetPiecesAtt;
+        }
     }
 
     public void setGuestRatingIndirectSetPiecesDef(Integer ratingIndirectSetPiecesDef) {
-        if ( ratingIndirectSetPiecesDef != null)
+        if (ratingIndirectSetPiecesDef != null) {
             this.guestRatingIndirectSetPiecesDef = ratingIndirectSetPiecesDef;
+        }
     }
 
     public int getGuestRatingIndirectSetPiecesDef() {
@@ -298,20 +300,20 @@ public class Matchdetails extends AbstractTable.Storable implements core.model.m
         return guestGoalsInParts[matchPartId.getValue()];
     }
 
-    public void setHomeGoalsInPart(MatchEvent.MatchPartId part, Integer goals){
-        if ( homeGoalsInParts == null && goals != null) {
+    public void setHomeGoalsInPart(MatchEvent.MatchPartId part, Integer goals) {
+        if (homeGoalsInParts == null && goals != null) {
             homeGoalsInParts = new Integer[MatchEvent.MatchPartId.values().length];
         }
-        if ( homeGoalsInParts != null) {
+        if (homeGoalsInParts != null) {
             homeGoalsInParts[part.getValue()] = goals;
         }
     }
 
-    public void setGuestGoalsInPart(MatchEvent.MatchPartId part, Integer goals){
-        if ( guestGoalsInParts == null && goals != null) {
+    public void setGuestGoalsInPart(MatchEvent.MatchPartId part, Integer goals) {
+        if (guestGoalsInParts == null && goals != null) {
             guestGoalsInParts = new Integer[MatchEvent.MatchPartId.values().length];
         }
-        if ( guestGoalsInParts != null ) {
+        if (guestGoalsInParts != null) {
             guestGoalsInParts[part.getValue()] = goals;
         }
     }

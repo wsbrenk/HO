@@ -70,7 +70,7 @@ class TeamsRatingPanel extends LazyImagePanel {
 
         public int getRowNumber() {
             var ret = getRowIndex() + 1;
-            if (ret > ROW_INDEX_INDIRECT_SET_PIECES){
+            if (ret > ROW_INDEX_INDIRECT_SET_PIECES) {
                 ret++;
             }
             return ret;
