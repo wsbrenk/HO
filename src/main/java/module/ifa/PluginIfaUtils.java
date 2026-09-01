@@ -27,6 +27,8 @@ import org.w3c.dom.Element;
 
 public class PluginIfaUtils {
 
+    private static final int MAXIMUM_NUMBER_OF_DOWNLOADED_MATCHES = 50;
+
     private PluginIfaUtils() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
@@ -131,23 +133,20 @@ public class PluginIfaUtils {
     public static void downloadMatch(IfaMatch match) {
         var matchesArchive = Connector.instance().getMatchesArchive(HOVerwaltung.instance().getModel().getBasics().getTeamId(), match.getPlayedDate(), match.getPlayedDate());
         var xmlDoc = XMLManager.parseString(matchesArchive);
-        if (xmlDoc == null) return;
-        readMatch(0, xmlDoc, match);
+        if (xmlDoc == null) {
+            return;
+        }
+        final var basics = HOVerwaltung.instance().getModel().getBasics();
+        final int ownLeague = basics.getLiga();
+        final int ownId = basics.getTeamId();
+        final int ownCountryId = basics.getCountryId();
+        readMatch(0, xmlDoc, match, ownId, ownLeague, ownCountryId);
     }
 
-    private static boolean readMatch(int index, Document xmlDoc, IfaMatch match) {
-        var basics = HOVerwaltung.instance().getModel().getBasics();
-        int ownLeague = basics.getLiga();
-        int ownId = basics.getTeamId();
-        int ownCountryId = basics.getCountryId();
-        int opponentId;
-        int opponentLeagueId = 0;
-        int opponentCountryId = 0;
-
+    private static boolean readMatch(int index, Document xmlDoc, IfaMatch match, int ownId, int ownCountryId, int ownLeague) {
         int matchTypeId = Integer.parseInt(parseXmlElement(xmlDoc, "MatchType", index, "Match"));
         var matchDateString = parseXmlElement(xmlDoc, "MatchDate", index, "Match");
         var matchDate = HODateTime.fromHT(matchDateString);
-
         int homeTeamID = Integer
             .parseInt(parseXmlElement(xmlDoc, "HomeTeamID", index, "HomeTeam"));
         int awayTeamID = Integer
@@ -158,14 +157,8 @@ public class PluginIfaUtils {
         int awayTeamGoals = Integer.parseInt(parseXmlElement(xmlDoc, "AwayGoals", index,
             "Match"));
         try {
-
-            int homeLeagueId;
-            int awayLeagueId;
-            int homeCountryId;
-            int awayCountryId;
-
+            int opponentId;
             // Some ifs inserted to avoid downloading own team info for every match
-
             if (homeTeamID == ownId) {
                 opponentId = awayTeamID;
             } else if (awayTeamID == ownId) {
@@ -176,6 +169,13 @@ public class PluginIfaUtils {
             }
 
             List<TeamInfo> opp = XMLTeamDetailsParser.getTeamInfoFromString(getTeamDetails(opponentId));
+            int opponentLeagueId = 0;
+            int opponentCountryId = 0;
+            int homeLeagueId;
+            int awayLeagueId;
+            int homeCountryId;
+            int awayCountryId;
+
             for (TeamInfo o : opp) {
                 if (o.getTeamId() == opponentId) {
                     opponentLeagueId = o.getLeagueId();
@@ -183,7 +183,6 @@ public class PluginIfaUtils {
                     break;
                 }
             }
-
             if (homeTeamID == ownId) {
                 homeLeagueId = ownLeague;
                 homeCountryId = ownCountryId;
@@ -218,29 +217,29 @@ public class PluginIfaUtils {
         HODateTime matchDate = null;
         String matchesArchive = Connector.instance().getMatchesArchive(HOVerwaltung.instance().getModel().getBasics().getTeamId(), from, to);
         Document doc = XMLManager.parseString(matchesArchive);
-
-        assert doc != null;
+        // Container for the matches. If more than 50 matches have occured between FirstMatchDate and LastMatchDate, only the 50 first will be returned.
         int matchesCount = ((Element) doc.getDocumentElement().getElementsByTagName("MatchList")
             .item(0)).getElementsByTagName("Match").getLength();
 
+        final var basics = HOVerwaltung.instance().getModel().getBasics();
+        final int ownLeague = basics.getLiga();
+        final int ownId = basics.getTeamId();
+        final int ownCountryId = basics.getCountryId();
         for (int i = 0; i < matchesCount; i++) {
             int matchTypeId = Integer.parseInt(parseXmlElement(doc, "MatchType", i, "Match"));
             IfaMatch match = new IfaMatch(matchTypeId);
-            if (!readMatch(i, doc, match)) {
+            if (!readMatch(i, doc, match, ownId, ownCountryId, ownLeague)) {
                 continue;
             }
 
             var matchType = MatchType.getById(match.getMatchTyp());
-            if (matchType == MatchType.FRIENDLYCUPRULES || matchType == MatchType.FRIENDLYNORMAL
-                || matchType == MatchType.INTFRIENDLYCUPRULES
-                || matchType == MatchType.INTFRIENDLYNORMAL
-                || matchType == MatchType.NATIONALFRIENDLY) {
+            if (matchType.isFriendly() || matchType.isFriendlyOfNtTeam()) {
                 if (!DBManager.instance().isIFAMatchinDB(match.getMatchId(), matchTypeId)) {
                     DBManager.instance().insertIFAMatch(match);
                 }
             }
         }
-        if (matchesCount == 50) {
+        if (matchesCount == MAXIMUM_NUMBER_OF_DOWNLOADED_MATCHES) {
             insertMatches(matchDate, to);
         }
     }

@@ -91,27 +91,52 @@ public class IfaMatch extends AbstractTable.Storable {
         return getHomeCountryIdWithReload(false);
     }
 
+    /**
+     * Get the away team country id.
+     * If the id is not available (not yet downloaded to database), the value is fetched from the national league
+     * of the match. If requested the value is downloaded from hattrick if even the national league's country id is not available.
+     * This may happen in international leagues like HATTRICK_INTERNATIONAL.
+     * @param isReload True: Download missing value from hattrick. False: No download
+     * @return Integer
+     */
     public final Integer getAwayCountryIdWithReload(boolean isReload) {
         if (awayCountryId == null) {
-            awayCountryId = getCountryIdFromLeagueOrReload(awayLeagueId, isReload);
+            awayCountryId = getCountryIdFromLeague(awayLeagueId);
+            if (awayCountryId == null && isReload) {
+                downLoadMatch();
+            }
         }
         return awayCountryId;
     }
 
+    /**
+     * Get the home team country id.
+     * If the id is not available (not yet downloaded to database), the value is fetched from the national league
+     * of the match. If requested the value is downloaded from hattrick if even the national league's country id is not available.
+     * This may happen in international leagues like HATTRICK_INTERNATIONAL.
+     * @param isReload True: Download missing value from hattrick. False: No download
+     * @return Integer
+     */
     public final Integer getHomeCountryIdWithReload(boolean isReload) {
         if (homeCountryId == null) {
-            homeCountryId = getCountryIdFromLeagueOrReload(homeLeagueId, isReload);
+            homeCountryId = getCountryIdFromLeague(homeLeagueId);
+            if (homeCountryId == null && isReload) {
+                downLoadMatch();
+            }
         }
         return homeCountryId;
     }
 
-    private Integer getCountryIdFromLeagueOrReload(int leagueId, boolean isReload) {
+    /**
+     * Get country id from national leagues
+     * @param leagueId League Id
+     * @return Country id of the national league. Null in case of international leagues.
+     */
+    private Integer getCountryIdFromLeague(int leagueId) {
         if (leagueId < HATTRICK_INTERNATIONAL_LEAGUE_ID) {
             var league = WorldDetailsManager.instance().getWorldDetailLeagueByLeagueId(leagueId);
             if (league != null) {
                 return league.getCountryId();
-            } else if (isReload) {
-                downLoadMatch();
             }
         }
         return null;
