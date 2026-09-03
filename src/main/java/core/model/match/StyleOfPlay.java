@@ -5,6 +5,15 @@ import core.util.HOLogger;
 
 public class StyleOfPlay {
 
+    private static final int NEUTRAL_STYLE_OF_PLAY = 0;
+    private static final int DEFENSIVE_STYLE_OF_PLAY = -10;
+    private static final int OFFENSIVE_STYLE_OF_PLAY = 10;
+    private static final int OLD_MATCHES_STYLE_OF_PLAY = -1000;
+
+    public static final StyleOfPlay NEUTRAL =  new StyleOfPlay(NEUTRAL_STYLE_OF_PLAY);
+    public static final StyleOfPlay DEFENSIVE =  new StyleOfPlay(DEFENSIVE_STYLE_OF_PLAY);
+    public static final StyleOfPlay OFFENSIVE =  new StyleOfPlay(OFFENSIVE_STYLE_OF_PLAY);
+
     /**
      * Possible values for style of play
      * null unknown (not downloaded yet)
@@ -37,30 +46,21 @@ public class StyleOfPlay {
     }
 
     public static StyleOfPlay fromInt(Integer styleOfPlay) {
-        if (styleOfPlay == null || styleOfPlay >= -10 && styleOfPlay <= 10) {
+        if (styleOfPlay == null || styleOfPlay >= DEFENSIVE_STYLE_OF_PLAY && styleOfPlay <= OFFENSIVE_STYLE_OF_PLAY) {
             return new StyleOfPlay(styleOfPlay);
         }
-        if (styleOfPlay == -1000) { // old matches has -1000
-            return StyleOfPlay.Neutral();
+        if (styleOfPlay == OLD_MATCHES_STYLE_OF_PLAY) { // old matches has -1000
+            return NEUTRAL;
         }
         HOLogger.instance().warning(StyleOfPlay.class, "Unknown style of play: " + styleOfPlay);
         return new StyleOfPlay(null);
     }
 
-    public static StyleOfPlay Neutral() {
-        return new StyleOfPlay(0);
-    }
-
     public static Integer toInt(StyleOfPlay in) {
-        if (in != null) return in.val;
+        if (in != null) {
+            return in.val;
+        }
         return null;
     }
 
-    public static StyleOfPlay Defensive() {
-        return new StyleOfPlay(-10);
-    }
-
-    public static StyleOfPlay Offensive() {
-        return new StyleOfPlay(10);
-    }
 }

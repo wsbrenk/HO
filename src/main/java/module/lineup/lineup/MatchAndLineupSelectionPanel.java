@@ -510,13 +510,13 @@ public class MatchAndLineupSelectionPanel extends JPanel implements Refreshable 
         try {
             trainer = HOVerwaltung.instance().getModel().getTrainer().getTrainerType();
         } catch (Exception e) {
-            return StyleOfPlay.Neutral();  // Happens for instance with empty db
+            return StyleOfPlay.NEUTRAL;  // Happens for instance with empty db
         }
 
         return switch (trainer) {
-            case Defensive -> StyleOfPlay.Defensive(); // Defensive
-            case Offensive -> StyleOfPlay.Offensive(); // Offensive
-            default -> StyleOfPlay.Neutral();  // Neutral
+            case Defensive -> StyleOfPlay.DEFENSIVE; // Defensive
+            case Offensive -> StyleOfPlay.OFFENSIVE; // Offensive
+            default -> StyleOfPlay.NEUTRAL;  // Neutral
         };
     }
 
