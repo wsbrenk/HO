@@ -37,10 +37,7 @@ public class StyleOfPlay {
     }
 
     public static StyleOfPlay fromInt(Integer styleOfPlay) {
-        if (styleOfPlay == null) {
-            return null;
-        }
-        if (styleOfPlay >= -10 && styleOfPlay <= 10) {
+        if (styleOfPlay == null || styleOfPlay >= -10 && styleOfPlay <= 10) {
             return new StyleOfPlay(styleOfPlay);
         }
         if (styleOfPlay == -1000) { // old matches has -1000
