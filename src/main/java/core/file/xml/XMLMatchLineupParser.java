@@ -17,11 +17,11 @@ import org.w3c.dom.NodeList;
 
 
 /**
- * 
+ *
  * @author thomas.werth
  */
 public class XMLMatchLineupParser {
-	
+
 	/**
 	 * Utility class - private constructor enforces noninstantiability.
 	 */
@@ -92,7 +92,7 @@ public class XMLMatchLineupParser {
 		// older ones, what is necessary is to check for old reposition values in the
 		// Behaviour.
 		// We do move all repositions to central slot, and go happily belly up
-		// if we find more than one repositioning to the same position 
+		// if we find more than one repositioning to the same position
 		// (old setup where more than 3 forwards was possible)
 
 		// if (roleID == 17 || roleID == 14) {
@@ -195,6 +195,7 @@ public class XMLMatchLineupParser {
 		tmp = (Element) ele.getElementsByTagName("TeamName").item(0);
 		String teamName = tmp.getFirstChild().getNodeValue();
 		MatchLineupTeam team = new MatchLineupTeam(matchType, matchID, teamName, teamId, erfahrung);
+        team.setStyleOfPlay(StyleOfPlay.fromInt(styleOfPlay));
 
 		Element starting = (Element) ele.getElementsByTagName("StartingLineup").item(0);
 		Element subs = (Element) ele.getElementsByTagName("Substitutions").item(0);

@@ -500,8 +500,9 @@ public class MatchAndLineupSelectionPanel extends JPanel implements Refreshable 
         return IntStream.rangeClosed(min, max).boxed().collect(Collectors.toList());
     }
 
-    public void setStyleOfPlay(StyleOfPlay style){
-        Helper.setComboBoxFromID(m_jcbStyleOfPlay, StyleOfPlay.toInt(style));
+    public void setStyleOfPlay(StyleOfPlay style) {
+        int id = StyleOfPlay.toInt(style) != null ? StyleOfPlay.toInt(style) : 0;
+        Helper.setComboBoxFromID(m_jcbStyleOfPlay, id);
     }
 
     private StyleOfPlay getDefaultTrainerStyleOfPlay() {
