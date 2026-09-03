@@ -10,9 +10,9 @@ public class StyleOfPlay {
     private static final int OFFENSIVE_STYLE_OF_PLAY = 10;
     private static final int OLD_MATCHES_STYLE_OF_PLAY = -1000;
 
-    public static final StyleOfPlay NEUTRAL =  new StyleOfPlay(NEUTRAL_STYLE_OF_PLAY);
-    public static final StyleOfPlay DEFENSIVE =  new StyleOfPlay(DEFENSIVE_STYLE_OF_PLAY);
-    public static final StyleOfPlay OFFENSIVE =  new StyleOfPlay(OFFENSIVE_STYLE_OF_PLAY);
+    public static final StyleOfPlay NEUTRAL = new StyleOfPlay(NEUTRAL_STYLE_OF_PLAY);
+    public static final StyleOfPlay DEFENSIVE = new StyleOfPlay(DEFENSIVE_STYLE_OF_PLAY);
+    public static final StyleOfPlay OFFENSIVE = new StyleOfPlay(OFFENSIVE_STYLE_OF_PLAY);
 
     /**
      * Possible values for style of play
@@ -39,10 +39,14 @@ public class StyleOfPlay {
      * 9	90% offensive
      * 10	100% offensive
      */
-    private final Integer val;
+    private final Integer value;
 
     private StyleOfPlay(Integer styleOfPlay) {
-        this.val = styleOfPlay;
+        this.value = styleOfPlay;
+    }
+
+    public Integer getValue() {
+        return value;
     }
 
     public static StyleOfPlay fromInt(Integer styleOfPlay) {
@@ -58,9 +62,8 @@ public class StyleOfPlay {
 
     public static Integer toInt(StyleOfPlay in) {
         if (in != null) {
-            return in.val;
+            return in.value;
         }
         return null;
     }
-
 }

@@ -234,17 +234,19 @@ public class MatchLineupTeam extends AbstractTable.Storable {
 	// returns offensive, defensive or neutral depending on styleOfPlay
 	// e.g. -3 is 30% defensive, 10 is 100% offensive
 	public static String getStyleOfPlayName(StyleOfPlay styleOfPlay) {
-        if (StyleOfPlay.toInt(styleOfPlay) == null) { return ""; }
-		String s;
-		var style = StyleOfPlay.toInt(styleOfPlay);
-		if (style == 0) {
-			return TranslationFacility.tr("ls.team.styleofplay.neutral");
-		} else {
-			s = (style > 0) ? TranslationFacility.tr("ls.team.styleofplay.offensive") :
-				TranslationFacility.tr("ls.team.styleofplay.defensive");
-		}
-		return Math.abs(style * 10) + "% " + s;
-	}
+        var style = StyleOfPlay.toInt(styleOfPlay);
+        if (style == null) {
+            return "";
+        }
+        String s;
+        if (style == 0) {
+            return TranslationFacility.tr("ls.team.styleofplay.neutral");
+        } else {
+            s = (style > 0) ? TranslationFacility.tr("ls.team.styleofplay.offensive") :
+                TranslationFacility.tr("ls.team.styleofplay.defensive");
+        }
+        return Math.abs(style * 10) + "% " + s;
+    }
 
 	/**
 	 * Setter for property m_iTeamID.
