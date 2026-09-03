@@ -73,7 +73,7 @@ public class XMLMatchLineupParser {
 		return ml;
 	}
 
-	private static MatchLineupPosition createPlayer(MatchType matchType, Element ele) {
+	private static MatchLineupPosition createPlayer(Element ele) {
 		int roleID = -1;
 		int behavior = 0;
 		double rating = -1.0d;
@@ -214,7 +214,7 @@ public class XMLMatchLineupParser {
 			// substituted
 			// players are always last in the API, there are at least signs of a
 			// fixed order.
-			MatchLineupPosition player = createPlayer(matchType, (Element) list.item(i));
+			MatchLineupPosition player = createPlayer((Element) list.item(i));
 			if (team.getPlayerByID(player.getPlayerId()) != null) {
 				if ((player.getRoleId() >= IMatchRoleID.FirstPlayerReplaced)
 						&& (player.getRoleId() <= IMatchRoleID.ThirdPlayerReplaced)) {
@@ -231,7 +231,7 @@ public class XMLMatchLineupParser {
 		list = starting.getElementsByTagName("Player");
 
 		for (int i = 0; i < list.getLength(); i++) {
-			MatchLineupPosition startPlayer = createPlayer(matchType, (Element) list.item(i));
+			MatchLineupPosition startPlayer = createPlayer((Element) list.item(i));
 			startPlayer.setStartPosition(startPlayer.getRoleId()); // it is the role id
 			startPlayer.setStartBehavior(startPlayer.getBehaviour());
 

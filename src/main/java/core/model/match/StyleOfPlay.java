@@ -1,6 +1,8 @@
 package core.model.match;
 
 
+import core.util.HOLogger;
+
 public class StyleOfPlay {
 
     /**
@@ -35,10 +37,17 @@ public class StyleOfPlay {
     }
 
     public static StyleOfPlay fromInt(Integer styleOfPlay) {
-        if (styleOfPlay == null || styleOfPlay < -10 || styleOfPlay > 10) {
-            return new StyleOfPlay(null);
-        } // old matches has -1000
-        return new StyleOfPlay(styleOfPlay);
+        if (styleOfPlay == null) {
+            return null;
+        }
+        if (styleOfPlay >= -10 && styleOfPlay <= 10) {
+            return new StyleOfPlay(styleOfPlay);
+        }
+        if (styleOfPlay == -1000) { // old matches has -1000
+            return StyleOfPlay.Neutral();
+        }
+        HOLogger.instance().warning(StyleOfPlay.class, "Unknown style of play: " + styleOfPlay);
+        return new StyleOfPlay(null);
     }
 
     public static StyleOfPlay Neutral() {
