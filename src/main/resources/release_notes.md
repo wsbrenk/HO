@@ -23,7 +23,9 @@
 * Added the columns `Career Assists` and `Assists for the Team` to the overview and details panel. (#2254)
 * New columns "Recovered on" and "Slightly injured on" (#2363)
 
-### Team Analyzer
+### Matches
+
+* Fix download of style of play. Old matches has to be reloaded (#2432)
 
 ### Hall of fame
 
