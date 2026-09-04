@@ -233,7 +233,7 @@ public class Matchdetails extends AbstractTable.Storable implements core.model.m
 
     public static Matchdetails getMatchdetails(int matchId, MatchType type) {
         var ret = DBManager.instance().loadMatchDetails(type.getId(), matchId);
-        if ( ret != null) {
+        if (ret != null) {
             ret.setMatchID(matchId);
             ret.setMatchType(type);
         }
@@ -241,13 +241,15 @@ public class Matchdetails extends AbstractTable.Storable implements core.model.m
     }
 
     public void setHomeRatingIndirectSetPiecesAtt(Integer ratingIndirectSetPiecesAtt) {
-        if ( ratingIndirectSetPiecesAtt != null)
+        if (ratingIndirectSetPiecesAtt != null) {
             homeRatingIndirectSetPiecesAtt = ratingIndirectSetPiecesAtt;
+        }
     }
 
     public void setHomeRatingIndirectSetPiecesDef(Integer ratingIndirectSetPiecesDef) {
-        if ( ratingIndirectSetPiecesDef != null)
+        if (ratingIndirectSetPiecesDef != null) {
             homeRatingIndirectSetPiecesDef = ratingIndirectSetPiecesDef;
+        }
     }
 
     public int getHomeRatingIndirectSetPiecesDef() {
