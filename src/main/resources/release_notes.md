@@ -21,6 +21,7 @@
 * Fix error selecting players with the arrow keys (#2379)
 * Synchronize player selection in training and player overview modules (#2379)
 * Added the columns `Career Assists` and `Assists for the Team` to the overview and details panel. (#2254)
+* New columns "Recovered on" and "Slightly injured on" (#2363)
 
 ### Team Analyzer
 
@@ -56,7 +57,6 @@
   Instead, nothing is shown now if no number assigned. (#2420)
 * Fix out of bound exception on download when youth player were removed during the week (#2442)
 
-
 ### Special Events
 
 * Fixed the missing translation for the home/away `Tactic` and `Details` column and displaying the abbreviation of the
@@ -65,6 +65,7 @@
 ### Option setting
 
 * Add option to select currency setting (#2288)
+* Adjusting various tables to large user font settings (#2306)
 
 ### Special Events
 
@@ -95,15 +96,15 @@ Reports by Contributors - October 19, 2025 - June 19, 2026
 
 * Jösgall 1005
 * Ioannidouefty 459
-* wsbrenk 113
+* wsbrenk 122
 * Frankieorabona 73
+* Lidegand 72
 * \_KOHb\_ 54
 * Sebastian Reddig 35
 * Walter 28
-* Lidegand 24
 * Kristaps 11
 * Stefan Schenke 5
 * Mara 3
 * Joeri Roels 1
 
-Total 1711
+Total 1868
