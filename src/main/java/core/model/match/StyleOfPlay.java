@@ -6,13 +6,13 @@ import core.util.HOLogger;
 public class StyleOfPlay {
 
     private static final int NEUTRAL_STYLE_OF_PLAY = 0;
-    private static final int DEFENSIVE_STYLE_OF_PLAY = -10;
-    private static final int OFFENSIVE_STYLE_OF_PLAY = 10;
+    private static final int MIN_DEFENSIVE_STYLE_OF_PLAY = -10;
+    private static final int MAX_OFFENSIVE_STYLE_OF_PLAY = 10;
     private static final int OLD_MATCHES_STYLE_OF_PLAY = -1000;
 
     public static final StyleOfPlay NEUTRAL = new StyleOfPlay(NEUTRAL_STYLE_OF_PLAY);
-    public static final StyleOfPlay DEFENSIVE = new StyleOfPlay(DEFENSIVE_STYLE_OF_PLAY);
-    public static final StyleOfPlay OFFENSIVE = new StyleOfPlay(OFFENSIVE_STYLE_OF_PLAY);
+    public static final StyleOfPlay DEFENSIVE = new StyleOfPlay(MIN_DEFENSIVE_STYLE_OF_PLAY);
+    public static final StyleOfPlay OFFENSIVE = new StyleOfPlay(MAX_OFFENSIVE_STYLE_OF_PLAY);
 
     /**
      * Possible values for style of play
@@ -41,22 +41,22 @@ public class StyleOfPlay {
      */
     private final Integer value;
 
-    private StyleOfPlay(Integer styleOfPlay) {
-        this.value = styleOfPlay;
+    private StyleOfPlay(Integer value) {
+        this.value = value;
     }
 
     public Integer getValue() {
         return value;
     }
 
-    public static StyleOfPlay fromInt(Integer styleOfPlay) {
-        if (styleOfPlay == null || styleOfPlay >= DEFENSIVE_STYLE_OF_PLAY && styleOfPlay <= OFFENSIVE_STYLE_OF_PLAY) {
-            return new StyleOfPlay(styleOfPlay);
+    public static StyleOfPlay fromInt(Integer value) {
+        if (value == null || value >= MIN_DEFENSIVE_STYLE_OF_PLAY && value <= MAX_OFFENSIVE_STYLE_OF_PLAY) {
+            return new StyleOfPlay(value);
         }
-        if (styleOfPlay == OLD_MATCHES_STYLE_OF_PLAY) { // old matches has -1000
+        if (value == OLD_MATCHES_STYLE_OF_PLAY) { // old matches has -1000
             return NEUTRAL;
         }
-        HOLogger.instance().warning(StyleOfPlay.class, "Unknown style of play: " + styleOfPlay);
+        HOLogger.instance().warning(StyleOfPlay.class, "Unknown style of play: " + value);
         return new StyleOfPlay(null);
     }
 

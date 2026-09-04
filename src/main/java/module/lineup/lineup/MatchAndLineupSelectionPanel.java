@@ -501,7 +501,10 @@ public class MatchAndLineupSelectionPanel extends JPanel implements Refreshable 
     }
 
     public void setStyleOfPlay(StyleOfPlay style) {
-        int id = StyleOfPlay.toInt(style) != null ? StyleOfPlay.toInt(style) : 0;
+        var id = StyleOfPlay.toInt(style);
+        if (id == null) {
+            id = StyleOfPlay.NEUTRAL.getValue();
+        }
         Helper.setComboBoxFromID(m_jcbStyleOfPlay, id);
     }
 
